@@ -1,0 +1,27 @@
+Package: ARCOS
+Type: Package
+Title: Automatic Recognition of Collective Signalling
+Version: 0.1.0
+Author: MD
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    reshape2,
+    ggplot2,
+    ggthemes,
+    OpenImageR
+Config/testthat/edition: 3
+Imports: 
+    data.table (>= 1.9.8),
+    Rcpp,
+    dbscan,
+    imputeTS
+RoxygenNote: 7.1.1
+VignetteBuilder: knitr, rmarkdown

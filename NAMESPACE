@@ -1,0 +1,4 @@
+exportPattern("^[[:alpha:]]+")
+import(data.table)
+importFrom("stats", "lm", "predict.lm", "runmed")
+importFrom("imputeTS", "na_interpolation")
