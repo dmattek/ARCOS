@@ -28,21 +28,18 @@ General flow of the algorithm:
 
 The algorithm flow prepared with the [code2flow](https://app.code2flow.com/nboDrmgQxXvp) web app.
 
-![The algorithm flow](README-images/code2flow_R9K3s8.png){width=500px}
+![The algorithm flow](README-images/code2flow_R9K3s8.png =360x)
 
 ## Installation
 
-You can install the released version of ARCOS from [CRAN](https://CRAN.R-project.org) with:
+You can install the source version of ARCOS from [GitHub](https://github.com/dmattek/ARCOS) with:
 
 ``` r
-install.packages("ARCOS")
+install.packages("devtools")
+devtools::install_github("dmattek/ARCOS")
 ```
 
 ## Example
-
-``` r
-## basic example code
-```
 
 In this example 4 distinct objects are moving in 1 dimension over 5 time points. We aim to identify clusters of objects moving close to each other.
 
@@ -74,7 +71,7 @@ dtIn = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
 
 Each object has a distinct identifier represented by a different colour in the plot:
 
-![Input data](README-images/4obj-5tpts.png){width=480px}
+![Input data](README-images/4obj-5tpts.png =360x)
 
 ### Detection and tracking
 
@@ -132,4 +129,4 @@ dtIn = merge(dtIn,
 
 Each trace is assigned an identifier of the collective event, which is represented by the shape of the point in the plot:
 
-![Visualisation of collective events](README-images/4obj-5tpts-2coll.png){width=480px}
+![Visualisation of collective events](README-images/4obj-5tpts-2coll.png =360x)
