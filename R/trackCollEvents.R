@@ -342,7 +342,7 @@ trackCollEvents <- function(inDT,
 #' @param inDT a data.table with time series in the long format.
 #' @param inEps a float with the search radius, default 1.
 #' @param inMinPts an integer with the minimum size of the cluster, default 1L.
-#' @param inClOffset
+#' @param inClOffset an integer with an offset that corresponds to the max cluster number identified in previous frames, default 0L.
 #' @param inCols a list with column names, \code{list(frame = , x = , y = , z = , id = , collid = )}, that correspond to the frame number, position, track id's and id's of collective events, respectively.
 #' @param inDeb logical, whether to output debug information.
 #'
@@ -383,9 +383,9 @@ trackCollEvents <- function(inDT,
 #'   theme_bw()
 #'
 createCollEvents <- function(inDT,
-                             inEps = 1,
+                             inEps = 1.,
                              inMinPts = 1L,
-                             inClOffset = 0,
+                             inClOffset = 0L,
                              inCols = list(
                                x = "x",
                                y = NULL,

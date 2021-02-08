@@ -8,7 +8,7 @@ createCollEvents(
   inDT,
   inEps = 1,
   inMinPts = 1L,
-  inClOffset = 0,
+  inClOffset = 0L,
   inCols = list(x = "x", y = NULL, z = NULL, frame = "time", id = "trackID", collid =
     "clTrackID"),
   inDeb = T
@@ -20,6 +20,8 @@ createCollEvents(
 \item{inEps}{a float with the search radius, default 1.}
 
 \item{inMinPts}{an integer with the minimum size of the cluster, default 1L.}
+
+\item{inClOffset}{an integer with an offset that corresponds to the max cluster number identified in previous frames, default 0L.}
 
 \item{inCols}{a list with column names, \code{list(frame = , x = , y = , z = , id = , collid = )}, that correspond to the frame number, position, track id's and id's of collective events, respectively.}
 
