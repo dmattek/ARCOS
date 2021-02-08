@@ -28,7 +28,7 @@ General flow of the algorithm:
 
 The algorithm flow prepared with the [code2flow](https://app.code2flow.com/nboDrmgQxXvp) web app.
 
-![The algorithm flow](README-images/code2flow_R9K3s8.png =360x)
+![The algorithm flow](README-images/code2flow_R9K3s8.png)
 
 ## Installation
 
@@ -71,7 +71,7 @@ dtIn = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
 
 Each object has a distinct identifier represented by a different colour in the plot:
 
-![Input data](README-images/4obj-5tpts.png =360x)
+![Input data](README-images/4obj-5tpts.png)
 
 ### Detection and tracking
 
@@ -129,4 +129,4 @@ dtIn = merge(dtIn,
 
 Each trace is assigned an identifier of the collective event, which is represented by the shape of the point in the plot:
 
-![Visualisation of collective events](README-images/4obj-5tpts-2coll.png =360x)
+![Visualisation of collective events](README-images/4obj-5tpts-2coll.png)
