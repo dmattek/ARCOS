@@ -25,7 +25,7 @@ testthat::test_that("empty", {
                       id = "trackID",
                       collid = "clTrackID"
                     ),
-                    DEB = F),
+                    inDeb = F),
     "*NULL"
   )
 })
@@ -47,7 +47,7 @@ testthat::test_that("1 central 1 prev", {
                                     id = "trackID",
                                     collid = "clTrackID"
                                   ),
-                                  DEB = F)
+                                  inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
@@ -69,7 +69,7 @@ testthat::test_that("1 central 2 prev", {
                                            id = "trackID",
                                            collid = "clTrackID"
                                          ),
-                                         DEB = F)
+                                         inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
@@ -91,7 +91,7 @@ testthat::test_that("1 central 3D", {
                                            id = "trackID",
                                            collid = "clTrackID"
                                          ),
-                                         DEB = F)
+                                         inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
@@ -112,7 +112,7 @@ testthat::test_that("1 central growing", {
                                            id = "trackID",
                                            collid = "clTrackID"
                                          ),
-                                         DEB = F)
+                                         inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
@@ -133,7 +133,7 @@ testthat::test_that("2 central growing", {
                                            id = "trackID",
                                            collid = "clTrackID"
                                          ),
-                                         DEB = F)
+                                         inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
@@ -154,7 +154,7 @@ testthat::test_that("2 with 1 common symmetric", {
                                            id = "trackID",
                                            collid = "clTrackID"
                                          ),
-                                         DEB = F)
+                                         inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
@@ -175,7 +175,7 @@ testthat::test_that("2 with 1 common asymmetric", {
                                            id = "trackID",
                                            collid = "clTrackID"
                                          ),
-                                         DEB = F)
+                                         inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
@@ -196,7 +196,7 @@ testthat::test_that("3 spreading 1 prev", {
                                            id = "trackID",
                                            collid = "clTrackID"
                                          ),
-                                         DEB = F)
+                                         inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
@@ -217,7 +217,7 @@ testthat::test_that("3 spreading 2 prev", {
                                            id = "trackID",
                                            collid = "clTrackID"
                                          ),
-                                         DEB = F)
+                                         inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
@@ -239,7 +239,7 @@ testthat::test_that("5 overlapping 1 prev", {
                                            id = "trackID",
                                            collid = "clTrackID"
                                          ),
-                                         DEB = F)
+                                         inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
@@ -259,7 +259,7 @@ testthat::test_that("5 overlapping 2 prev", {
                                            z = NULL,
                                            id = "trackID",
                                            collid = "clTrackID"
-                                         ),DEB = F)
+                                         ),inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
@@ -281,7 +281,24 @@ testthat::test_that("6 overlapping", {
                                            id = "trackID",
                                            collid = "clTrackID"
                                          ),
-                                         DEB = F)
+                                         inDeb = F)
+
+  expect_equal(locDTcalcRes, locDTtrueRes)
+})
+
+testthat::test_that("4 objects in 2 events", {
+  locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "4obj2events_in.csv"))
+  locDTtrueRes <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "4obj2events_res.csv"))
+
+  locDTcalcRes <- ARCOS::trackCollEvents(locDTin,
+                              inEps = 0.6,
+                              inMinPts = 1L,
+                              inNprev = 1L,
+                              inCols = list(frame = "frame",
+                                            x = "x",
+                                            id = "id",
+                                            collid = "collId"),
+                              inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
@@ -312,7 +329,7 @@ testthat::test_that("collid 1 obj", {
                                    ),
                                    inEps = 1.01, inMinPts = 1,
                                    inClOffset = 0,
-                                   DEB = F
+                                   inDeb = F
   )
 
   expect_equal(locDTcalcRes, locDTtrueRes)
@@ -345,7 +362,7 @@ testthat::test_that("collid 2 obj in neigh", {
                                    ),
                                    inEps = 1.01, inMinPts = 1,
                                    inClOffset = 0,
-                                   DEB = F
+                                   inDeb = F
   )
 
   expect_equal(locDTcalcRes, locDTtrueRes)
@@ -377,7 +394,7 @@ testthat::test_that("collid 3+2 obj in neigh", {
                                    ),
                                    inEps = 1.01, inMinPts = 1,
                                    inClOffset = 0,
-                                   DEB = F
+                                   inDeb = F
   )
 
   expect_equal(locDTcalcRes, locDTtrueRes)

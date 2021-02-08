@@ -8,21 +8,60 @@ trackCollEvents(
   inDT,
   inEps = 1,
   inMinPts = 1L,
-  inNprev = 1,
-  inCols = list(frame = "time", x = "x", y = NULL, z = NULL, trackID = "trackID",
-    clTrackID = "clTrackID"),
-  DEB = T
+  inNprev = 1L,
+  inCols = list(frame = "time", x = "x", y = NULL, z = NULL, id = "trackID", collid =
+    "clTrackID"),
+  inDeb = T
 )
 }
 \arguments{
-\item{DEB}{}
+\item{inDT}{a data.table with time series in the long format.}
+
+\item{inEps}{a float with the search radius, default 1.}
+
+\item{inMinPts}{an integer with the minimum size of the cluster, default 1L.}
+
+\item{inNprev}{an integer with the number of previous frames to search for an event, default 1L.}
+
+\item{inCols}{a list with column names, \code{list(frame = , x = , y = , z = , id = , collid = )}, that correspond to the frame number, position, track id's and id's of collective events, respectively.}
+
+\item{inDeb}{logical, whether to output debug information.}
 }
 \value{
-
+a data.table with cluster numbers and id's of the corresponding objects
 }
 \description{
-Track collective events
+Time series data should be supplied in a long-format data.table with at least 3 columns:
+frame number, position (1, 2, or 3 columns), and the object id.
 }
 \examples{
+require(data.table)
+require(ggplot2)
 
+dt = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
+                id = c(1, 2, 1, 2, 3, 1, 2, 3, 4, 1, 2, 4, 1, 4),
+                x = c(1, 3, 1.2, 2.5, 3.5, 0.9, 2.6, 2.9, 3.2, 1.1, 2.8, 3.1, 1, 3))
+
+dtColl = trackCollEvents(dt,
+                        inEps = 0.6,
+                        inMinPts = 1L,
+                        inNprev = 1L,
+                        inCols = list(frame = "frame",
+                                      x = "x",
+                                      id = "id",
+                                      collid = "collId"),
+                        inDeb = F)
+
+dt = merge(dt, dtColl, by = c("frame", "id"))
+
+ggplot(dt,
+      aes(x=x,
+          y = frame,
+          color = factor(id),
+          group = id)) +
+ geom_path() +
+ geom_point(aes(shape = as.factor(collId))) +
+ scale_shape_discrete("Collective id:") +
+ scale_color_discrete(name = "Object id:") +
+ theme_bw()
 }
