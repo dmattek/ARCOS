@@ -29,43 +29,150 @@ library(testthat)
 
 # Intro
 
-Key features of the algorithm:
+The ARCOS package implements the algorithm for identification and tracking of spatially clustered objects in time series data. It works with 1-, 2-, and 3D geometries. The algorithm tackles the problem of identification of protein activation in 2- and 3D cell cultures that occur collectively in neighbouring cells over time. Such collective waves of protein activation have been observed as a key factor in the maintenance of epithelial homeostasis ([1](https://doi.org/10.1101/2020.06.11.145573), [2](https://doi.org/10.1016/j.cub.2019.11.089), [3](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis ([4](https://doi.org/10.1101/2020.11.20.387167)), and in the coordination of collective cell migration ([5](https://doi.org/10.1016/j.devcel.2017.10.016), [6](https://doi.org/10.1016/j.devcel.2020.05.011)).
 
-1. The algorithm analyses frames sequentially.
-2. At the initial step, every *active* object becomes a collective event.
-3. If objects are within a threshold distance, object are clustered together by `dbscan` into collective events with a minimum threshold size.
-4. Matching of objects in subsequent frame to collective events identified in previous frames relies on calculating a cartesian product of two data tables. One holds all current objects, the other holds all objects that belong to collective events in previous frame(s). This will create a table with every current object having a column with all objects that belong to collective event(s) in previous frame(s).
-5. Unmatched objects form new collective events as in step 3.
+Despite the focus on cell signalling, the algorithm can be also applied to other spatially correlated phenomena that occur over time.
 
-Algorithm flow prepared with [code2flow](https://app.code2flow.com/nboDrmgQxXvp). The code for the flowchart is [here](code2flow/code2flow_R9K3s8.md).
 
-![Algorithm flow](code2flow/code2flow_R9K3s8.png){width=500px}
+Key features of the algorithm implemented in the `ARCOS::trackCollEvents` function:
+
+- data for tracking should be organised in the long format where each row is object's location and time,
+- the function accepts objects in a long-format `data.table`,
+- the `data.table` [package](https://cran.r-project.org/web/packages/data.table/) is used as the main data structure throughout the ARCOS package,
+- the `dbscan` [package](https://cran.r-project.org/web/packages/dbscan/) is used for the spatial clustering.
+
+
+General flow of the algorithm:
+
+1. In the first frame, every available object becomes a *seed* of a collective event.
+3. The `dbscan` algorithm aims to cluster all objects in the current frame. Objects within a *threshold distance* are clustered into collective events with a minimum *threshold size*.
+4. Move to the next frame and match objects to collective events identified in previous frames. To match objects between frames, calculate the Cartesian product of two long-format tables. One holds all current objects, the other holds all objects from collective events in the previous frame(s). 
+5. All unmatched objects in the current frame form *seeds* of new collective events.
+
+The algorithm flow prepared with the [code2flow](https://app.code2flow.com/nboDrmgQxXvp) web app.
+
+![The algorithm flow](code2flow/code2flow_R9K3s8.png){width=500px}
+
+# Simple example
+
+In this example we detect and track clusters of 4 distinct objects moving in 1 dimension over 5 time points. 
+
+## Time sequence
+
+The minimal data in the long format consists of 3 columns:
+
+- `frame` with the frame number that corresponds to the time point,
+- `objid` with the unique identifier of every object,
+- `x` with the position of the object.
+
+
+```{r echo = T, results="asis"}
+require(data.table)
+
+dtIn = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
+                  objid = c(1, 2, 1, 2, 3, 1, 2, 3, 4, 1, 2, 4, 1, 4),
+                  x = c(1, 3, 1.2, 2.5, 3.5, 0.9, 2.6, 2.9, 3.2, 1.1, 2.8, 3.1, 1, 3))
+
+knitr::kable(dtIn)
+```
+
+Each object has a distinct identifier, which is represented by different colors in the plot:
+
+```{r, echo = F, fig.width=5, fig.height=5, caption="Visualisation of object traces over time"}
+ggplot(dtIn,
+       aes(x=x,
+           y = frame,
+           color = factor(objid),
+           group = objid)) +
+  geom_path() +
+  geom_point() +
+  scale_color_discrete(name = "Object id:") +
+  theme_bw()
+```
+
+## Detection and tracking
+
+In this step we cluster the 3 objects on the right into a single collective event that spans 5 frames. A single object on the left forms a trivial single-object event. 
+
+The most important parameter of the `trackCollEvents` function is the search radius `inEps`, which sets the distance for:
+
+- the `dbscan` spatial clustering in a single time frame,
+- possible objects that can be part of collective events identified in previous frame(s).
+
+The minimum size of the spatial cluster is set using the `inMinPts` parameter, which is also passed to `dbscan`. The parameter `inNprev` determines the number of previous frames that are searched for collective events in order to match them to objects in the current frame.
+
+The parameter `inCols` contains a list with column names of the input data (`frame`, `id`, `x`, `y`, `z`) and the name of the column with identifiers of collective events in the output (`collid`). The `trackCollEvents` function works in 1-, 2-, or 3D, therefore the names of respective position columns x/y/z need to be supplied depending on the geometry.
+
+```{r, echo = T}
+dtColl = trackCollEvents(dtIn,
+                         inEps = 0.6,
+                         inMinPts = 1L,
+                         inNprev = 1L,
+                         inCols = list(frame = "frame",
+                                       x = "x",
+                                       id = "objid",
+                                       collid = "collid"),
+                         inDeb = F)
+```
+
+The output contains 3 columns with the frame number, object identifier, and the calculated identifier of the collective event:
+
+```{r echo=F, results="asis"}
+knitr::kable(dtColl)
+```
+
+## Visualisation
+
+In order to visualise collective events we merge the table computed by the `trackCollEvents` function with the original table by the frame number (column `time`) and the object identifier (column `objid`):
+
+
+```{r echo = T}
+dtIn = merge(dtIn, 
+             dtColl, 
+             by = c("frame", "objid"))
+```
+
+Each trace is assigned an identifier of the collective event, which is represented by the shape of the point in the plot:
+
+```{r, echo = F, fig.width=5, fig.height=5, caption="Visualisation of collective events over time"}
+ggplot(dtIn,
+       aes(x=x,
+           y = frame,
+           color = factor(objid),
+           group = objid)) +
+  geom_path() +
+  geom_point(aes(shape = as.factor(collid)), size = 2) +
+  scale_shape_discrete("Collective id:") +
+  scale_color_discrete(name = "Object id:") +
+  theme_bw()
+```
+
+The algorithm with the search radius `inEps=0.6` has identified two collective events. One is a trivial event with only a single object, the latter is an event that consists of 1 to 3 objects at different points in time.
 
 # Detection from images
 
-We start with detecting and tracking a concentrically growing cluster directly from a sequence of 12 binary PNG images. Original images have a 1024-by-1024 pixel resolution. For convenience, images are downsampled to 64x64 pixels. Each pixel in the downsampled image can be treated as a separate object, to which we assign an `objID` number. The `objID` identifier is the same for objects with the same X/Y position in subsequent frames.
+Here we detect and track a concentrically growing cluster of active objects directly from a sequence of 12 binary PNG images at 64-by-64 pixel resolution. We treat each pixel in the image as a separate object, to which we assign an `objID` number. The `objID` identifier is the same for objects with the same X/Y position in subsequent frames.
 
-```{r,echo=F}
+Objects (pixels) have values either 0 or 1, which correspond to an inactive or active object, respectively. Objects with value 1 are *active* and our goal is to detect and track a collective activation of all such objects in all frames of the time sequence. 
+
+## Read data from images
+
+We use the `OpenImageR::readImage` function to read the data from PNG images.
+
+```{r,echo=T}
 # Prepare a string vector with image files to load
-vFiles = list.files(path = file.path(system.file("concentricGrowth", package="ARCOS"), "png"), 
+vFiles = list.files(path = file.path(system.file("concentricGrowth", package="ARCOS"), "png_64"), 
                     pattern = "*.png", 
                     full.names = T)
 
 # Load images; store data in a long format in a data.table.
 lIn = lapply(seq_along(vFiles), function (ii) {
+  
   # Image file name
   locFin = vFiles[ii]
   
   # Read a PNG image
-  locMbin = OpenImageR::readImage(locFin)
-  
-  # For convenience, downsample an image from 1024x1024 to 64x64 pixels.
-  locMdown = OpenImageR::down_sample_image(locMbin, 
-                                           factor = 16.0, 
-                                           gaussian_blur = F)
-  
-  # Binarise the data to {0,1}; downsampling may introduce floats
-  locM = locMdown > 0.5
+  locM = OpenImageR::readImage(locFin)
   
   # Convert to long format
   locDT = as.data.table(reshape2::melt(locM, 
@@ -89,17 +196,19 @@ rm(vFiles, lIn)
 The final long-format input data with active/inactive objects. Columns:
 
 - `x` and `y` correspond to X/Y coordinates of an object,
-- `m` contains the binarised measurement $\{0,1\}$ that corresponds to inactive/active objects, respectively. For the identification of collective events we will use only *active* objects, i.e. $m > 0$,
-- `objID` holds an object identifier, which should be *at least* unique within a single frame,
-- `time` indicates the frame number.
+- `m` contains the binarised measurement $\{0,1\}$ that corresponds to inactive/active objects, respectively. For the identification of collective events we will only use *active* objects, i.e. $m > 0$,
+- `objID` holds an object identifier, which should be *at least* unique within a single time frame,
+- `time` indicates the time frame number.
 
 ```{r echo=F, results="asis"}
 knitr::kable(head(dtIn))
 ```
 
-The time sequence with a growing concentric circle. Each frame (time point) consists of a matrix of 64x64 objects, where each object can have a value of the measurement of 0 (inactive) or 1 (active). In this example objects **do not** change their positions or identities across frames. In more general examples discussed further, both positions and object identifiers may change between frames.
+## Time sequence
 
-```{r,echo=F, fig.width=6, fig.height = 5}
+Here we plot the time sequence with a growing concentric circle. Each frame (time point) consists of a matrix of 64x64 objects, where each object can assume a value of 0 (inactive) or 1 (active). In this example objects **do not** change their positions or identities across frames. In general, both positions and object identifiers may change between frames.
+
+```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
 ggplot(dtIn,
        aes(x = x,
            y = y)) +
@@ -114,20 +223,24 @@ ggplot(dtIn,
   theme_bw()
 ```
 
-We use the `ARCOS::trackCollEvents` function to identify collective events in frames and to link them between frames into objects. Since we aim to identify the collective activation, we only pass a subset of data with *active* objects, i.e. `dtIn[m > 0]`.
+## Detection and tracking 
+
+We use the `ARCOS::trackCollEvents` function to identify collective events in frames and to link them between frames. The input data to the `trackCollEvents` function should be in the **long format**, where each row contains a position and timing of an object that may participate in a collective event. 
+
+Since we aim to identify the collective activation, we pass a subset of our data only with *active* objects, i.e. `dtIn[m > 0]`.
 
 ```{r, echo = T}
-allCl = ARCOS::trackCollEvents(inDT = dtIn[m > 0], 
-                inEps = 4, 
-                inMinPts = 1L, 
-                inNprev = 1L, 
-                inCols = list(frame = "time",
-                              x = "x",
-                              y = "y",
-                              z = NULL,
-                              id = "objID",
-                              collid = "collID"),
-                DEB = F)
+dtColl = ARCOS::trackCollEvents(inDT = dtIn[m > 0], 
+                                inEps = 4, 
+                                inMinPts = 1L, 
+                                inNprev = 1L, 
+                                inCols = list(frame = "time",
+                                              x = "x",
+                                              y = "y",
+                                              z = NULL,
+                                              id = "objID",
+                                              collid = "collID"),
+                                inDeb = F)
 ```
 
 The result from tracking of collective events is a long-format `data.table` with columns:
@@ -137,21 +250,23 @@ The result from tracking of collective events is a long-format `data.table` with
 - `collID` with an identifier of a collective event that is unique across the entire frame sequence.
 
 ```{r echo=F, results="asis"}
-knitr::kable(head(allCl))
+knitr::kable(head(dtColl))
 ```
 
-In order to visualise the collective events we merge the table computed by the `trackCollEvents` function with the original table by the frame number (column `time`) and the object identifier (column `objID`):
+## Visualisation
+
+In order to visualise collective events we merge the table computed by the `trackCollEvents` function with the original table by the frame number (column `time`) and the object identifier (column `objID`):
 
 ```{r echo = T}
 dtRes = merge(dtIn,
-              allCl,
+              dtColl,
               by = c("time", "objID"))
 ```
 
 
-Here, we display frames with collective events. The algorithm identified a single event in 10 subsequent frames:
+Here we display frames with collective events. The algorithm identified a single event in 10 subsequent frames:
 
-```{r, echo = F, fig.width=6, fig.height = 5}
+```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
 ggplot(dtRes,
        aes(x = x,
            y = y)) +
@@ -172,7 +287,7 @@ The comparison of the result against the ground truth:
 ```{r, echo = F, results="asis", eval = T}
 resTest = testthat::test_that("dmd exp05", {
   locDTtrueRes = fread(file = file.path(system.file("concentricGrowth", package="ARCOS"), "exp05_out.csv"))
-  expect_equal(allCl, locDTtrueRes)
+  expect_equal(dtColl, locDTtrueRes)
 })
 
 if (resTest)
