@@ -1,5 +1,5 @@
 ---
-title: "ARCOS-vignette"
+title: "Basic usage of ARCOS"
 output: 
   rmarkdown::html_vignette:
     toc: true 
@@ -29,7 +29,9 @@ library(testthat)
 
 # Intro
 
-The ARCOS package implements the algorithm for identification and tracking of spatially clustered objects in time series data. It works with 1-, 2-, and 3D geometries. The algorithm tackles the problem of identification of protein activation in 2- and 3D cell cultures that occur collectively in neighbouring cells over time. Such collective waves of protein activation have been observed as a key factor in the maintenance of epithelial homeostasis ([1](https://doi.org/10.1101/2020.06.11.145573), [2](https://doi.org/10.1016/j.cub.2019.11.089), [3](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis ([4](https://doi.org/10.1101/2020.11.20.387167)), and in the coordination of collective cell migration ([5](https://doi.org/10.1016/j.devcel.2017.10.016), [6](https://doi.org/10.1016/j.devcel.2020.05.011)).
+ARCOS stands for **A**utomatic **R**ecognition of **Co**llective **S**ignalling. The package implements the algorithm for identification and tracking of spatially clustered objects in time series data. It works with 1-, 2-, and 3D geometries. 
+
+The algorithm tackles the problem of identification of protein activation in 2- and 3D cell cultures that occur collectively in neighbouring cells over time. Such collective waves of protein activation have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis ([1](https://doi.org/10.1101/2020.06.11.145573), [2](https://doi.org/10.1016/j.cub.2019.11.089), [3](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis ([4](https://doi.org/10.1101/2020.11.20.387167)), and in the coordination of collective cell migration ([5](https://doi.org/10.1016/j.devcel.2017.10.016), [6](https://doi.org/10.1016/j.devcel.2020.05.011)).
 
 Despite the focus on cell signalling, the algorithm can be also applied to other spatially correlated phenomena that occur over time.
 
@@ -55,7 +57,7 @@ The algorithm flow prepared with the [code2flow](https://app.code2flow.com/nboDr
 
 # Simple example
 
-In this example we detect and track clusters of 4 distinct objects moving in 1 dimension over 5 time points. 
+In this example 4 distinct objects are moving in 1 dimension over 5 time points. We aim to identify clusters of objects moving close to each other.
 
 ## Time sequence
 
@@ -76,7 +78,7 @@ dtIn = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
 knitr::kable(dtIn)
 ```
 
-Each object has a distinct identifier, which is represented by different colors in the plot:
+Each object has a distinct identifier represented by a different colour in the plot:
 
 ```{r, echo = F, fig.width=5, fig.height=5, caption="Visualisation of object traces over time"}
 ggplot(dtIn,
@@ -92,7 +94,7 @@ ggplot(dtIn,
 
 ## Detection and tracking
 
-In this step we cluster the 3 objects on the right into a single collective event that spans 5 frames. A single object on the left forms a trivial single-object event. 
+In this step 3 objects on the right are grouped into a single collective event that spans 5 frames. A single object on the left forms a trivial single-object event. 
 
 The most important parameter of the `trackCollEvents` function is the search radius `inEps`, which sets the distance for:
 
