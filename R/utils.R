@@ -1,28 +1,38 @@
-#' Clip a vector
+#' Clip a numeric vector
 #'
-#' @param x Numeric vector
-#' @param a lower bound (double)
-#' @param b upper bound (double)
+#' Clip a numeric vector between lower and upper bounds.
 #'
-#' @return
+#' @param x a numeric vector.
+#' @param a lower bound (double).
+#' @param b upper bound (double).
+#'
+#' @return a numeric vector.
 #' @export
 #'
 #' @examples
-
+#' v = runif(10)
+#' rcpp_clip(v, 3, 7)
+#'
 Rcpp::cppFunction('NumericVector rcpp_clip( NumericVector x, double a, double b){
     return clamp( a, x, b ) ;
 }')
 
 #' Keep significant digits in double numerical columns of a data.table
 #'
-#' @param inDT
-#' @param inDigits
+#' @param inDT a data.table with time series in the long format.
+#' @param inDigits an integer with the number of significant digits.
 #'
-#' @return
+#' @return a data.table with numeric columns trimmed to the provided number of significant digits.
 #' @export
 #' @import data.table
 #'
 #' @examples
+#' require(data.table)
+#' dt = data.table(id = LETTERS[1:10],
+#'                 x = runif(10))
+#'
+#' dtTrim = keepSignifDig(dt, 2)
+#'
 keepSignifDig <- function(inDT, inDigits) {
 
   ## Checks

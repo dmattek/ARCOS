@@ -1,17 +1,31 @@
 #' Interpolate missing rows in time series
 #'
-#' @param inDT a data.table in long format with time series
-#' @param inColID a string with the column name of the column with unique time series IDs
-#' @param inColFN a string with the column name of the column with frame numbers
-#' @param inColY a string or a vector of strings with column names of numerical columns to interpolate
-#' @param inFNfreq an integer with the interval between frames
-#' @param inDeb logical, whether to output debug information
+#' @param inDT a data.table with time series in the long format.
+#' @param inColID a string with the name of the column with unique time series IDs.
+#' @param inColFN a string with the name of the column with integer frame numbers.
+#' @param inColY a string or a vector of strings with column names of numerical columns to interpolate.
+#' @param inFNfreq an integer with the interval between frames.
+#' @param inDeb logical, whether to output debug information.
 #'
-#' @return a data.table with interpolated missing time points
+#' @return a data.table with interpolated missing time points.
 #' @export
 #' @import data.table
 #'
 #' @examples
+#' require(data.table)
+#' dt = data.table(t = c(1,2,3,5,6,7),
+#'                 y = c(1,2,3,5,6,7),
+#'                 id = rep(1, 6))
+#'
+#' dtInt = interpolateTS(inDT = dt,
+#'                       inColID = "id",
+#'                       inColFN = "t",
+#'                       inColY = "y",
+#'                       inFNfreq = 1)
+#'
+#'                       plot(dt$t, dt$y, type = "p")
+#'                       points(dtInt$t, dtInt$y, col = "red", pch = 3)
+#'
 interpolateTS = function(inDT, inColID, inColFN, inColY, inFNfreq = 1L, inDeb = F) {
 
   ## Checks
@@ -30,6 +44,10 @@ interpolateTS = function(inDT, inColID, inColFN, inColY, inFNfreq = 1L, inDeb = 
     return(NULL)
   }
 
+  # Check whether the indicated columns are present in the data.table
+  if (sum( c(inColID, inColFN, inColY) %in% names(inDT) ) < 3 ) {
+    stop("Indicated column names are not present in the input data!")
+  }
 
   # Stretch time series by every time series' min/max time gaps filled with NA's
   setkeyv(inDT, c(inColID, inColFN))

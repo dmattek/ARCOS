@@ -2,10 +2,9 @@ Package: ARCOS
 Type: Package
 Title: Automatic Recognition of Collective Signalling
 Version: 0.1.0
-Author: MD
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Maciej Dobrzyński
+Maintainer: Maciej Dobrzyński <macdobry@gmail.com>
+Description: The ARCOS package implements the algorithm for identification and tracking of spatially clustered objects in time series data. It works with 1-, 2-, and 3D geometries. The algorithm tackles the problem of identification of protein activation in 2- and 3D cell cultures that occur collectively in neighbouring cells over time. Despite its focus on cell signalling, the algorithm can be also applied to other spatially correlated phenomena that occur over time.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -24,4 +23,4 @@ Imports:
     dbscan,
     imputeTS
 RoxygenNote: 7.1.1
-VignetteBuilder: knitr, rmarkdown
+VignetteBuilder: knitr
