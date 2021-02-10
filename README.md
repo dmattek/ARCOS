@@ -11,7 +11,7 @@ The goal of ARCOS is to identify and track spatially clustered objects in time s
 Collective waves of protein activation have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis ([1](https://doi.org/10.1101/2020.06.11.145573), [2](https://doi.org/10.1016/j.cub.2019.11.089), [3](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis ([4](https://doi.org/10.1101/2020.11.20.387167)), and in the coordination of collective cell migration ([5](https://doi.org/10.1016/j.devcel.2017.10.016), [6](https://doi.org/10.1016/j.devcel.2020.05.011)).
 
 
-Key features of the algorithm implemented in the `ARCOS::trackCollEvents` function:
+Key features of the *aggregative tracking* algorithm implemented in the `ARCOS::trackCollEvents` function:
 
 - data for tracking should be organised in the long format where each row is object's location and time,
 - the function accepts objects in a long-format `data.table`,
