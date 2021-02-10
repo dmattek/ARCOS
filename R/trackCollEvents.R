@@ -119,6 +119,18 @@ trackCollEvents <- function(inDT,
   # Initiate the list of collective events
   locCollEvents <- data.table()
 
+  # Prepare an expression to calculate the distance
+  # based on position columns present in inDT
+  locDistForm <- paste0(sprintf(
+    "(%s - %s.prev)^2",
+    locPosColsInDT, locPosColsInDT
+  ),
+  collapse = " + "
+  )
+
+  locDistForm <- sprintf("sqrt(%s)", locDistForm)
+
+  # Main loop over frames
   for (iFrame in sort(unique(inDT[[inCols$frame]]))) {
     if (inDeb) {
       cat(sprintf("\nFrame: %d\n", iFrame))
@@ -182,16 +194,6 @@ trackCollEvents <- function(inDT,
           )
 
           ## Link new tracks to collective events within a distance
-
-          # Prepare an expression to calculate the distance,
-          # based on positions columns present in inDT
-          locDistForm <- paste0(sprintf(
-            "(%s - %s.prev)^2",
-            locPosColsInDT, locPosColsInDT
-          ),
-          collapse = " + "
-          )
-          locDistForm <- sprintf("sqrt(%s)", locDistForm)
 
           # Subset rows of objects that are within inEps distance
           # to objects from collective events in the previous frame.
