@@ -286,19 +286,145 @@ testthat::test_that("6 overlapping", {
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
 
+
+testthat::test_that("split from single", {
+  locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "1objSplit_in.csv"))
+  locDTtrueRes <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "1objSplit_res.csv"))
+
+  locDTcalcRes <- ARCOS::trackCollEvents(locDTin,
+                              inEps = 1.1,
+                              inMinPts = 1L,
+                              inNprev = 1L,
+                              inCols = list(frame = "t",
+                                            x = "pos",
+                                            id = "id",
+                                            collid = "collid"),
+                              inDeb = F)
+
+  expect_equal(locDTcalcRes, locDTtrueRes)
+})
+
+
+testthat::test_that("split from 2 objects", {
+  locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2objSplit_in.csv"))
+  locDTtrueRes <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2objSplit_res.csv"))
+
+  locDTcalcRes <- ARCOS::trackCollEvents(locDTin,
+                                         inEps = 1.1,
+                                         inMinPts = 1L,
+                                         inNprev = 1L,
+                                         inCols = list(frame = "t",
+                                                       x = "pos",
+                                                       id = "id",
+                                                       collid = "collid"),
+                                         inDeb = F)
+
+  expect_equal(locDTcalcRes, locDTtrueRes)
+})
+
+
+testthat::test_that("cross 2 objects", {
+  locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2objCross_in.csv"))
+  locDTtrueRes <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2objCross_res.csv"))
+
+  locDTcalcRes <- ARCOS::trackCollEvents(locDTin,
+                                         inEps = 1.1,
+                                         inMinPts = 1L,
+                                         inNprev = 1L,
+                                         inCols = list(frame = "t",
+                                                       x = "pos",
+                                                       id = "id",
+                                                       collid = "collid"),
+                                         inDeb = F)
+
+  expect_equal(locDTcalcRes, locDTtrueRes)
+})
+
+
+testthat::test_that("cross 2 objects with common", {
+  locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2objCrossCommon_in.csv"))
+  locDTtrueRes <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2objCrossCommon_res.csv"))
+
+  locDTcalcRes <- ARCOS::trackCollEvents(locDTin,
+                                         inEps = 1.1,
+                                         inMinPts = 1L,
+                                         inNprev = 1L,
+                                         inCols = list(frame = "t",
+                                                       x = "pos",
+                                                       id = "id",
+                                                       collid = "collid"),
+                                         inDeb = F)
+
+  expect_equal(locDTcalcRes, locDTtrueRes)
+})
+
+
+testthat::test_that("merge & split 2 objects with common", {
+  locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2objMergeSplitCommon_in.csv"))
+  locDTtrueRes <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2objMergeSplitCommon_res.csv"))
+
+  locDTcalcRes <- ARCOS::trackCollEvents(locDTin,
+                                         inEps = 1.1,
+                                         inMinPts = 1L,
+                                         inNprev = 1L,
+                                         inCols = list(frame = "t",
+                                                       x = "pos",
+                                                       id = "id",
+                                                       collid = "collid"),
+                                         inDeb = F)
+
+  expect_equal(locDTcalcRes, locDTtrueRes)
+})
+
+
+testthat::test_that("merge & split 2 objects crossing", {
+  locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2objMergeSplitCross_in.csv"))
+  locDTtrueRes <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2objMergeSplitCross_res.csv"))
+
+  locDTcalcRes <- ARCOS::trackCollEvents(locDTin,
+                                         inEps = 1.1,
+                                         inMinPts = 1L,
+                                         inNprev = 1L,
+                                         inCols = list(frame = "t",
+                                                       x = "pos",
+                                                       id = "id",
+                                                       collid = "collid"),
+                                         inDeb = F)
+
+  expect_equal(locDTcalcRes, locDTtrueRes)
+})
+
+
+testthat::test_that("merge & split 2 objects near", {
+  locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2objMergeSplitNear_in.csv"))
+  locDTtrueRes <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2objMergeSplitNear_res.csv"))
+
+  locDTcalcRes <- ARCOS::trackCollEvents(locDTin,
+                                         inEps = 1.1,
+                                         inMinPts = 1L,
+                                         inNprev = 1L,
+                                         inCols = list(frame = "t",
+                                                       x = "pos",
+                                                       id = "id",
+                                                       collid = "collid"),
+                                         inDeb = F)
+
+  expect_equal(locDTcalcRes, locDTtrueRes)
+})
+
 testthat::test_that("4 objects in 2 events", {
   locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "4obj2events_in.csv"))
   locDTtrueRes <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "4obj2events_res.csv"))
 
   locDTcalcRes <- ARCOS::trackCollEvents(locDTin,
-                              inEps = 0.6,
-                              inMinPts = 1L,
-                              inNprev = 1L,
-                              inCols = list(frame = "frame",
-                                            x = "x",
-                                            id = "id",
-                                            collid = "collId"),
-                              inDeb = F)
+                                         inEps = 0.6,
+                                         inMinPts = 1L,
+                                         inNprev = 1L,
+                                         inCols = list(frame = "frame",
+                                                       x = "x",
+                                                       id = "id",
+                                                       collid = "collId"),
+                                         inDeb = F)
 
   expect_equal(locDTcalcRes, locDTtrueRes)
 })
