@@ -17,6 +17,7 @@ Suggests:
     ggthemes,
     OpenImageR
 Config/testthat/edition: 3
+LinkingTo: Rcpp
 Imports: 
     data.table (>= 1.9.8),
     Rcpp,
