@@ -4,11 +4,11 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-ARCOS stands for **A**utomatic **R**ecognition of **Co**llective **S**ignalling. 
+ARCOS stands for **A**utomated **R**ecognition of **Co**llective **S**ignalling. 
 
 The goal of ARCOS is to identify and track spatially clustered objects in time series data in 1-, 2-, and 3D geometries. The algorithm tackles the problem of identification of protein activation in 2- and 3D cell cultures that occur collectively in neighbouring cells over time. Despite its focus on cell signalling, the algorithm can be also applied to other spatially correlated phenomena that occur over time.
 
-Collective waves of protein activation have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis ([1](https://doi.org/10.1101/2020.06.11.145573), [2](https://doi.org/10.1016/j.cub.2019.11.089), [3](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis ([4](https://doi.org/10.1101/2020.11.20.387167)), and in the coordination of collective cell migration ([5](https://doi.org/10.1016/j.devcel.2017.10.016), [6](https://doi.org/10.1016/j.devcel.2020.05.011)).
+Collective waves of protein activation have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis ([Gagliardi et al., 2020](https://doi.org/10.1101/2020.06.11.145573), [Takeuchi et al., 2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al., 2020](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis ([Ender et al., 2020](https://doi.org/10.1101/2020.11.20.387167)), osteoblast regeneration ([De Simone et al., 2021](https://doi.org/10.1038/s41586-020-03085-8)), and in the coordination of collective cell migration ([Aoki et al., 2017](https://doi.org/10.1016/j.devcel.2017.10.016), [Hino et al., 2020](https://doi.org/10.1016/j.devcel.2020.05.011)).
 
 
 Key features of the *aggregative tracking* algorithm implemented in the `ARCOS::trackCollEvents` function:
