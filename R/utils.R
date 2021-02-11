@@ -1,22 +1,3 @@
-#' Clip a numeric vector
-#'
-#' Clip a numeric vector between lower and upper bounds.
-#'
-#' @param x a numeric vector.
-#' @param a lower bound (double).
-#' @param b upper bound (double).
-#'
-#' @return a numeric vector.
-#' @export
-#'
-#' @examples
-#' v = runif(10)
-#' rcpp_clip(v, 3, 7)
-#'
-Rcpp::cppFunction('NumericVector rcpp_clip( NumericVector x, double a, double b){
-    return clamp( a, x, b ) ;
-}')
-
 #' Keep significant digits in double numerical columns of a data.table
 #'
 #' @param inDT a data.table with time series in the long format.
