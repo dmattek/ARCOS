@@ -1,21 +1,18 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// This is a simple example of exporting a C++ function to R. You can
-// source this function into an R session using the Rcpp::sourceCpp
-// function (or via the Source button on the editor toolbar). Learn
-// more about Rcpp at:
-//
-//   http://www.rcpp.org/
-//   http://adv-r.had.co.nz/Rcpp.html
-//   http://gallery.rcpp.org/
-//
-
-// [[Rcpp::export]]
-NumericVector timesTwo(NumericVector x) {
-  return x * 2;
-}
-
+//' Clip a numeric vector
+//' Clip a numeric vector between lower and upper bounds.
+//'
+//' @param x a numeric vector.
+//' @param a lower bound (double).
+//' @param b upper bound (double).
+//'
+//' @return a numeric vector.
+//'
+//' @examples
+//' v = runif(10)
+//' rcpp_clip(v, 3, 7)
 // [[Rcpp::export]]
 NumericVector rcpp_clip( NumericVector x, double a, double b){
   return clamp( a, x, b ) ;
@@ -27,7 +24,8 @@ NumericVector rcpp_clip( NumericVector x, double a, double b){
 //
 
 /*** R
-timesTwo(42)
 rcpp_clip(5, -2, 2)
 rcpp_clip(-5, -2, 2)
+rcpp_clip(c(-5, 5), -2, 2)
+rcpp_clip(c(-5.5, 5.5), -2, 2)
 */
