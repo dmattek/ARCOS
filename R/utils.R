@@ -8,11 +8,13 @@
 #' @import data.table
 #'
 #' @examples
-#' require(data.table)
+#' library(ARCOS)
+#' library(data.table)
+#'
 #' dt = data.table(id = LETTERS[1:10],
 #'                 x = runif(10))
 #'
-#' dtTrim = keepSignifDig(dt, 2)
+#' dtTrim = ARCOS::keepSignifDig(dt, 2)
 #'
 keepSignifDig <- function(inDT, inDigits) {
 

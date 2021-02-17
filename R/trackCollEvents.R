@@ -3,11 +3,11 @@
 #' Time series data should be supplied in a long-format data.table with at least 3 columns:
 #' frame number, position (1, 2, or 3 columns), and the object id.
 #'
-#' @param inDT a data.table with time series in the long format.
+#' @param inDT a data.table with time series in the long format with at least 3 columns: integer frame number, object id, object position.
 #' @param inEps a float with the search radius, default 1.
 #' @param inMinPts an integer with the minimum size of the cluster, default 1L.
 #' @param inNprev an integer with the number of previous frames to search for an event, default 1L.
-#' @param inCols a list with column names, \code{list(frame = , x = , y = , z = , id = , collid = )}, that correspond to the frame number, position, track id's and id's of collective events, respectively.
+#' @param inCols a list with column names, \code{list(frame = , x = , y = , z = , id = , collid = )}, that correspond to the integer frame number, position, object id and id of collective events, respectively.
 #' @param inDeb logical, whether to output debug information.
 #'
 #' @return a data.table with cluster numbers and id's of the corresponding objects
@@ -15,14 +15,15 @@
 #' @import data.table
 #'
 #' @examples
-#' require(data.table)
-#' require(ggplot2)
+#' library(ARCOS)
+#' library(data.table)
+#' library(ggplot2)
 #'
 #' dt = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
 #'                 id = c(1, 2, 1, 2, 3, 1, 2, 3, 4, 1, 2, 4, 1, 4),
 #'                 x = c(1, 3, 1.2, 2.5, 3.5, 0.9, 2.6, 2.9, 3.2, 1.1, 2.8, 3.1, 1, 3))
 #'
-#'dtColl = trackCollEvents(dt,
+#' dtColl = ARCOS::trackCollEvents(dt,
 #'                         inEps = 0.6,
 #'                         inMinPts = 1L,
 #'                         inNprev = 1L,
@@ -32,9 +33,9 @@
 #'                                       collid = "collId"),
 #'                         inDeb = F)
 #'
-#'dt = merge(dt, dtColl, by = c("frame", "id"))
+#' dt = merge(dt, dtColl, by = c("frame", "id"))
 #'
-#'ggplot(dt,
+#' ggplot(dt,
 #'       aes(x=x,
 #'           y = frame,
 #'           color = factor(id),
@@ -152,12 +153,12 @@ trackCollEvents <- function(inDT,
         # Obtain objects that belong to collective events in the previous frame(s).
         # NEXT: more testing when looking at more than 1 frame back
         locCollPrev <- locCollEvents[get(inCols$frame) < iFrame &
-          get(inCols$frame) > iFrame - 1 - inNprev,
-        c(
-          locPosColsInDT,
-          inCols$collid
-        ),
-        with = F
+                                       get(inCols$frame) > iFrame - 1 - inNprev,
+                                     c(
+                                       locPosColsInDT,
+                                       inCols$collid
+                                     ),
+                                     with = F
         ]
 
         if (nrow(locCollPrev) > 0) {
@@ -180,17 +181,17 @@ trackCollEvents <- function(inDT,
           # 2. add .prev suffix to the names of xyz columns
           # such that merge doesn't change column names
           setnames(locCollPrev,
-            locPosColsInDT,
-            paste0(locPosColsInDT, ".prev"),
-            skip_absent = T
+                   locPosColsInDT,
+                   paste0(locPosColsInDT, ".prev"),
+                   skip_absent = T
           )
 
           # cartesian product of current objects
           # and objects in previous collective events
           locTmp <- merge(locDTtime,
-            locCollPrev,
-            by = inCols$frame,
-            allow.cartesian = T
+                          locCollPrev,
+                          by = inCols$frame,
+                          allow.cartesian = T
           )
 
           ## Link new tracks to collective events within a distance
@@ -211,13 +212,13 @@ trackCollEvents <- function(inDT,
             locCollEvents <- rbind(
               locCollEvents,
               locWithinEps[,
-                c(
-                  inCols$frame,
-                  inCols$id,
-                  locPosColsInDT,
-                  inCols$collid
-                ),
-                with = F
+                           c(
+                             inCols$frame,
+                             inCols$id,
+                             locPosColsInDT,
+                             inCols$collid
+                           ),
+                           with = F
               ]
             )
           }
@@ -225,12 +226,12 @@ trackCollEvents <- function(inDT,
           ## Tracks outside a distance should form new collective events
           locOutsideEps <- unique(
             locTmp[!(get(inCols$id) %in% unique(locWithinEps[[inCols$id]]))][,
-              c(
-                inCols$frame,
-                inCols$id,
-                locPosColsInDT
-              ),
-              with = F
+                                                                             c(
+                                                                               inCols$frame,
+                                                                               inCols$id,
+                                                                               locPosColsInDT
+                                                                             ),
+                                                                             with = F
             ]
           )
 
@@ -248,13 +249,13 @@ trackCollEvents <- function(inDT,
             locCollEvents <- rbind(
               locCollEvents,
               locNewCollEvents[,
-                c(
-                  inCols$frame,
-                  inCols$id,
-                  locPosColsInDT,
-                  inCols$collid
-                ),
-                with = F
+                               c(
+                                 inCols$frame,
+                                 inCols$id,
+                                 locPosColsInDT,
+                                 inCols$collid
+                               ),
+                               with = F
               ]
             )
           }
@@ -277,13 +278,13 @@ trackCollEvents <- function(inDT,
           locCollEvents <- rbind(
             locCollEvents,
             locNewCollEvents[,
-              c(
-                inCols$frame,
-                inCols$id,
-                locPosColsInDT,
-                inCols$collid
-              ),
-              with = F
+                             c(
+                               inCols$frame,
+                               inCols$id,
+                               locPosColsInDT,
+                               inCols$collid
+                             ),
+                             with = F
             ]
           )
         }
@@ -305,13 +306,13 @@ trackCollEvents <- function(inDT,
         locCollEvents <- rbind(
           locCollEvents,
           locNewCollEvents[,
-            c(
-              inCols$frame,
-              inCols$id,
-              locPosColsInDT,
-              inCols$collid
-            ),
-            with = F
+                           c(
+                             inCols$frame,
+                             inCols$id,
+                             locPosColsInDT,
+                             inCols$collid
+                           ),
+                           with = F
           ]
         )
       }
@@ -324,12 +325,12 @@ trackCollEvents <- function(inDT,
 
   if (nrow(locCollEvents) > 0) {
     return(locCollEvents[,
-      c(
-        inCols$frame,
-        inCols$id,
-        inCols$collid
-      ),
-      with = F
+                         c(
+                           inCols$frame,
+                           inCols$id,
+                           inCols$collid
+                         ),
+                         with = F
     ])
   } else {
     return(locCollEvents)
@@ -420,8 +421,8 @@ createCollEvents <- function(inDT,
 
   # Positional clustering of objects
   locDB <- dbscan::dbscan(as.matrix(inDT[,
-    c(locPosColsInDT),
-    with = F
+                                         c(locPosColsInDT),
+                                         with = F
   ]),
   eps = inEps,
   minPts = inMinPts
@@ -444,12 +445,12 @@ createCollEvents <- function(inDT,
 
     # Select only objects from the input data that belong to clusters
     locCl <- inDT[locVclTrue,
-      c(
-        inCols$frame,
-        inCols$id,
-        locPosColsInDT
-      ),
-      with = F
+                  c(
+                    inCols$frame,
+                    inCols$id,
+                    locPosColsInDT
+                  ),
+                  with = F
     ]
 
     # A a column with cluster numbers;

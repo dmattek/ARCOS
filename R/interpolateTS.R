@@ -12,12 +12,14 @@
 #' @import data.table
 #'
 #' @examples
-#' require(data.table)
+#' library(ARCOS)
+#' library(data.table)
+#'
 #' dt = data.table(t = c(1,2,3,5,6,7),
 #'                 y = c(1,2,3,5,6,7),
 #'                 id = rep(1, 6))
 #'
-#' dtInt = interpolateTS(inDT = dt,
+#' dtInt = ARCOS::interpolateTS(inDT = dt,
 #'                       inColID = "id",
 #'                       inColFN = "t",
 #'                       inColY = "y",

@@ -288,7 +288,7 @@ The comparison of the result against the ground truth:
 
 ```{r, echo = F, results="asis", eval = T}
 resTest = testthat::test_that("dmd exp05", {
-  locDTtrueRes = fread(file = file.path(system.file("concentricGrowth", package="ARCOS"), "exp05_out.csv"))
+  locDTtrueRes = fread(file = file.path(system.file("concentricGrowth", package="ARCOS"), "exp05_out.csv.gz"))
   expect_equal(dtColl, locDTtrueRes)
 })
 
