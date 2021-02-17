@@ -1,0 +1,2033 @@
+---
+title: "ARCOS demo of synthetic test cases trackCollEvents"
+output:   
+  rmarkdown::html_vignette:
+    toc: true 
+vignette: >
+  %\VignetteIndexEntry{ARCOS demo of synthetic test cases trackCollEvents}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ARCOS)
+library(data.table)
+library(ggplot2)
+library(ggthemes)
+library(OpenImageR)
+
+library(testthat)
+
+lPar = list()
+
+lPar$db.eps = 1.01
+lPar$db.minPts = 1L
+```
+
+
+# Link 1 frame
+## Test 1 - 1 central
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "1central_in.csv"))
+
+ggplot(dtIn[m>0],
+       aes(x = time,
+           y = as.factor(x))) +
+  geom_tile(aes(fill = as.factor(trackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "Track ID",
+                               palette = "Tableau 10") +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = lPar$db.eps, 
+                               inMinPts = lPar$db.minPts, 
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = time,
+           y = as.factor(x))) +
+  geom_tile(aes(fill = as.factor(clTrackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("1 central", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "1central_res.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 2 - 3 spreading
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "3spreading_in.csv"))
+
+ggplot(dtIn[m>0],
+       aes(x = time,
+           y = as.factor(x))) +
+  geom_tile(aes(fill = as.factor(trackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "Track ID",
+                               palette = "Tableau 10") +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = lPar$db.eps, 
+                               inMinPts = lPar$db.minPts, 
+                               inDeb = F)
+
+setorder(allCl, time, trackID, clTrackID)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = time,
+           y = as.factor(x))) +
+  geom_tile(aes(fill = as.factor(clTrackID))) +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("1 central", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "3spreading_res.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 3 - 5 overlapping
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "5overlapping_in.csv"))
+
+ggplot(dtIn,
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(trackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "Track ID",
+                               palette = "Tableau 10") +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = lPar$db.eps, 
+                               inMinPts = lPar$db.minPts, 
+                               inDeb = F)
+
+setorder(allCl, time, trackID, clTrackID)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"),
+              all.x = T)
+
+ggplot(dtRes,
+       aes(x = as.factor(time),
+           y = as.factor(x))) +
+  geom_tile(aes(fill = as.factor(clTrackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("1 central", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "5overlapping_res.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 4 - 6 overlapping
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "6overlapping_in.csv"))
+
+ggplot(dtIn[m>0],
+       aes(x = time,
+           y = as.factor(x))) +
+  geom_tile(aes(fill = as.factor(trackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "Track ID",
+                               palette = "Tableau 10") +
+  scale_y_discrete(limits = seq(min(dtIn[["x"]]), 
+                                max(dtIn[["x"]]),
+                                1)) +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = lPar$db.eps, 
+                               inMinPts = lPar$db.minPts, 
+                               inDeb = F)
+
+setorder(allCl, time, trackID, clTrackID)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"),
+              all.x = T)
+
+ggplot(dtRes,
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(clTrackID)),
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("1 central", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "6overlapping_res.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 5 - 1 central growing
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "1centralGrowing_in.csv"))
+
+ggplot(dtIn[m>0],
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(trackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "Track ID",
+                               palette = "Tableau 10") +
+  scale_y_discrete(limits = seq(min(dtIn[["x"]]), 
+                                max(dtIn[["x"]]),
+                                1)) +
+  
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = lPar$db.eps, 
+                               inMinPts = lPar$db.minPts, 
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(clTrackID)),
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  scale_y_discrete(limits = seq(min(dtIn[["x"]]), 
+                                max(dtIn[["x"]]),
+                                1)) +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("1 central", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "1centralGrowing_res.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 6 - 2 central growing
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "2centralGrowing_in.csv"))
+
+ggplot(dtIn[m>0],
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(trackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "Track ID",
+                               palette = "Tableau 10") +
+  scale_y_discrete(limits = seq(min(dtIn[["x"]]), 
+                                max(dtIn[["x"]]),
+                                1)) +
+  
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = lPar$db.eps, 
+                               inMinPts = lPar$db.minPts, 
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(clTrackID)),
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  scale_y_discrete(limits = seq(min(dtIn[["x"]]), 
+                                max(dtIn[["x"]]),
+                                1)) +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("1 central", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "2centralGrowing_res.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 7 - 2 with 1 common symmetric
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "2with1commonSym_in.csv"))
+
+ggplot(dtIn[m>0],
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(trackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "Track ID",
+                               palette = "Tableau 10") +
+  scale_y_discrete(limits = seq(min(dtIn[["x"]]), 
+                                max(dtIn[["x"]]),
+                                1)) +
+  
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = lPar$db.eps, 
+                               inMinPts = lPar$db.minPts, 
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(clTrackID)),
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  scale_y_discrete(limits = seq(min(dtIn[["x"]]), 
+                                max(dtIn[["x"]]),
+                                1)) +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("1 central", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "2with1commonSym_res.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 8 - 2 with 1 common asymmetric
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "2with1commonAsym_in.csv"))
+
+ggplot(dtIn[m>0],
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(trackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "Track ID",
+                               palette = "Tableau 10") +
+  scale_y_discrete(limits = seq(min(dtIn[["x"]]), 
+                                max(dtIn[["x"]]),
+                                1)) +
+  
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = lPar$db.eps, 
+                               inMinPts = lPar$db.minPts, 
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(clTrackID)),
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  scale_y_discrete(limits = seq(min(dtIn[["x"]]), 
+                                max(dtIn[["x"]]),
+                                1)) +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("1 central", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "2with1commonAsym_res.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+# Multiple new objects
+
+## Test 1 - simultaneous
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "multipleSimulNewObjects_in.csv"))
+
+ggplot(dtIn,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point() +
+  scale_color_tableau(name = "Object\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtColl = ARCOS::trackCollEvents(inDT = dtIn, 
+                inEps = 1.1, 
+                inMinPts = 1L, 
+                inNprev = 1L, 
+                inCols = list(frame = "t",
+                              x = "pos",
+                              y = NULL,
+                              z = NULL,
+                              id = "id",
+                              collid = "collid"),
+                inDeb = F)
+
+dtRes = merge(dtIn,
+              dtColl,
+              by = c("t", "id"))
+
+
+ggplot(dtRes,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point(aes(shape = as.factor(collid)),
+             size = 3) +
+  scale_color_tableau(name = "Object\nid:") +
+  scale_shape_discrete(name = "Collective\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("multiple simultaneous new objects", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "multipleSimulNewObjects_out.csv"))
+  expect_equal(dtColl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 2 - 4 new objects at once after 1
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "multipleSubseq4NewObjects_in.csv"))
+
+ggplot(dtIn,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point() +
+  scale_color_tableau(name = "Object\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtColl = ARCOS::trackCollEvents(inDT = dtIn, 
+                inEps = 1.1, 
+                inMinPts = 1L, 
+                inNprev = 1L, 
+                inCols = list(frame = "t",
+                              x = "pos",
+                              y = NULL,
+                              z = NULL,
+                              id = "id",
+                              collid = "collid"),
+                inDeb = F)
+
+dtRes = merge(dtIn,
+              dtColl,
+              by = c("t", "id"))
+
+
+ggplot(dtRes,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point(aes(shape = as.factor(collid)),
+             size = 3) +
+  scale_color_tableau(name = "Object\nid:") +
+  scale_shape_discrete(name = "Collective\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("multiple simultaneous new objects", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "multipleSubseq4NewObjects_out.csv"))
+  expect_equal(dtColl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 2 - 4 subsequently
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "multipleSubseqNewObjects_in.csv"))
+
+ggplot(dtIn,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point() +
+  scale_color_tableau(name = "Object\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtColl = ARCOS::trackCollEvents(inDT = dtIn, 
+                inEps = 1.1, 
+                inMinPts = 1L, 
+                inNprev = 1L, 
+                inCols = list(frame = "t",
+                              x = "pos",
+                              y = NULL,
+                              z = NULL,
+                              id = "id",
+                              collid = "collid"),
+                inDeb = F)
+
+dtRes = merge(dtIn,
+              dtColl,
+              by = c("t", "id"))
+
+
+ggplot(dtRes,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point(aes(shape = as.factor(collid)),
+             size = 3) +
+  scale_color_tableau(name = "Object\nid:") +
+  scale_shape_discrete(name = "Collective\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("multiple simultaneous new objects", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "multipleSubseqNewObjects_out.csv"))
+  expect_equal(dtColl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+# Split, cross, merge
+
+## Test 1 - split from single
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "1objSplit_in.csv"))
+
+ggplot(dtIn,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point() +
+  scale_color_tableau(name = "Object\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtColl = ARCOS::trackCollEvents(inDT = dtIn, 
+                inEps = 1.1, 
+                inMinPts = 1L, 
+                inNprev = 1L, 
+                inCols = list(frame = "t",
+                              x = "pos",
+                              y = NULL,
+                              z = NULL,
+                              id = "id",
+                              collid = "collid"),
+                inDeb = F)
+
+setorder(dtColl, t, id, collid)
+
+dtRes = merge(dtIn,
+              dtColl,
+              by = c("t", "id"))
+
+
+ggplot(dtRes,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point(aes(shape = as.factor(collid)),
+             size = 3) +
+  scale_color_tableau(name = "Object\nid:") +
+  scale_shape_discrete(name = "Collective\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("1 split", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "1objSplit_res.csv"))
+  expect_equal(dtColl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 2 - split from 2 objects
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "2objSplit_in.csv"))
+
+ggplot(dtIn,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point() +
+  scale_color_tableau(name = "Object\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtColl = ARCOS::trackCollEvents(inDT = dtIn, 
+                inEps = 1.1, 
+                inMinPts = 1L, 
+                inNprev = 1L, 
+                inCols = list(frame = "t",
+                              x = "pos",
+                              y = NULL,
+                              z = NULL,
+                              id = "id",
+                              collid = "collid"),
+                inDeb = F)
+
+dtRes = merge(dtIn,
+              dtColl,
+              by = c("t", "id"))
+
+
+ggplot(dtRes,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point(aes(shape = as.factor(collid)),
+             size = 3) +
+  scale_color_tableau(name = "Object\nid:") +
+  scale_shape_discrete(name = "Collective\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("2 split", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "2objSplit_res.csv"))
+  expect_equal(dtColl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 3 - cross 2 objects
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "2objCross_in.csv"))
+
+ggplot(dtIn,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point() +
+  scale_color_tableau(name = "Object\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtColl = ARCOS::trackCollEvents(inDT = dtIn, 
+                inEps = 1.1, 
+                inMinPts = 1L, 
+                inNprev = 1L, 
+                inCols = list(frame = "t",
+                              x = "pos",
+                              y = NULL,
+                              z = NULL,
+                              id = "id",
+                              collid = "collid"),
+                inDeb = F)
+
+dtRes = merge(dtIn,
+              dtColl,
+              by = c("t", "id"))
+
+
+ggplot(dtRes,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point(aes(shape = as.factor(collid)),
+             size = 3) +
+  scale_color_tableau(name = "Object\nid:") +
+  scale_shape_discrete(name = "Collective\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("2 split", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "2objCross_res.csv"))
+  expect_equal(dtColl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 4 - cross 2 objects with common
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "2objCrossCommon_in.csv"))
+
+ggplot(dtIn,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point() +
+  scale_color_tableau(name = "Object\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtColl = ARCOS::trackCollEvents(inDT = dtIn, 
+                inEps = 1.1, 
+                inMinPts = 1L, 
+                inNprev = 1L, 
+                inCols = list(frame = "t",
+                              x = "pos",
+                              y = NULL,
+                              z = NULL,
+                              id = "id",
+                              collid = "collid"),
+                inDeb = F)
+
+dtRes = merge(dtIn,
+              dtColl,
+              by = c("t", "id"))
+
+
+ggplot(dtRes,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point(aes(shape = as.factor(collid)),
+             size = 3) +
+  scale_color_tableau(name = "Object\nid:") +
+  scale_shape_discrete(name = "Collective\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("2 split", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "2objCrossCommon_res.csv"))
+  expect_equal(dtColl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 5 - merge & split 2 objects with common
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "2objMergeSplitCommon_in.csv"))
+
+ggplot(dtIn,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point() +
+  scale_color_tableau(name = "Object\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtColl = ARCOS::trackCollEvents(inDT = dtIn, 
+                inEps = 1.1, 
+                inMinPts = 1L, 
+                inNprev = 1L, 
+                inCols = list(frame = "t",
+                              x = "pos",
+                              y = NULL,
+                              z = NULL,
+                              id = "id",
+                              collid = "collid"),
+                inDeb = F)
+
+dtRes = merge(dtIn,
+              dtColl,
+              by = c("t", "id"))
+
+
+ggplot(dtRes,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point(aes(shape = as.factor(collid)),
+             size = 3) +
+  scale_color_tableau(name = "Object\nid:") +
+  scale_shape_discrete(name = "Collective\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("2 split", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "2objMergeSplitCommon_res.csv"))
+  expect_equal(dtColl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 6 - merge & split 2 objects crossing
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "2objMergeSplitCross_in.csv"))
+
+ggplot(dtIn,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point() +
+  scale_color_tableau(name = "Object\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtColl = ARCOS::trackCollEvents(inDT = dtIn, 
+                inEps = 1.1, 
+                inMinPts = 1L, 
+                inNprev = 1L, 
+                inCols = list(frame = "t",
+                              x = "pos",
+                              y = NULL,
+                              z = NULL,
+                              id = "id",
+                              collid = "collid"),
+                inDeb = F)
+
+dtRes = merge(dtIn,
+              dtColl,
+              by = c("t", "id"))
+
+
+ggplot(dtRes,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point(aes(shape = as.factor(collid)),
+             size = 3) +
+  scale_color_tableau(name = "Object\nid:") +
+  scale_shape_discrete(name = "Collective\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("2 split", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "2objMergeSplitCross_res.csv"))
+  expect_equal(dtColl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 7 - merge & split 2 objects near
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "2objMergeSplitNear_in.csv"))
+
+ggplot(dtIn,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point() +
+  scale_color_tableau(name = "Object\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dtColl = ARCOS::trackCollEvents(inDT = dtIn, 
+                inEps = 1.1, 
+                inMinPts = 1L, 
+                inNprev = 1L, 
+                inCols = list(frame = "t",
+                              x = "pos",
+                              y = NULL,
+                              z = NULL,
+                              id = "id",
+                              collid = "collid"),
+                inDeb = F)
+
+dtRes = merge(dtIn,
+              dtColl,
+              by = c("t", "id"))
+
+
+ggplot(dtRes,
+       aes(x = t,
+           y = pos,
+           group = id,
+           color = id)) +
+  geom_path() +
+  geom_point(aes(shape = as.factor(collid)),
+             size = 3) +
+  scale_color_tableau(name = "Object\nid:") +
+  scale_shape_discrete(name = "Collective\nid:") +
+  xlab("Time") +
+  ylab("Position") +
+  theme_bw()
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("2 split", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "2objMergeSplitNear_res.csv"))
+  expect_equal(dtColl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+# Link 2 frames
+## Test 1 - 1 central
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "1central_in.csv"))
+
+ggplot(dtIn[m>0],
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(trackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "Track ID",
+                               palette = "Tableau 10") +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = lPar$db.eps, 
+                               inMinPts = lPar$db.minPts, 
+                               inNprev = 2,
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(clTrackID)),
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("1 central", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "1central2prev_res.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 2 - 3 spreading
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "3spreading_in.csv"))
+
+ggplot(dtIn[m>0],
+       aes(x = time,
+           y = as.factor(x))) +
+  geom_tile(aes(fill = as.factor(trackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "Track ID",
+                               palette = "Tableau 10") +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = lPar$db.eps, 
+                               inMinPts = lPar$db.minPts, 
+                               inNprev = 2,
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = time,
+           y = as.factor(x))) +
+  geom_tile(aes(fill = as.factor(clTrackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("1 central", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "3spreading2prev_res.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Test 3 - 5 overlapping
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dtIn = fread(file.path(system.file("testdata", package="ARCOS"), "5overlapping_in.csv"))
+
+ggplot(dtIn,
+       aes(x = time,
+           y = x)) +
+  geom_tile(aes(fill = as.factor(trackID)), 
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "Track ID",
+                               palette = "Tableau 10") +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = lPar$db.eps, 
+                               inMinPts = lPar$db.minPts, 
+                               inNprev = 2L,
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = as.factor(time),
+           y = as.factor(x))) +
+  geom_tile(aes(fill = as.factor(clTrackID)),
+            colour = "grey50") +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  scale_x_discrete(limits = seq(min(dtIn[["time"]]), 
+                                max(dtIn[["time"]]),
+                                1)) +
+  scale_y_discrete(limits = seq(min(dtIn[["x"]]), 
+                                max(dtIn[["x"]]),
+                                1)) +
+  xlab("Time") +
+  ylab("posx")
+```
+
+```{r, echo = F, results="asis"}
+resTest = testthat::test_that("1 central", {
+  locDTtrueRes = fread(file.path(system.file("testdata", package="ARCOS"), "5overlapping_res.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+# DMD tests
+
+Test scenarios for calibration experiments using DMD.
+
+Wave propagation loaded from images. Images are down-sampled 16 times. Each pixel in down-sampled images corresponds to a single object/cell.
+
+## Exp 01
+
+Detection and tracking of expansion of growing clusters.
+
+```{r,echo=T, eval=T, fig.width=6, fig.height=5}
+vFiles = list.files(path = file.path(system.file("testImagePatterns", package="ARCOS"), "exp01/png"), 
+                    pattern = "*.png", 
+                    full.names = T)
+
+lIn = lapply(seq_along(vFiles), function (ii) {
+  fIn = vFiles[ii]
+  locMbin = OpenImageR::readImage(fIn)
+  locMdown = OpenImageR::down_sample_image(locMbin, 
+                                           factor = 16.0, 
+                                           gaussian_blur = F)
+  locM = locMdown > 0.5
+  locDT = as.data.table(reshape2::melt(locM, 
+                                       value.name = "m"))
+  setnames(locDT, 
+           c("Var1", "Var2"), 
+           c("y", "x"))
+  locDT[,
+        m := as.numeric(m)]
+  locDT[, 
+        trackID := .I]
+  locDT[,
+        time := ii]
+  
+})
+
+dtIn = rbindlist(lIn)
+
+ggplot(dtIn,
+       aes(x = x,
+           y = y)) +
+  geom_raster(aes(fill = as.factor(m))) +
+  ggthemes::scale_fill_tableau(name = "Meas",
+                               palette = "Classic Gray 5") +
+  facet_wrap(~ time) +
+  coord_fixed(ratio=1) +
+  scale_y_continuous(trans = "reverse") +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = T, eval=T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = 2.5, 
+                               inMinPts = lPar$db.minPts, 
+                               inNprev = 1L, 
+                               inCols = list(frame = "time",
+                                             x = "x",
+                                             y = "y",
+                                             z = NULL,
+                                             id = "trackID",
+                                             collid = "clTrackID"),
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = x,
+           y = y)) +
+  geom_tile(aes(fill = as.factor(clTrackID))) +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  facet_wrap(~ time) +
+  scale_x_continuous(limits = c(min(dtIn$x), max(dtIn$x))) +
+  scale_y_reverse(limits = c(max(dtIn$y), min(dtIn$y))) +
+  coord_fixed(ratio=1) +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = F, results="asis", eval = T}
+resTest = testthat::test_that("dmd exp01", {
+  locDTtrueRes = fread(file.path(system.file("testImagePatterns", package="ARCOS"), "exp01/dmd-exp01_out.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Exp 02
+
+Detection and tracking of a single expanding cluster that breaks.
+
+```{r,echo=T, eval=T, fig.width=6, fig.height=5}
+vFiles = list.files(path = file.path(system.file("testImagePatterns", package="ARCOS"), "exp02/png"), 
+                    pattern = "*.png", 
+                    full.names = T)
+
+lIn = lapply(seq_along(vFiles), function (ii) {
+  fIn = vFiles[ii]
+  locMbin = OpenImageR::readImage(fIn)
+  locMdown = OpenImageR::down_sample_image(locMbin, 
+                                           factor = 16.0, 
+                                           gaussian_blur = F)  
+  locM = locMdown > 0.5
+  locDT = as.data.table(reshape2::melt(locM, 
+                                       value.name = "m"))
+  setnames(locDT, 
+           c("Var1", "Var2"), 
+           c("y", "x"))
+  locDT[,
+        m := as.numeric(m)]
+  locDT[, 
+        trackID := .I]
+  locDT[,
+        time := ii]
+  
+})
+
+dtIn = rbindlist(lIn)
+
+ggplot(dtIn,
+       aes(x = x,
+           y = y)) +
+  geom_raster(aes(fill = as.factor(m))) +
+  ggthemes::scale_fill_tableau(name = "Meas",
+                               palette = "Classic Gray 5") +
+  facet_wrap(~ time) +
+  coord_fixed(ratio=1) +
+  scale_y_continuous(trans = "reverse") +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = T, eval=T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = 5.5, 
+                               inMinPts = lPar$db.minPts, 
+                               inNprev = 1L, 
+                               inCols = list(frame = "time",
+                                             x = "x",
+                                             y = "y",
+                                             z = NULL,
+                                             id = "trackID",
+                                             collid = "clTrackID"),
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = x,
+           y = y)) +
+  geom_tile(aes(fill = as.factor(clTrackID))) +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  facet_wrap(~ time) +
+  scale_x_continuous(limits = c(min(dtIn$x), max(dtIn$x))) +
+  scale_y_reverse(limits = c(max(dtIn$y), min(dtIn$y))) +
+  coord_fixed(ratio=1) +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = F, results="asis", eval = T}
+resTest = testthat::test_that("dmd exp02", {
+  locDTtrueRes = fread(file.path(system.file("testImagePatterns", package="ARCOS"), "exp02/dmd-exp02_out.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Exp 03
+
+Moving donut
+
+```{r,echo=T, eval=T, fig.width=6, fig.height=5}
+vFiles = list.files(path = file.path(system.file("testImagePatterns", package="ARCOS"), "exp03/png"), 
+                    pattern = "*.png", 
+                    full.names = T)
+
+lIn = lapply(seq_along(vFiles), function (ii) {
+  fIn = vFiles[ii]
+  locMbin = OpenImageR::readImage(fIn)
+  locMdown = OpenImageR::down_sample_image(locMbin, 
+                                           factor = 16.0, 
+                                           gaussian_blur = F)
+  locM = locMdown > 0.5
+  locDT = as.data.table(reshape2::melt(locM, 
+                                       value.name = "m"))
+  setnames(locDT, 
+           c("Var1", "Var2"), 
+           c("y", "x"))
+  locDT[,
+        m := as.numeric(m)]
+  locDT[, 
+        trackID := .I]
+  locDT[,
+        time := ii]
+  
+})
+
+dtIn = rbindlist(lIn)
+
+ggplot(dtIn,
+       aes(x = x,
+           y = y)) +
+  geom_raster(aes(fill = as.factor(m))) +
+  ggthemes::scale_fill_tableau(name = "Meas",
+                               palette = "Classic Gray 5") +
+  facet_wrap(~ time) +
+  coord_fixed(ratio=1) +
+  scale_y_continuous(trans = "reverse") +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = T, eval=T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = 10, 
+                               inMinPts = lPar$db.minPts, 
+                               inNprev = 1L, 
+                               inCols = list(frame = "time",
+                                             x = "x",
+                                             y = "y",
+                                             z = NULL,
+                                             id = "trackID",
+                                             collid = "clTrackID"),
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = x,
+           y = y)) +
+  geom_tile(aes(fill = as.factor(clTrackID))) +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  facet_wrap(~ time) +
+  scale_x_continuous(limits = c(min(dtIn$x), max(dtIn$x))) +
+  scale_y_reverse(limits = c(max(dtIn$y), min(dtIn$y))) +
+  coord_fixed(ratio=1) +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = F, results="asis", eval=T}
+resTest = testthat::test_that("dmd exp03", {
+  locDTtrueRes = fread(file.path(system.file("testImagePatterns", package="ARCOS"), "exp03/dmd-exp03_out.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+
+## Exp 04
+
+Detection and tracking of 4 moving clusters.
+
+```{r,echo=T, eval=T, fig.width=6, fig.height=5}
+vFiles = list.files(path = file.path(system.file("testImagePatterns", package="ARCOS"), "exp04/png"), 
+                    pattern = "*.png", 
+                    full.names = T)
+
+lIn = lapply(seq_along(vFiles), function (ii) {
+  fIn = vFiles[ii]
+  locMbin = OpenImageR::readImage(fIn)
+  locMdown = OpenImageR::down_sample_image(locMbin, 
+                                           factor = 16.0, 
+                                           gaussian_blur = F)
+  locM = locMdown > 0.5
+  locDT = as.data.table(reshape2::melt(locM, 
+                                       value.name = "m"))
+  setnames(locDT, 
+           c("Var1", "Var2"), 
+           c("y", "x"))
+  locDT[,
+        m := as.numeric(m)]
+  locDT[, 
+        trackID := .I]
+  locDT[,
+        time := ii]
+  
+})
+
+dtIn = rbindlist(lIn)
+
+ggplot(dtIn,
+       aes(x = x,
+           y = y)) +
+  geom_raster(aes(fill = as.factor(m))) +
+  ggthemes::scale_fill_tableau(name = "Meas",
+                               palette = "Classic Gray 5") +
+  facet_wrap(~ time) +
+  coord_fixed(ratio=1) +
+  scale_y_continuous(trans = "reverse") +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = T, eval=T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = 4, 
+                               inMinPts = lPar$db.minPts, 
+                               inNprev = 1L, 
+                               inCols = list(frame = "time",
+                                             x = "x",
+                                             y = "y",
+                                             z = NULL,
+                                             id = "trackID",
+                                             collid = "clTrackID"),
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = x,
+           y = y)) +
+  geom_tile(aes(fill = as.factor(clTrackID))) +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  facet_wrap(~ time) +
+  scale_x_continuous(limits = c(min(dtIn$x), max(dtIn$x))) +
+  scale_y_reverse(limits = c(max(dtIn$y), min(dtIn$y))) +
+  coord_fixed(ratio=1) +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = F, results="asis", eval = T}
+resTest = testthat::test_that("dmd exp04", {
+  locDTtrueRes = fread(file.path(system.file("testImagePatterns", package="ARCOS"), "exp04/dmd-exp04_out.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Exp 05
+
+Detection and tracking of a concentrically growing cluster.
+
+```{r,echo=T, eval=T, fig.width=6, fig.height=5}
+vFiles = list.files(path = file.path(system.file("testImagePatterns", package="ARCOS"), "exp05/png"), 
+                    pattern = "*.png", 
+                    full.names = T)
+
+lIn = lapply(seq_along(vFiles), function (ii) {
+  fIn = vFiles[ii]
+  locMbin = OpenImageR::readImage(fIn)
+  locMdown = OpenImageR::down_sample_image(locMbin, 
+                                           factor = 16.0, 
+                                           gaussian_blur = F)
+  locM = locMdown > 0.5
+  locDT = as.data.table(reshape2::melt(locM, 
+                                       value.name = "m"))
+  setnames(locDT, 
+           c("Var1", "Var2"), 
+           c("y", "x"))
+  locDT[,
+        m := as.numeric(m)]
+  locDT[, 
+        trackID := .I]
+  locDT[,
+        time := ii]
+  
+})
+
+dtIn = rbindlist(lIn)
+
+ggplot(dtIn,
+       aes(x = x,
+           y = y)) +
+  geom_raster(aes(fill = as.factor(m))) +
+  ggthemes::scale_fill_tableau(name = "Meas",
+                               palette = "Classic Gray 5") +
+  facet_wrap(~ time) +
+  coord_fixed(ratio=1) +
+  scale_y_continuous(trans = "reverse") +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = T, eval=T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = 4, 
+                               inMinPts = lPar$db.minPts, 
+                               inNprev = 1L, 
+                               inCols = list(frame = "time",
+                                             x = "x",
+                                             y = "y",
+                                             z = NULL,
+                                             id = "trackID",
+                                             collid = "clTrackID"),
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = x,
+           y = y)) +
+  geom_tile(aes(fill = as.factor(clTrackID))) +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  facet_wrap(~ time) +
+  scale_x_continuous(limits = c(min(dtIn$x), max(dtIn$x))) +
+  scale_y_reverse(limits = c(max(dtIn$y), min(dtIn$y))) +
+  coord_fixed(ratio=1) +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = F, results="asis", eval = T}
+resTest = testthat::test_that("dmd exp05", {
+  locDTtrueRes = fread(file.path(system.file("testImagePatterns", package="ARCOS"), "exp05/dmd-exp05_out.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Exp 06
+
+Detection and tracking of a single cluster moving on an ellipse.
+
+```{r,echo=T, eval=T, fig.width=6, fig.height=5}
+vFiles = list.files(path = file.path(system.file("testImagePatterns", package="ARCOS"), "exp06/png"), 
+                    pattern = "*.png", 
+                    full.names = T)
+
+
+lIn = lapply(seq_along(vFiles), function (ii) {
+  fIn = vFiles[ii]
+  locMbin = OpenImageR::readImage(fIn)
+  locMdown = OpenImageR::down_sample_image(locMbin, 
+                                           factor = 16.0, 
+                                           gaussian_blur = F)
+  locM = locMdown > 0.5
+  locDT = as.data.table(reshape2::melt(locM, 
+                                       value.name = "m"))
+  setnames(locDT, 
+           c("Var1", "Var2"), 
+           c("y", "x"))
+  locDT[,
+        m := as.numeric(m)]
+  locDT[, 
+        trackID := .I]
+  locDT[,
+        time := ii]
+  
+})
+
+dtIn = rbindlist(lIn)
+
+ggplot(dtIn,
+       aes(x = x,
+           y = y)) +
+  geom_raster(aes(fill = as.factor(m))) +
+  ggthemes::scale_fill_tableau(name = "Meas",
+                               palette = "Classic Gray 5") +
+  facet_wrap(~ time) +
+  coord_fixed(ratio=1) +
+  scale_y_continuous(trans = "reverse") +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = T, eval=T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = 10, 
+                               inMinPts = lPar$db.minPts, 
+                               inNprev = 1L, 
+                               inCols = list(frame = "time",
+                                             x = "x",
+                                             y = "y",
+                                             z = NULL,
+                                             id = "trackID",
+                                             collid = "clTrackID"),
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = x,
+           y = y)) +
+  geom_tile(aes(fill = as.factor(clTrackID))) +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  facet_wrap(~ time) +
+  scale_x_continuous(limits = c(min(dtIn$x), max(dtIn$x))) +
+  scale_y_reverse(limits = c(max(dtIn$y), min(dtIn$y))) +
+  coord_fixed(ratio=1) +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = F, results="asis", eval = T, fig.width=6, fig.height=5}
+resTest = testthat::test_that("dmd exp06", {
+  locDTtrueRes = fread(file.path(system.file("testImagePatterns", package="ARCOS"), "exp06/dmd-exp06_out.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Exp 07
+
+Detection and tracking of a single cluster that splits.
+
+```{r,echo=T, eval=T, fig.width=6, fig.height=5}
+vFiles = list.files(path = file.path(system.file("testImagePatterns", package="ARCOS"), "exp07/png"), 
+                    pattern = "*.png", 
+                    full.names = T)
+
+
+lIn = lapply(seq_along(vFiles), function (ii) {
+  fIn = vFiles[ii]
+  locMbin = OpenImageR::readImage(fIn)
+  locMdown = OpenImageR::down_sample_image(locMbin, 
+                                           factor = 16.0, 
+                                           gaussian_blur = F)
+  locM = locMdown > 0.5
+  locDT = as.data.table(reshape2::melt(locM, 
+                                       value.name = "m"))
+  setnames(locDT, 
+           c("Var1", "Var2"), 
+           c("y", "x"))
+  locDT[,
+        m := as.numeric(m)]
+  locDT[, 
+        trackID := .I]
+  locDT[,
+        time := ii]
+  
+})
+
+dtIn = rbindlist(lIn)
+
+ggplot(dtIn,
+       aes(x = x,
+           y = y)) +
+  geom_raster(aes(fill = as.factor(m))) +
+  ggthemes::scale_fill_tableau(name = "Meas",
+                               palette = "Classic Gray 5") +
+  facet_wrap(~ time) +
+  coord_fixed(ratio=1) +
+  scale_y_continuous(trans = "reverse") +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = T, eval=T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = 4, 
+                               inMinPts = lPar$db.minPts, 
+                               inNprev = 1L, 
+                               inCols = list(frame = "time",
+                                             x = "x",
+                                             y = "y",
+                                             z = NULL,
+                                             id = "trackID",
+                                             collid = "clTrackID"),
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = x,
+           y = y)) +
+  geom_tile(aes(fill = as.factor(clTrackID))) +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  facet_wrap(~ time) +
+  coord_fixed(ratio=1) +
+  scale_x_continuous(limits = c(min(dtIn$x), max(dtIn$x))) +
+  scale_y_reverse(limits = c(max(dtIn$y), min(dtIn$y))) +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = F, results="asis", eval = T, fig.width=6, fig.height=5}
+resTest = testthat::test_that("dmd exp07", {
+  locDTtrueRes = fread(file.path(system.file("testImagePatterns", package="ARCOS"), "exp07/dmd-exp07_out.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Exp 08
+
+Detection and tracking of 3 rotating clusters..
+
+```{r,echo=T, eval=T, fig.width=6, fig.height=5}
+vFiles = list.files(path = file.path(system.file("testImagePatterns", package="ARCOS"), "exp08/png"), 
+                    pattern = "*.png", 
+                    full.names = T)
+
+
+lIn = lapply(seq_along(vFiles), function (ii) {
+  fIn = vFiles[ii]
+  locMbin = OpenImageR::readImage(fIn)
+  locMdown = OpenImageR::down_sample_image(locMbin, 
+                                           factor = 16.0, 
+                                           gaussian_blur = F)
+  locM = locMdown > 0.5
+  locDT = as.data.table(reshape2::melt(locM, 
+                                       value.name = "m"))
+  setnames(locDT, 
+           c("Var1", "Var2"), 
+           c("y", "x"))
+  locDT[,
+        m := as.numeric(m)]
+  locDT[, 
+        trackID := .I]
+  locDT[,
+        time := ii]
+  
+})
+
+dtIn = rbindlist(lIn)
+
+ggplot(dtIn,
+       aes(x = x,
+           y = y)) +
+  geom_raster(aes(fill = as.factor(m))) +
+  ggthemes::scale_fill_tableau(name = "Meas",
+                               palette = "Classic Gray 5") +
+  facet_wrap(~ time) +
+  coord_fixed(ratio=1) +
+  scale_y_continuous(trans = "reverse") +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = T, eval=T, fig.width=6, fig.height=5}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = 6, 
+                               inMinPts = lPar$db.minPts, 
+                               inNprev = 1L, 
+                               inCols = list(frame = "time",
+                                             x = "x",
+                                             y = "y",
+                                             z = NULL,
+                                             id = "trackID",
+                                             collid = "clTrackID"),
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = x,
+           y = y)) +
+  geom_tile(aes(fill = as.factor(clTrackID))) +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  facet_wrap(~ time) +
+  scale_x_continuous(limits = c(min(dtIn$x), max(dtIn$x))) +
+  scale_y_reverse(limits = c(max(dtIn$y), min(dtIn$y))) +
+  coord_fixed(ratio=1) +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = F, results="asis", eval = T, fig.width=6, fig.height=5}
+resTest = testthat::test_that("dmd exp08", {
+  locDTtrueRes = fread(file.path(system.file("testImagePatterns", package="ARCOS"), "exp08/dmd-exp08_out.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
+## Exp 09
+
+Detection and tracking of a single cluster moving on an ellipse.
+
+Same as **Exp 06** but more frames. 
+
+```{r,echo=T, eval=T, fig.width=6, fig.height=6}
+vFiles = list.files(path = file.path(system.file("testImagePatterns", package="ARCOS"), "exp09/png"), 
+                    pattern = "*.png", 
+                    full.names = T)
+
+
+lIn = lapply(seq_along(vFiles), function (ii) {
+  fIn = vFiles[ii]
+  locMbin = OpenImageR::readImage(fIn)
+  locMdown = OpenImageR::down_sample_image(locMbin, 
+                                           factor = 16.0, 
+                                           gaussian_blur = F)
+  locM = locMdown > 0.5
+  locDT = as.data.table(reshape2::melt(locM, 
+                                       value.name = "m"))
+  setnames(locDT, 
+           c("Var1", "Var2"), 
+           c("y", "x"))
+  locDT[,
+        m := as.numeric(m)]
+  locDT[, 
+        trackID := .I]
+  locDT[,
+        time := ii]
+  
+})
+
+dtIn = rbindlist(lIn)
+
+ggplot(dtIn,
+       aes(x = x,
+           y = y)) +
+  geom_raster(aes(fill = as.factor(m))) +
+  ggthemes::scale_fill_tableau(name = "Meas",
+                               palette = "Classic Gray 5") +
+  facet_wrap(~ time) +
+  coord_fixed(ratio=1) +
+  scale_y_continuous(trans = "reverse") +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = T, eval=T, fig.width=6, fig.height=6}
+allCl = ARCOS::trackCollEvents(inDT = dtIn[m>0], 
+                               inEps = 6, 
+                               inMinPts = lPar$db.minPts, 
+                               inNprev = 1L, 
+                               inCols = list(frame = "time",
+                                             x = "x",
+                                             y = "y",
+                                             z = NULL,
+                                             id = "trackID",
+                                             collid = "clTrackID"),
+                               inDeb = F)
+
+dtRes = merge(dtIn,
+              allCl,
+              by = c("time", "trackID"))
+
+ggplot(dtRes,
+       aes(x = x,
+           y = y)) +
+  geom_tile(aes(fill = as.factor(clTrackID))) +
+  ggthemes::scale_fill_tableau(name = "clTrack",
+                               palette = "Tableau 10") +
+  facet_wrap(~ time) +
+  scale_x_continuous(limits = c(min(dtIn$x), max(dtIn$x))) +
+  scale_y_reverse(limits = c(max(dtIn$y), min(dtIn$y))) +
+  coord_fixed(ratio=1) +
+  xlab("posx") +
+  ylab("posy")
+```
+
+```{r, echo = F, results="asis", eval = T, fig.width=6, fig.height=5}
+resTest = testthat::test_that("dmd exp09", {
+  locDTtrueRes = fread(file.path(system.file("testImagePatterns", package="ARCOS"), "exp09/dmd-exp09_out.csv"))
+  expect_equal(allCl, locDTtrueRes)
+})
+
+if (resTest)
+  cat("Test against the true result passed.") else 
+    cat("Test against the true result did not pass!")
+```
+
