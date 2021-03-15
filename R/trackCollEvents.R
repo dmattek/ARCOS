@@ -7,7 +7,8 @@
 #' @param inEps a float with the search radius, default 1.
 #' @param inMinPts an integer with the minimum size of the cluster, default 1L.
 #' @param inNprev an integer with the number of previous frames to search for an event, default 1L.
-#' @param inCols a list with column names, \code{list(frame = , x = , y = , z = , id = , collid = )}, that correspond to the integer frame number, position, object id and id of collective events, respectively.
+#' @param inCols a list with column names, \code{list(frame = , id = , clid = )}, that correspond to the integer frame number, object id and id of collective events, respectively.
+#' @param inPosCols a vector with names of position columns, default \code{c("x")}.
 #' @param inDeb logical, whether to output debug information.
 #'
 #' @return a data.table with cluster numbers and id's of the corresponding objects
@@ -46,17 +47,15 @@
 #'  scale_color_discrete(name = "Object id:") +
 #'  theme_bw()
 trackCollEvents <- function(inDT,
-                            inEps = 1, inMinPts = 1L,
-                            inNprev = 1L,
-                            inCols = list(
-                              frame = "time",
-                              x = "x",
-                              y = NULL,
-                              z = NULL,
-                              id = "trackID",
-                              collid = "clTrackID"
-                            ),
-                            inDeb = T) {
+                             inEps = 1, inMinPts = 1L,
+                             inNprev = 1L,
+                             inCols = list(
+                               frame = "time",
+                               id = "trackID",
+                               clid = "clTrackID"
+                             ),
+                             inPosCols = c("x"),
+                             inDeb = T) {
   ## Checks
 
   # Check whether inDT is a data.table
@@ -73,7 +72,7 @@ trackCollEvents <- function(inDT,
     return(NULL)
   }
 
-  # String vector with position colums defined as f-n arguments
+  # String vector with position columns defined as f-n arguments
   locPosColsDefined <- c(
     inCols$x,
     inCols$y,
@@ -81,7 +80,7 @@ trackCollEvents <- function(inDT,
   )
   # Check if position columns are present in the input data
   if (length(setdiff(
-    locPosColsDefined,
+    inPosCols,
     names(inDT)
   )) > 0) {
     stop("Input data does not have the indicated position columns!")
@@ -89,9 +88,10 @@ trackCollEvents <- function(inDT,
 
   # String vector with position columns present in the input data
   locPosColsInDT <- intersect(
-    locPosColsDefined,
+    inPosCols,
     names(inDT)
   )
+
   if (inDeb) {
     cat("Names of position columns for distance calculation:\n")
     print(locPosColsInDT)
@@ -115,354 +115,169 @@ trackCollEvents <- function(inDT,
     stop("Parameter inMinPts has to be an integer greater than 0!")
   }
 
+  if (inNprev < 1L | !is.integer(inNprev)) {
+    stop("Parameter inNprev has to be an integer greater than 0!")
+  }
 
-  ## Algorithm
-  # Initiate the list of collective events
-  locCollEvents <- data.table()
+  # Make a local copy of input data only with necessary frames
+  locDT = inDT[,
+               c(inCols$frame,
+                 inCols$id,
+                 locPosColsInDT),
+               with = F]
 
-  # Prepare an expression to calculate the distance
-  # based on position columns present in inDT
-  locDistForm <- paste0(sprintf(
-    "(%s - %s.prev)^2",
-    locPosColsInDT, locPosColsInDT
-  ),
-  collapse = " + "
-  )
+  ## Step 1
+  ## Identify spatial clusters in every frame using dbscan
 
-  locDistForm <- sprintf("sqrt(%s)", locDistForm)
+  LOCmydbscan = function(x) {
+    locRes = dbscan::dbscan(as.matrix(x),
+                            eps = inEps,
+                            minPts = inMinPts)
+    return(as.integer(locRes$cluster))
+  }
 
-  # Main loop over frames
-  for (iFrame in sort(unique(inDT[[inCols$frame]]))) {
+  locSclidFrame = paste0(inCols$clid, ".frame")
+  locDT[,
+        (locSclidFrame) := LOCmydbscan(
+          eval(
+            parse(text = sprintf("cbind(%s)",
+                                 paste(locPosColsInDT,
+                                       collapse = ",")
+            )
+            )
+          )
+        ),
+        by = c(inCols$frame)]
+
+  # Keep only objects with identified clusters, i.e. cl > 0
+  locDT = locDT[get(locSclidFrame) > 0]
+
+  # To every cluster number add the cumulated cluster number from previous frame(s).
+  # This ensures that clusters identified by dbscan in individual frames
+  # have unique cluster number in the entire sequence.
+  locDTclAggr = locDT[,
+                      .(cl.max = max(get(locSclidFrame))),
+                      by = c(inCols$frame)]
+
+  locDTclAggr[,
+              cl.max.prev := shift(cumsum(cl.max))]
+
+  locDT = merge(locDT,
+                locDTclAggr[,
+                            c(inCols$frame,
+                              "cl.max.prev"),
+                            with = F],
+                by = c(inCols$frame))
+
+  locDT[,
+        (locSclidFrame) := get(locSclidFrame) +
+          ifelse(is.na(cl.max.prev), 0L, cl.max.prev)]
+
+  locDT[,
+        cl.max.prev := NULL]
+
+  rm(locDTclAggr)
+
+  # Duplicate the column with cluster numbers per frame;
+  # both will be returned in the final table
+  locDT[,
+        (inCols$clid) := get(locSclidFrame)]
+
+
+  ## Step 2
+  ## Link clusters between frames
+
+  # Main loop over frames; start from the second frame
+  for ( iFrame in (sort(unique(locDT[[inCols$frame]])))[-1] ) {
+
     if (inDeb) {
-      cat(sprintf("\nFrame: %d\n", iFrame))
+      cat(sprintf("Frame: %d\n", iFrame))
     }
 
-    # get all objects from a frame
-    locDTtime <- inDT[get(inCols$frame) == iFrame]
+    # Get positions of all cells in previous frame(s)
+    locDTposPrev = locDT[get(inCols$frame) %between% c(iFrame - inNprev,
+                                                       iFrame - 1),
+                         c(locPosColsInDT),
+                         with = F]
 
-    if (nrow(locDTtime) > 0) {
-      if (inDeb) {
-        cat(sprintf("%d object(s) present\n", nrow(locDTtime)))
-      }
+    # Proceed if objects found in previous frame(s)
+    if (nrow(locDTposPrev) > 0) {
 
-      if (nrow(locCollEvents) > 0) {
+      # Get cluster ids of objects in the current & previous frame(s)
+      locVclCurr = locDT[get(inCols$frame) == iFrame][[inCols$clid]]
+      locVclPrev = locDT[get(inCols$frame) %between% c(iFrame - inNprev,
+                                                       iFrame - 1)][[inCols$clid]]
+
+      # Loop over all clusters in the current frame &
+      # search for the closest neighbour in previous frame(s)
+      for ( iCl in sort(unique(locVclCurr)) ) {
+
         if (inDeb) {
-          cat(sprintf("  collective events already initiated\n"))
+          cat(sprintf("   Cluster: %d\n", iCl))
         }
+        # Get positions of all objects in a cluster in the current frame
+        locDTposCurr = locDT[get(inCols$frame) == iFrame &
+                               get(inCols$clid) == iCl,
+                             c(locPosColsInDT),
+                             with = F]
 
-        # Obtain objects that belong to collective events in the previous frame(s).
-        # NEXT: more testing when looking at more than 1 frame back
-        locCollPrev <- locCollEvents[get(inCols$frame) < iFrame &
-                                       get(inCols$frame) > iFrame - 1 - inNprev,
-                                     c(
-                                       locPosColsInDT,
-                                       inCols$collid
-                                     ),
-                                     with = F
-        ]
+        # Calculate distances to the nearest neighbour
+        # between objects in the current cluster and
+        # all objects in previous frame(s)
+        locResNN2 = RANN::nn2(locDTposPrev,
+                              locDTposCurr,
+                              k = 1)
 
-        if (nrow(locCollPrev) > 0) {
-          if (inDeb) {
-            cat(sprintf("    collective events present in the previous frame: link\n"))
+        # Get cluster numbers of all neighbours in previous frame(s)
+        locVclPrevNNall = locVclPrev[locResNN2$nn.idx]
+
+        # Get cluster numbers of neighbours within eps in previous frame(s)
+        locVclPrevNNeps = locVclPrev[locResNN2$nn.idx[locResNN2$nn.dists <= inEps]]
+
+        # Proceed if there are neighbour clusters in previous frame(s)
+        if (length(locVclPrevNNeps) > 0) {
+
+          # Calculate unique cluster numbers
+          # of neighbours within eps in previous frame(s)
+          locVclPrevNNuni = unique(locVclPrevNNeps)
+
+          # Reassign cluster numbers of the current frame
+          # to cluster numbers of neighbours in previous frame(s)
+
+          if (length(locVclPrevNNuni) > 1) {
+            # Current cluster is close to more than 1 clusters in previous frame(s)
+            locDT[get(inCols$frame) == iFrame &
+                    get(inCols$clid) == iCl,
+                  (inCols$clid) := locVclPrevNNall]
+
+          } else {
+            # Current cluster is close to only 1 cluster in previous frame(s)
+            locDT[get(inCols$frame) == iFrame &
+                    get(inCols$clid) == iCl,
+                  (inCols$clid) := rep(locVclPrevNNuni, nrow(locDTposCurr))]
           }
-
-          # There are collective events in the previous frame: link to current cells
-
-          # Calculate the Cartesian product of current objects and
-          # objects that belong to collective events in previous frame(s).
-          # This will create a table with every current object
-          # having a column with all objects that belong to collective events
-          # in previous frames. (Equivalently loop)
-
-          # 1. add a dummy column with the current frame number
-          # to have something to merge by
-          locCollPrev[, (inCols$frame) := iFrame]
-
-          # 2. add .prev suffix to the names of xyz columns
-          # such that merge doesn't change column names
-          setnames(locCollPrev,
-                   locPosColsInDT,
-                   paste0(locPosColsInDT, ".prev"),
-                   skip_absent = T
-          )
-
-          # cartesian product of current objects
-          # and objects in previous collective events
-          locTmp <- merge(locDTtime,
-                          locCollPrev,
-                          by = inCols$frame,
-                          allow.cartesian = T
-          )
-
-          ## Link new tracks to collective events within a distance
-
-          # Subset rows of objects that are within inEps distance
-          # to objects from collective events in the previous frame.
-          locTmp[, d := eval(parse(text = locDistForm))]
-
-          setkeyv(locTmp, inCols$id)
-          locWithinEps <- locTmp[locTmp[, (d == min(d)) & (d < inEps), by = c(inCols$id)]$V1, ]
-
-          # Sometimes the current object might be equidistant to
-          # more than 1 object in a previous cluster. Choose the first match!
-          locWithinEps <- locWithinEps[, .SD[1], by = c(inCols$id)]
-
-          # Add objects from the current frame to previous collective events.
-          if (nrow(locWithinEps) > 0) {
-            locCollEvents <- rbind(
-              locCollEvents,
-              locWithinEps[,
-                           c(
-                             inCols$frame,
-                             inCols$id,
-                             locPosColsInDT,
-                             inCols$collid
-                           ),
-                           with = F
-              ]
-            )
-          }
-
-          ## Tracks outside a distance should form new collective events
-          locOutsideEps <- unique(
-            locTmp[!(get(inCols$id) %in% unique(locWithinEps[[inCols$id]]))][,
-                                                                             c(
-                                                                               inCols$frame,
-                                                                               inCols$id,
-                                                                               locPosColsInDT
-                                                                             ),
-                                                                             with = F
-            ]
-          )
-
-          if (nrow(locOutsideEps) > 0) {
-            locNewCollEvents <- ARCOS::createCollEvents(
-              inDT = locOutsideEps,
-              inEps = inEps,
-              inMinPts = inMinPts,
-              inCols = inCols,
-              inClOffset = max(locCollEvents[[inCols$collid]]),
-              inDeb = inDeb
-            )
-
-            # add new collective events
-            locCollEvents <- rbind(
-              locCollEvents,
-              locNewCollEvents[,
-                               c(
-                                 inCols$frame,
-                                 inCols$id,
-                                 locPosColsInDT,
-                                 inCols$collid
-                               ),
-                               with = F
-              ]
-            )
-          }
-        } else {
-          if (inDeb) {
-            cat(sprintf("    no collective events in the previous frame: create new\n"))
-          }
-
-          # No collective events in the previous frame: create new ones
-          locNewCollEvents <- ARCOS::createCollEvents(
-            inDT = locDTtime,
-            inEps = inEps,
-            inMinPts = inMinPts,
-            inCols = inCols,
-            inClOffset = max(locCollEvents[[inCols$collid]]),
-            inDeb = inDeb
-          )
-
-          # add new collective events
-          locCollEvents <- rbind(
-            locCollEvents,
-            locNewCollEvents[,
-                             c(
-                               inCols$frame,
-                               inCols$id,
-                               locPosColsInDT,
-                               inCols$collid
-                             ),
-                             with = F
-            ]
-          )
         }
-      } else {
-        if (inDeb) {
-          cat(sprintf("  initiating collective events\n"))
-        }
-
-        # identify collective events from objects in the current frame
-        locNewCollEvents <- ARCOS::createCollEvents(
-          inDT = locDTtime,
-          inEps = inEps,
-          inMinPts = inMinPts,
-          inCols = inCols,
-          inClOffset = 0,
-          inDeb = inDeb
-        )
-
-        locCollEvents <- rbind(
-          locCollEvents,
-          locNewCollEvents[,
-                           c(
-                             inCols$frame,
-                             inCols$id,
-                             locPosColsInDT,
-                             inCols$collid
-                           ),
-                           with = F
-          ]
-        )
-      }
-    } else {
-      if (inDeb) {
-        cat("no objects\n")
       }
     }
   }
 
-  if (nrow(locCollEvents) > 0) {
-    return(locCollEvents[,
-                         c(
-                           inCols$frame,
-                           inCols$id,
-                           inCols$collid
-                         ),
-                         with = F
-    ])
-  } else {
-    return(locCollEvents)
-  }
+  # After reassignment, cluster numbers ar not consecutive;
+  # make them consecutive here.
+
+  locDT[,
+        (inCols$clid) := .GRP,
+        by = c(inCols$clid)]
+
+  setorderv(locDT,
+            c(inCols$frame,
+              inCols$id,
+              inCols$clid))
+
+  return(locDT[,
+               c(inCols$frame,
+                 inCols$id,
+                 locSclidFrame,
+                 inCols$clid),
+               with = F])
 }
 
-
-#' Identify collective events from objects in the current frame
-#'
-#' A helper function for the trackCollEvents function.
-#'
-#' @param inDT a data.table with time series in the long format.
-#' @param inEps a float with the search radius, default 1.
-#' @param inMinPts an integer with the minimum size of the cluster, default 1L.
-#' @param inClOffset an integer with an offset that corresponds to the max cluster number identified in previous frames, default 0L.
-#' @param inCols a list with column names, \code{list(frame = , x = , y = , z = , id = , collid = )}, that correspond to the frame number, position, track id's and id's of collective events, respectively.
-#' @param inDeb logical, whether to output debug information.
-#'
-#' @return a data.table with cluster numbers and id's of the corresponding objects.
-#' @export
-#' @import data.table
-#'
-#' @examples
-#' require(data.table)
-#' require(ggplot2)
-#'
-#' dtIn <- data.table(
-#'   time = rep(0, 5),
-#'   id = 1:5,
-#'   x = c(1:3, 5:6))
-#'
-#' dtCalc <- ARCOS::createCollEvents(dtIn,
-#'                                   inCols = list(
-#'                                     x = "x",
-#'                                     y = NULL,
-#'                                     z = NULL,
-#'                                     frame = "time",
-#'                                     id = "id",
-#'                                     collid = "collid"
-#'                                   ),
-#'                                   inEps = 1.01, inMinPts = 1,
-#'                                   inClOffset = 0,
-#'                                   inDeb = F)
-#'
-#' ggplot(dtCalc,
-#'        aes(x = x,
-#'            y = time)) +
-#'   geom_point(aes(color = as.factor(id),
-#'                  shape = as.factor(collid)),
-#'              size = 2) +
-#'   scale_color_discrete("Object id:") +
-#'   scale_shape_discrete("Collective id:") +
-#'   theme_bw()
-#'
-createCollEvents <- function(inDT,
-                             inEps = 1.,
-                             inMinPts = 1L,
-                             inClOffset = 0L,
-                             inCols = list(
-                               x = "x",
-                               y = NULL,
-                               z = NULL,
-                               frame = "time",
-                               id = "trackID",
-                               collid = "clTrackID"
-                             ),
-                             inDeb = T) {
-
-  locPosColsDefined <- c(
-    inCols$x,
-    inCols$y,
-    inCols$z
-  )
-
-  # Check if position columns present in the input data
-  if (length(setdiff(
-    locPosColsDefined,
-    names(inDT)
-  )) > 0) {
-    stop("Input data does not have the indicated position columns!")
-  }
-
-  # Identify position columns in the input data
-  locPosColsInDT <- intersect(
-    locPosColsDefined,
-    names(inDT)
-  )
-
-  # Positional clustering of objects
-  locDB <- dbscan::dbscan(as.matrix(inDT[,
-                                         c(locPosColsInDT),
-                                         with = F
-  ]),
-  eps = inEps,
-  minPts = inMinPts
-  )
-
-  if (sum(locDB$cluster) > 0) {
-
-    # Logical vector that describes whether an object was part of a cluster
-    locVclTrue <- locDB$cluster > 0
-
-    if (inDeb) {
-      cat(
-        "    createCollEvents:",
-        sum(locVclTrue),
-        "object(s) form",
-        length(unique(locDB$cluster[locVclTrue])),
-        "cluster(s)\n"
-      )
-    }
-
-    # Select only objects from the input data that belong to clusters
-    locCl <- inDT[locVclTrue,
-                  c(
-                    inCols$frame,
-                    inCols$id,
-                    locPosColsInDT
-                  ),
-                  with = F
-    ]
-
-    # A a column with cluster numbers;
-    # add an offset that corresponds to the max cluster number identified in previous frames
-    locCl[, (inCols$collid) := locDB$cluster[locVclTrue] + inClOffset]
-  } else {
-    if (inDeb) {
-      cat("    createCollEvents: no clusters\n")
-    }
-
-    locCl <- NULL
-  }
-
-  return(locCl)
-}
