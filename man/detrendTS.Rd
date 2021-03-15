@@ -37,9 +37,10 @@ After de-trending, the signal is rescaled to the \code{[0,1]} range,
 if the global difference between min/max is greater than the threshold \code{peakThr}.
 }
 \examples{
+library(ARCOS)
 vT = seq(0, 1, 0.001) * 10 * pi
 vY = sin(vT)+vT/10 + 1 + runif(length(vT))/2
-vYs = detrendTS(vY, smoothK = 21, biasMet = "lm")
+vYs = ARCOS::detrendTS(vY, smoothK = 21, biasMet = "lm")
 
 plot(vT/pi, vY, type = "l", ylim = c(0,6))
 lines(vT/pi, vYs, col = "red")

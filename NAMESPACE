@@ -1,6 +1,8 @@
 exportPattern("^[[:alpha:]]+")
 import(data.table)
+importFrom("rlang", ".data")
 importFrom("stats", "lm", "predict.lm", "runmed")
 importFrom("imputeTS", "na_interpolation")
+importFrom("grDevices", "chull")
 useDynLib("ARCOS")
 importFrom(Rcpp, sourceCpp)

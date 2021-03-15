@@ -9,9 +9,10 @@
 #'
 #' @return a data.table as the \code{inDTcoll} with collective events within provided duration and size bounds.
 #' @export
-#' @import data.table
+#' @import
 #'
 #' @examples
+#' cat("no examples")
 selCollEvents = function(inDTcoll,
                          inCols = list(frame = "frame",
                                        id = "trackID",

@@ -13,7 +13,7 @@
 #'
 #' @return a data.table with cluster numbers and id's of the corresponding objects
 #' @export
-#' @import data.table
+#' @import
 #'
 #' @examples
 #' library(ARCOS)
@@ -29,10 +29,10 @@
 #'                         inMinPts = 1L,
 #'                         inNprev = 1L,
 #'                         inCols = list(frame = "frame",
-#'                                       x = "x",
 #'                                       id = "id",
-#'                                       collid = "collId"),
-#'                         inDeb = F)
+#'                                       clid = "collId"),
+#'                         inPosCols = c("x"),
+#'                         inDeb = FALSE)
 #'
 #' dt = merge(dt, dtColl, by = c("frame", "id"))
 #'
@@ -55,7 +55,7 @@ trackCollEvents <- function(inDT,
                                clid = "clTrackID"
                              ),
                              inPosCols = c("x"),
-                             inDeb = T) {
+                             inDeb = FALSE) {
   ## Checks
 
   # Check whether inDT is a data.table

@@ -9,7 +9,7 @@
 #'
 #' @return a data.table with interpolated missing time points.
 #' @export
-#' @import data.table
+#' @import
 #'
 #' @examples
 #' library(ARCOS)

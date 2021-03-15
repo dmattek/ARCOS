@@ -5,7 +5,7 @@
 #'
 #' @return a data.table with numeric columns trimmed to the provided number of significant digits.
 #' @export
-#' @import data.table
+#' @import
 #'
 #' @examples
 #' library(ARCOS)

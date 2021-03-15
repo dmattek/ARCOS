@@ -17,7 +17,7 @@ comment = "#>"
 ```
 
 ```{r setup}
-#library(ARCOS)
+library(ARCOS)
 library(data.table)
 library(ggplot2)
 library(ggthemes)

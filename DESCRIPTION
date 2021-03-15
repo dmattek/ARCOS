@@ -13,7 +13,6 @@ Suggests:
     knitr,
     rmarkdown,
     reshape2,
-    ggplot2,
     ggthemes,
     OpenImageR
 Config/testthat/edition: 3
@@ -21,7 +20,10 @@ LinkingTo: Rcpp
 Imports: 
     data.table (>= 1.9.8),
     Rcpp,
+    RANN,
     dbscan,
-    imputeTS
+    imputeTS,
+    ggplot2,
+    ggnewscale
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr

@@ -9,13 +9,13 @@ trackCollEvents(
   inEps = 1,
   inMinPts = 1L,
   inNprev = 1L,
-  inCols = list(frame = "time", x = "x", y = NULL, z = NULL, id = "trackID", collid =
-    "clTrackID"),
-  inDeb = T
+  inCols = list(frame = "time", id = "trackID", clid = "clTrackID"),
+  inPosCols = c("x"),
+  inDeb = FALSE
 )
 }
 \arguments{
-\item{inDT}{a data.table with time series in the long format.}
+\item{inDT}{a data.table with time series in the long format with at least 3 columns: integer frame number, object id, object position.}
 
 \item{inEps}{a float with the search radius, default 1.}
 
@@ -23,7 +23,9 @@ trackCollEvents(
 
 \item{inNprev}{an integer with the number of previous frames to search for an event, default 1L.}
 
-\item{inCols}{a list with column names, \code{list(frame = , x = , y = , z = , id = , collid = )}, that correspond to the frame number, position, track id's and id's of collective events, respectively.}
+\item{inCols}{a list with column names, \code{list(frame = , id = , clid = )}, that correspond to the integer frame number, object id and id of collective events, respectively.}
+
+\item{inPosCols}{a vector with names of position columns, default \code{c("x")}.}
 
 \item{inDeb}{logical, whether to output debug information.}
 }
@@ -35,22 +37,23 @@ Time series data should be supplied in a long-format data.table with at least 3 
 frame number, position (1, 2, or 3 columns), and the object id.
 }
 \examples{
-require(data.table)
-require(ggplot2)
+library(ARCOS)
+library(data.table)
+library(ggplot2)
 
 dt = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
                 id = c(1, 2, 1, 2, 3, 1, 2, 3, 4, 1, 2, 4, 1, 4),
                 x = c(1, 3, 1.2, 2.5, 3.5, 0.9, 2.6, 2.9, 3.2, 1.1, 2.8, 3.1, 1, 3))
 
-dtColl = trackCollEvents(dt,
+dtColl = ARCOS::trackCollEvents(dt,
                         inEps = 0.6,
                         inMinPts = 1L,
                         inNprev = 1L,
                         inCols = list(frame = "frame",
-                                      x = "x",
                                       id = "id",
-                                      collid = "collId"),
-                        inDeb = F)
+                                      clid = "collId"),
+                        inPosCols = c("x"),
+                        inDeb = FALSE)
 
 dt = merge(dt, dtColl, by = c("frame", "id"))
 
