@@ -9,7 +9,7 @@
 #'
 #' @return a data.table with interpolated missing time points.
 #' @export
-#' @import
+#' @import data.table
 #'
 #' @examples
 #' library(ARCOS)
@@ -82,7 +82,7 @@ interpolateTS = function(inDT, inColID, inColFN, inColY, inFNfreq = 1L, inDeb = 
       # This is to ensure that interpolated columns are of the proper type.
       data.table::set(inDT, j = col, value = as.numeric(inDT[[col]]))
 
-      inDT[, `:=`((col), na_interpolation(get(col))), by = c(inColID)]
+      inDT[, `:=`((col), imputeTS::na_interpolation(get(col))), by = c(inColID)]
     }
   } else {
     if (inDeb) {

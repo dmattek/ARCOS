@@ -20,8 +20,8 @@
 #' @param inPlotType definition of the output image type, either "png" or "pdf".
 #'
 #' @return does not return any value; saves a sequence of images to the specified folder.
-#' @importFrom rlang .data
 #' @export
+#' @import data.table
 #'
 #' @examples
 #' cat("no example")
@@ -81,7 +81,7 @@ plotCollEvents2D = function(inDTobj,
 
 
   locDTch = locDTcollObj[,
-                         .SD[chull(get(inCols$x),
+                         .SD[grDevices::chull(get(inCols$x),
                                    get(inCols$y))],
                          by = c(inCols$frame,
                                 inCols$clid)]

@@ -16,6 +16,7 @@
 #'
 #' @return a numeric vector with a smoothed time series.
 #' @export
+#' @importFrom stats lm predict.lm runmed
 #'
 #' @examples
 #' library(ARCOS)

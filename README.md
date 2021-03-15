@@ -79,22 +79,37 @@ The minimal data in the long format consists of 3 columns:
 ``` r
 library(ARCOS)
 library(data.table)
+library(ggplot2)
 
 dtIn = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
                   objid = c(1, 2, 1, 2, 3, 1, 2, 3, 4, 1, 2, 4, 1, 4),
                   x = c(1, 3, 1.2, 2.5, 3.5, 0.9, 2.6, 2.9, 3.2, 1.1, 2.8, 3.1, 1, 3))
 ```
 
-    > head(dtIn, 3)
-        frame objid   x
-     1:     1     1 1.0
-     2:     1     2 3.0
-     3:     2     1 1.2
+``` r
+head(dtIn, 3)
+#>    frame objid   x
+#> 1:     1     1 1.0
+#> 2:     1     2 3.0
+#> 3:     2     1 1.2
+```
 
 Each object has a distinct identifier represented by a different colour
 in the plot:
 
-![Input data](man/figures/4obj-5tpts.png)
+``` r
+ggplot(dtIn,
+       aes(x = x,
+           y = frame,
+           color = as.factor(objid),
+           group = objid)) +
+  geom_path() +
+  geom_point() +
+  scale_color_discrete(name = "Object\nID") +
+  theme_bw()
+```
+
+<img src="man/figures/README-fig1-fourTraces-1.png" width="100%" />
 
 ### Detection and tracking
 
@@ -128,9 +143,9 @@ dtColl = trackCollEvents(dtIn,
                          inMinPts = 1L,
                          inNprev = 1L,
                          inCols = list(frame = "frame",
-                                       x = "x",
                                        id = "objid",
-                                       collid = "collid"),
+                                       clid = "collid"),
+                         inPosCols = c("x"),
                          inDeb = F)
 ```
 
@@ -138,11 +153,11 @@ The output contains 3 columns with the frame number, object identifier,
 and the calculated identifier of the collective event:
 
 ``` r
-> head(dtColl, 3)
-   frame objid collid
-1:     1     1      1
-2:     1     2      2
-3:     2     1      1
+head(dtColl, 3)
+#>    frame objid collid.frame collid
+#> 1:     1     1            1      1
+#> 2:     1     2            2      2
+#> 3:     2     1            3      1
 ```
 
 ### Visualisation
@@ -152,20 +167,33 @@ the `trackCollEvents` function with the original table by the frame
 number (column `time`) and the object identifier (column `objid`):
 
 ``` r
-dtIn = merge(dtIn, 
+dtRes = merge(dtIn, 
              dtColl, 
              by = c("frame", "objid"))
 ```
 
 ``` r
-> head(dtIn, 3)
-   frame objid   x collid
-1:     1     1 1.0      1
-2:     1     2 3.0      2
-3:     2     1 1.2      1
+head(dtRes, 3)
+#>    frame objid   x collid.frame collid
+#> 1:     1     1 1.0            1      1
+#> 2:     1     2 3.0            2      2
+#> 3:     2     1 1.2            3      1
 ```
 
 Each trace is assigned an identifier of the collective event, which is
 represented by the shape of the point in the plot:
 
-![Visualisation of collective events](man/figures/4obj-5tpts-2coll.png)
+``` r
+ggplot(dtRes,
+       aes(x = x,
+           y = frame,
+           color = as.factor(objid),
+           group = objid)) +
+  geom_path() +
+  geom_point(aes(shape = as.factor(collid))) +
+  scale_color_discrete(name = "Object\nID") +
+  scale_shape_discrete(name = "Collective\nID") +
+  theme_bw()
+```
+
+<img src="man/figures/README-fig2-twoCollEvents-1.png" width="100%" />

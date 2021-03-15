@@ -13,7 +13,7 @@
 #'
 #' @return a data.table with cluster numbers and id's of the corresponding objects
 #' @export
-#' @import
+#' @import data.table
 #'
 #' @examples
 #' library(ARCOS)

@@ -9,7 +9,7 @@
 #'
 #' @return a data.table as the \code{inDTcoll} with collective events within provided duration and size bounds.
 #' @export
-#' @import
+#' @import data.table
 #'
 #' @examples
 #' cat("no examples")
