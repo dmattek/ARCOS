@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     toc: true 
 vignette: >
-  %\VignetteIndexEntry{ARCOS basics}
+  %\VignetteIndexEntry{Basic usage of ARCOS}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -111,9 +111,9 @@ dtColl = trackCollEvents(dtIn,
                          inMinPts = 1L,
                          inNprev = 1L,
                          inCols = list(frame = "frame",
-                                       x = "x",
                                        id = "objid",
-                                       collid = "collid"),
+                                       clid = "collid"),
+                         inPosCols = c("x"),
                          inDeb = F)
 ```
 
@@ -129,7 +129,7 @@ In order to visualise collective events we merge the table computed by the `trac
 
 
 ```{r echo = T}
-dtIn = merge(dtIn, 
+dtRes = merge(dtIn, 
              dtColl, 
              by = c("frame", "objid"))
 ```
@@ -137,7 +137,7 @@ dtIn = merge(dtIn,
 Each trace is assigned an identifier of the collective event, which is represented by the shape of the point in the plot:
 
 ```{r, echo = F, fig.width=5, fig.height=5, caption="Visualisation of collective events over time"}
-ggplot(dtIn,
+ggplot(dtRes,
        aes(x=x,
            y = frame,
            color = factor(objid),
@@ -237,11 +237,9 @@ dtColl = ARCOS::trackCollEvents(inDT = dtIn[m > 0],
                                 inMinPts = 1L, 
                                 inNprev = 1L, 
                                 inCols = list(frame = "time",
-                                              x = "x",
-                                              y = "y",
-                                              z = NULL,
                                               id = "objID",
-                                              collid = "collID"),
+                                              clid = "collID"),
+                                inPosCols = c("x", "y"),
                                 inDeb = F)
 ```
 
@@ -288,8 +286,13 @@ The comparison of the result against the ground truth:
 
 ```{r, echo = F, results="asis", eval = T}
 resTest = testthat::test_that("dmd exp05", {
-  locDTtrueRes = fread(file = file.path(system.file("concentricGrowth", package="ARCOS"), "exp05_out.csv.gz"))
-  expect_equal(dtColl, locDTtrueRes)
+  locDTtrueRes = fread(file = file.path(system.file("concentricGrowth", 
+                                                    package="ARCOS"), 
+                                        "exp05_out.csv.gz"))
+  attr(dtColl, "sorted") = NULL
+  expect_equal(dtColl[,
+                      .(time, objID, collID)], 
+               locDTtrueRes)
 })
 
 if (resTest)
