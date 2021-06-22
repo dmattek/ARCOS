@@ -7,9 +7,9 @@
 keepSignifDig(inDT, inDigits)
 }
 \arguments{
-\item{inDT}{a data.table with time series in the long format.}
-
 \item{inDigits}{an integer with the number of significant digits.}
+
+\item{inlocdt}{a data.table with time series in the long format.}
 }
 \value{
 a data.table with numeric columns trimmed to the provided number of significant digits.
@@ -21,9 +21,9 @@ Keep significant digits in double numerical columns of a data.table
 library(ARCOS)
 library(data.table)
 
-dt = data.table(id = LETTERS[1:10],
+locdt = data.table(id = LETTERS[1:10],
                 x = runif(10))
 
-dtTrim = ARCOS::keepSignifDig(dt, 2)
+locdtTrim = ARCOS::keepSignifDig(locdt, 2)
 
 }

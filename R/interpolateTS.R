@@ -8,7 +8,6 @@
 #' @param inDeb logical, whether to output debug information.
 #'
 #' @return a data.table with interpolated missing time points.
-#' @export
 #' @import data.table
 #'
 #' @examples
@@ -62,8 +61,8 @@ interpolateTS = function(inDT, inColID, inColFN, inColY, inFNfreq = 1L, inDeb = 
 
   # check rows with NAs in columns selected for interpolation
   locNA = inDT[rowSums(is.na(inDT[,
-                                   c(inColY),
-                                   with = F])) > 0, ]
+                                  c(inColY),
+                                  with = F])) > 0, ]
 
   if (nrow(locNA) > 0) {
     # x-check: print all rows with NA's
@@ -92,3 +91,55 @@ interpolateTS = function(inDT, inColID, inColFN, inColY, inFNfreq = 1L, inDeb = 
 
   return(inDT)
 }
+
+
+#' Interpolate NAs and missing data
+#'
+#' Wrapper for the \code{interpolateTS} function.
+#'
+#' @param obj an arcosTS object.
+#'
+#' @return an arcosTS object.
+#' @import data.table
+#'
+#' @rdname interpolMeas
+#' @export interpolMeas
+#'
+#' @examples
+#' cat("no examples")
+interpolMeas <- function(obj) {
+  UseMethod("interpolMeas")
+}
+
+interpolMeas.default <- function(obj) {
+  cat("This is a generic function\n")
+}
+
+#' @rdname interpolMeas
+#' @export interpolMeas.arcosTS
+#' @export
+interpolMeas.arcosTS <- function(obj) {
+
+  stopifnot(is.arcosTS(obj))
+
+  locDT = interpolateTS(inDT = obj,
+                        inColID = attr(obj, "colIDobj"),
+                        inColFN = attr(obj, "colFrame"),
+                        inColY = c(attr(obj, "colPos"), attr(obj, "colMeas")),
+                        inFNfreq = attr(obj, "interVal"),
+                        inDeb = F)
+
+  # Add attributes to the data.table
+  new_arcosTS(dt = locDT,
+              colPos = attr(obj, "colPos"),
+              colMeas = attr(obj, "colMeas"),
+              colFrame = attr(obj, "colFrame"),
+              colRT = attr(obj, "colRT"),
+              colIDobj = attr(obj, "colIDobj"),
+              colIDcoll = attr(obj, "colIDcoll"),
+              interVal = attr(obj, "interVal"),
+              interType = attr(obj, "interType"))
+
+  return(locDT)
+}
+

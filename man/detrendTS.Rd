@@ -9,7 +9,7 @@ detrendTS(
   smoothK = 3L,
   biasK = 51L,
   peakThr = 0.2,
-  biasMet = c("runmed", "lm")
+  biasMet = c("runmed", "lm", "none")
 )
 }
 \arguments{

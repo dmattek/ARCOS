@@ -5,36 +5,58 @@
 \title{Track collective events}
 \usage{
 trackCollEvents(
-  inDT,
-  inEps = 1,
-  inMinPts = 1L,
-  inNprev = 1L,
-  inCols = list(frame = "time", id = "trackID", clid = "clTrackID"),
-  inPosCols = c("x"),
-  inDeb = FALSE
+  dt,
+  eps = 1,
+  minClSz = 1L,
+  nPrev = 1L,
+  cols = list(frame = "time", id = "trackID", clid = "clTrackID"),
+  posCols = c("x"),
+  deb = FALSE
 )
 }
 \arguments{
-\item{inDT}{a data.table with time series in the long format with at least 3 columns: integer frame number, object id, object position.}
+\item{dt}{a data.table with time series in the long format with at least 3 columns: integer frame number, object id, object position.}
 
-\item{inEps}{a float with the search radius, default 1.}
+\item{eps}{a float with the search radius, default 1.}
 
-\item{inMinPts}{an integer with the minimum size of the cluster, default 1L.}
+\item{minClSz}{an integer with the minimum size of the cluster, default 1L.}
 
-\item{inNprev}{an integer with the number of previous frames to search for an event, default 1L.}
+\item{nPrev}{an integer with the number of previous frames to search for an event, default 1L.}
 
-\item{inCols}{a list with column names, \code{list(frame = , id = , clid = )}, that correspond to the integer frame number, object id and id of collective events, respectively.}
+\item{cols}{a list with column names, \code{list(frame = , id = , clid = )}, that correspond to the integer frame number, object id and id of collective events, respectively.}
 
-\item{inPosCols}{a vector with names of position columns, default \code{c("x")}.}
+\item{posCols}{a vector with names of position columns, default \code{c("x")}.}
 
-\item{inDeb}{logical, whether to output debug information.}
+\item{deb}{logical, whether to output debug information.}
 }
 \value{
 a data.table with cluster numbers and id's of the corresponding objects
 }
 \description{
-Time series data should be supplied in a long-format data.table with at least 3 columns:
+Track spatial clusters of objects between frames of a time series. Positions of objects should be supplied
+in a long-format data.table with at least 3 columns:
 frame number, position (1, 2, or 3 columns), and the object id.
+The frame number should be an integer, the object ID may be a string or an integer, and the object position has to be numeric (an integer or a float).
+}
+\details{
+Thanks to long format, every frame contains at least one object, however, frames do not need to be consecutive.
+Objects are searched at least one frame back. Adjust the length of the search history with \code{nPrev}.
+
+The algorithm first spatially clusters objects independently in every frame,
+then propagates cluster numbers to clusters in consecutive frames, if at least one objects is within a threshold distance.
+Spatial clustering is performed using \code{dbscan::dbscan} and the nearest-neighbour (NN) distance is calculated with the \code{RANN::nn2} function.
+
+The algorithm proceeds as follows:
+
+spatially cluster objects independently in every frame; the resulting cluster IDs are unique for the entire time sequence
+**for** every frame \code{i}
+   search for objects in \code{nPrev} frames
+   **for** every cluster in the current frame \code{k}
+      calculate the NN distance between objects in cluster \code{k} and all objects from all clusters in \code{nPrev} frame(s)
+      **if** the NN distance is below the threshold
+         change the cluster ID of all objects in cluster \code{k} to that of the closest object in \code{nPrev} frame(s)
+   **end for** every cluster
+**end for** every frame
 }
 \examples{
 library(ARCOS)
@@ -46,14 +68,14 @@ dt = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
                 x = c(1, 3, 1.2, 2.5, 3.5, 0.9, 2.6, 2.9, 3.2, 1.1, 2.8, 3.1, 1, 3))
 
 dtColl = ARCOS::trackCollEvents(dt,
-                        inEps = 0.6,
-                        inMinPts = 1L,
-                        inNprev = 1L,
-                        inCols = list(frame = "frame",
+                        eps = 0.6,
+                        minClSz = 1L,
+                        nPrev = 1L,
+                        cols = list(frame = "frame",
                                       id = "id",
                                       clid = "collId"),
-                        inPosCols = c("x"),
-                        inDeb = FALSE)
+                        posCols = c("x"),
+                        deb = FALSE)
 
 dt = merge(dt, dtColl, by = c("frame", "id"))
 

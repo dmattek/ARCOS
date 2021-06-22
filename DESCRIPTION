@@ -12,19 +12,21 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
-    reshape2,
-    ggthemes,
-    OpenImageR
+    ggthemes
 Config/testthat/edition: 3
 LinkingTo: Rcpp
 Imports: 
     data.table (>= 1.9.8),
+    reshape2,
     Rcpp,
     RANN,
     dbscan,
     imputeTS,
+    OpenImageR,
     ggplot2,
     ggnewscale,
-    grDevices
+    grDevices,
+    shiny,
+    plotly
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
