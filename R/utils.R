@@ -1,6 +1,6 @@
 #' Keep significant digits in double numerical columns of a data.table
 #'
-#' @param inlocdt a data.table with time series in the long format.
+#' @param inDT a data.table with time series in the long format.
 #' @param inDigits an integer with the number of significant digits.
 #'
 #' @return a data.table with numeric columns trimmed to the provided number of significant digits.

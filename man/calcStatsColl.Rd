@@ -3,7 +3,7 @@
 \name{calcStatsColl}
 \alias{calcStatsColl}
 \alias{calcStatsColl.arcosTS}
-\title{"Select collective events"}
+\title{"Stats of collective events"}
 \usage{
 calcStatsColl(obj)
 
@@ -11,21 +11,15 @@ calcStatsColl(obj)
 }
 \arguments{
 \item{obj}{an arcosTS object.}
-
-\item{eps}{a numeric, sets the search radius.}
-
-\item{minpts}{an integer, minimum cluster size.}
-
-\item{nprev}{an integer, number of previous frames to link.}
 }
 \value{
 an arcosTS object
 }
 \description{
-Select collective events
+Stats of collective events
 }
 \details{
-Wrapper for the \code{selCollEvents} function.
+Wrapper for the \code{calcStatsCollEvents} function.
 }
 \examples{
 cat("no examples")

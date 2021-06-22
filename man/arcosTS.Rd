@@ -16,7 +16,9 @@ arcosTS(
 \arguments{
 \item{dt}{a data.table with time series in the long format.}
 
-\item{colPos}{a vector with names of positional columns}
+\item{colPos}{a vector with names of positional columns; default "x".}
+
+\item{colMeas}{a string with the column name of the measurement; default NULL.}
 
 \item{col}{a list with names of other columns, i.e. list(Frame = , IDobj = , RT = , IDcoll = ), with names of the frame, object id, real time, and collective id columns.}
 

@@ -11,8 +11,7 @@
 #' @return a numeric vector.
 #'
 #' @examples
-#' v = runif(10)
-#' rcpp_clip(v, 3, 7)
+#' cat("no example")
 rcpp_clip <- function(x, a, b) {
     .Call('_ARCOS_rcpp_clip', PACKAGE = 'ARCOS', x, a, b)
 }

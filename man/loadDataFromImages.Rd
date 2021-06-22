@@ -9,7 +9,9 @@ loadDataFromImages(path, ext, thres = 0)
 \arguments{
 \item{path}{a string with path to images.}
 
-\item{ext}{a string with pattern for image search/}
+\item{ext}{a string with pattern for image search.}
+
+\item{thres}{a numeric with pixel threshold; default 0.}
 }
 \value{
 an arcosTS object.

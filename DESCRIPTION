@@ -12,7 +12,10 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
-    ggthemes
+    ggthemes,
+    ggnewscale,
+    shiny,
+    plotly
 Config/testthat/edition: 3
 LinkingTo: Rcpp
 Imports: 
@@ -24,9 +27,6 @@ Imports:
     imputeTS,
     OpenImageR,
     ggplot2,
-    ggnewscale,
-    grDevices,
-    shiny,
-    plotly
+    grDevices
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr

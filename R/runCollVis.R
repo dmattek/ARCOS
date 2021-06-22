@@ -1,6 +1,12 @@
 #' Shiny app to visualise collective events
 #'
+#' @param objTS an arcosTS object with time series.
+#' @param objColl an arcosTS object with collective events.
+#' @param ... additional parameters passed to shiny::runApp.
+#'
 #' @export
+#' @examples
+#' cat("no examples")
 runCollVis <- function(objTS, objColl, ...) {
 
   # based on:

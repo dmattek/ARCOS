@@ -1,7 +1,8 @@
 #' Title
 #'
 #' @param path a string with path to images.
-#' @param ext a string with pattern for image search/
+#' @param ext a string with pattern for image search.
+#' @param thres a numeric with pixel threshold; default 0.
 #'
 #' @return an arcosTS object.
 #' @export

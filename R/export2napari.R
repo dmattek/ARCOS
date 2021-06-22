@@ -1,4 +1,3 @@
-
 #' Title
 #'
 #' @title "Export data to Napari"
@@ -14,7 +13,6 @@
 #'
 #' @examples
 #' cat("no examples")
-
 export2napari <- function(objColl, dirpath, ...) {
   UseMethod("export2napari")
 }

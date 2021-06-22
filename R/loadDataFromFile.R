@@ -1,7 +1,12 @@
 #' Title
 #'
-#' @param path a string with path to images.
-#' @param ext a string with pattern for image search/
+#' @param fname a string with the file name path.
+#' @param colPos a vector with names of positional columns; default "x".
+#' @param colMeas a string with the column name of the measurement; default NULL.
+#' @param col a list with names of other columns, i.e. list(Frame = , IDobj = , RT = , IDcoll = ), with names of the frame, object id, real time, and collective id columns.
+#' @param interVal a numeric with the interval length.
+#' @param interType a string to designate whether the time series has fixed or variable intervals; possible values fixed or var.
+#' @param ... additional parameters passed to data.table::fread.
 #'
 #' @return an arcosTS object.
 #' @export

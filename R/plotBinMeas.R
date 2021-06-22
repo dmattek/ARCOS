@@ -2,6 +2,8 @@
 #'
 #' @title "Visualise measurement binarisation"
 #' @param obj an arcosTS object.
+#' @param ntraj an integer with the number of random trajectories to plot; default 16L.
+#' @param measfac a numeric with a rescaling factor for the measurement for visualisation purposes; default 1.
 #'
 #' @return a ggplot2 object.
 #' @import data.table
@@ -11,19 +13,18 @@
 #'
 #' @examples
 #' cat("no examples")
-
-plotBinMeas <- function(obj, ntraj = 16, measfac = 1.) {
+plotBinMeas <- function(obj, ntraj = 16L, measfac = 1.) {
   UseMethod("plotBinMeas")
 }
 
-plotBinMeas.default <- function(obj, ntraj = 16, measfac = 1.) {
+plotBinMeas.default <- function(obj, ntraj = 16L, measfac = 1.) {
   cat("This is a generic function\n")
 }
 
 #' @rdname plotBinMeas
 #' @export plotBinMeas.arcosTS
 #' @export
-plotBinMeas.arcosTS <- function(obj, ntraj = 16, measfac = 1.) {
+plotBinMeas.arcosTS <- function(obj, ntraj = 16L, measfac = 1.) {
 
   stopifnot(is.arcosTS(obj))
 

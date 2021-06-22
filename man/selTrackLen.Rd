@@ -11,6 +11,10 @@ selTrackLen(obj, lenmin = NULL, lenmax = NULL)
 }
 \arguments{
 \item{obj}{an arcosTS object.}
+
+\item{lenmin}{an integer, minimum track length; default NULL.}
+
+\item{lenmax}{an integer, maximum track length; default NULL.}
 }
 \value{
 an arcosTS object.

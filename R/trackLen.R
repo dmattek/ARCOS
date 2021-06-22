@@ -1,6 +1,7 @@
 #' Plot a histogram of track lengths
 #' @title "Plot a histogram of track lengths
 #' @param obj an arcosTS object.
+#' @param binwidth a numeric, sets the width of histogram bins; default NULL.
 #'
 #' @return a ggplot2 object.
 #'
@@ -54,6 +55,8 @@ histTrackLen.arcosTS <- function(obj, binwidth = NULL) {
 #' Select track lengths
 #'
 #' @param obj an arcosTS object.
+#' @param lenmin an integer, minimum track length; default NULL.
+#' @param lenmax an integer, maximum track length; default NULL.
 #'
 #' @return an arcosTS object.
 #' @import data.table

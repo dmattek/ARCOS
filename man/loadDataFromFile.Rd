@@ -15,9 +15,19 @@ loadDataFromFile(
 )
 }
 \arguments{
-\item{path}{a string with path to images.}
+\item{fname}{a string with the file name path.}
 
-\item{ext}{a string with pattern for image search/}
+\item{colPos}{a vector with names of positional columns; default "x".}
+
+\item{colMeas}{a string with the column name of the measurement; default NULL.}
+
+\item{col}{a list with names of other columns, i.e. list(Frame = , IDobj = , RT = , IDcoll = ), with names of the frame, object id, real time, and collective id columns.}
+
+\item{interVal}{a numeric with the interval length.}
+
+\item{interType}{a string to designate whether the time series has fixed or variable intervals; possible values fixed or var.}
+
+\item{...}{additional parameters passed to data.table::fread.}
 }
 \value{
 an arcosTS object.

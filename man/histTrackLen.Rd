@@ -11,6 +11,8 @@ histTrackLen(obj, binwidth = NULL)
 }
 \arguments{
 \item{obj}{an arcosTS object.}
+
+\item{binwidth}{a numeric, sets the width of histogram bins; default NULL.}
 }
 \value{
 a ggplot2 object.

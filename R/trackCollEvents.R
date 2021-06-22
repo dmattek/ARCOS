@@ -45,7 +45,7 @@
 #'                 id = c(1, 2, 1, 2, 3, 1, 2, 3, 4, 1, 2, 4, 1, 4),
 #'                 x = c(1, 3, 1.2, 2.5, 3.5, 0.9, 2.6, 2.9, 3.2, 1.1, 2.8, 3.1, 1, 3))
 #'
-#' dtColl = ARCOS::trackCollEvents(dt,
+#' dtColl = ARCOS:::trackCollEvents(dt,
 #'                         eps = 0.6,
 #'                         minClSz = 1L,
 #'                         nPrev = 1L,
@@ -312,9 +312,10 @@ trackCollEvents <- function(dt,
 #'
 #' @title "Track collective events"
 #' @param obj an arcosTS object.
-#' @param eps a numeric, sets the search radius.
-#' @param minpts an integer, minimum cluster size.
-#' @param nprev an integer, number of previous frames to link.
+#' @param eps a numeric, sets the search radius; default 1.
+#' @param minClSz an integer, minimum cluster size; default 1L.
+#' @param nPrev an integer, number of previous frames to link; default 1L.
+#' @param deb boolean, additional debug output; default FALSE,
 #'
 #' @return an arcosTS object
 #'
@@ -324,18 +325,22 @@ trackCollEvents <- function(dt,
 #' @export trackColl
 #'
 #' @examples
-#' dt = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
+#' library(ARCOS)
+#' library(data.table)
+#' ts = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
 #'                 objid = c(1, 2, 1, 2, 3, 1, 2, 3, 4, 1, 2, 4, 1, 4),
 #'                 x = c(1, 3, 1.2, 2.5, 3.5, 0.9, 2.6, 2.9, 3.2, 1.1, 2.8, 3.1, 1, 3))
 #'
-#' ts = arcosTS(dt,
-#'              posCols = c("x"),
-#'              cols = list(frame = "frame",
-#'              id = "objid"),
-#'              interVal = 1.,
-#'              interType = "fixed")
-#' ts = trackColl(ts)
-#' ts
+#' arcosTS(ts,
+#'         colPos = "x",
+#'         col = list(Frame = "frame",
+#'                    IDobj = "objid",
+#'                    RT = NULL,
+#'                    IDcoll = NULL),
+#'         interVal = 1.,
+#'         interType = "fixed")
+#'
+#' tc = trackColl(ts)
 trackColl <- function(obj, eps = 1., minClSz = 1L, nPrev = 1L, deb = FALSE) {
   UseMethod("trackColl")
 }

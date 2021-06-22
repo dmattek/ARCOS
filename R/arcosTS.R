@@ -13,6 +13,9 @@ NULL
 #' @rdname is.arcosTS
 #' @export is.arcosTS
 #' @export
+#'
+#' @examples
+#' cat("no examples")
 is.arcosTS = function(x) inherits(x, "arcosTS")
 
 # Constructor of the arcosTS class
@@ -83,7 +86,8 @@ validate_arcosTS <- function(obj) {
 #' Helper of the arcosTS class
 #'
 #' @param dt a data.table with time series in the long format.
-#' @param colPos a vector with names of positional columns
+#' @param colPos a vector with names of positional columns; default "x".
+#' @param colMeas a string with the column name of the measurement; default NULL.
 #' @param col a list with names of other columns, i.e. list(Frame = , IDobj = , RT = , IDcoll = ), with names of the frame, object id, real time, and collective id columns.
 #' @param interVal a numeric with the interval length.
 #' @param interType a string to designate whether the time series has fixed or variable intervals; possible values fixed or var.

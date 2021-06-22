@@ -18,7 +18,7 @@
 #'                 y = c(1,2,3,5,6,7),
 #'                 id = rep(1, 6))
 #'
-#' dtInt = ARCOS::interpolateTS(inDT = dt,
+#' dtInt = ARCOS:::interpolateTS(inDT = dt,
 #'                       inColID = "id",
 #'                       inColFN = "t",
 #'                       inColY = "y",

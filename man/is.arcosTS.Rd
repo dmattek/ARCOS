@@ -12,3 +12,6 @@ is.arcosTS(x)
 \description{
 Test whether an object is an arcosTS object
 }
+\examples{
+cat("no examples")
+}

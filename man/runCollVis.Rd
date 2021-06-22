@@ -6,6 +6,16 @@
 \usage{
 runCollVis(objTS, objColl, ...)
 }
+\arguments{
+\item{objTS}{an arcosTS object with time series.}
+
+\item{objColl}{an arcosTS object with collective events.}
+
+\item{...}{additional parameters passed to shiny::runApp.}
+}
 \description{
 Shiny app to visualise collective events
+}
+\examples{
+cat("no examples")
 }

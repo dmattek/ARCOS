@@ -12,11 +12,9 @@ selColl(obj, colldur = c(1, Inf), colltotsz = c(1, Inf))
 \arguments{
 \item{obj}{an arcosTS object.}
 
-\item{eps}{a numeric, sets the search radius.}
+\item{colldur}{a two-element vector of integers with minimum and maximum duration of collective events; default c(1, Inf).}
 
-\item{minpts}{an integer, minimum cluster size.}
-
-\item{nprev}{an integer, number of previous frames to link.}
+\item{colltotsz}{a two-element vector of integers with minimum and maximum total size of collective events; default c(1, Inf).}
 }
 \value{
 an arcosTS object
@@ -25,16 +23,23 @@ an arcosTS object
 Wrapper for the \code{selCollEvents} function.
 }
 \examples{
-dt = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
+library(ARCOS)
+library(data.table)
+ ts = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
                 objid = c(1, 2, 1, 2, 3, 1, 2, 3, 4, 1, 2, 4, 1, 4),
                 x = c(1, 3, 1.2, 2.5, 3.5, 0.9, 2.6, 2.9, 3.2, 1.1, 2.8, 3.1, 1, 3))
 
-ts = arcosTS(dt,
-             posCols = c("x"),
-             cols = list(frame = "frame",
-             id = "objid"),
-             interVal = 1.,
-             interType = "fixed")
-ts = trackColl(ts)
-ts
+arcosTS(ts,
+        colPos = "x",
+        col = list(Frame = "frame",
+                   IDobj = "objid",
+                   RT = NULL,
+                   IDcoll = NULL),
+        interVal = 1.,
+        interType = "fixed")
+
+tc = trackColl(ts)
+tcsel = selColl(tc,
+                colldur = c(3,Inf),
+                colltotsz = c(3, Inf))
 }

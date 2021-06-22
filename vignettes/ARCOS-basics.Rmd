@@ -19,6 +19,7 @@ comment = "#>"
 ```{r setup}
 library(ARCOS)
 library(ggplot2)
+library(ggnewscale)
 ```
 
 

@@ -31,15 +31,12 @@ calcStatsCollEvents = function(inDTcoll,
 
 
 
-#' Select collective events
+#' Stats of collective events
 #'
-#' Wrapper for the \code{selCollEvents} function.
+#' Wrapper for the \code{calcStatsCollEvents} function.
 #'
-#' @title "Select collective events"
+#' @title "Stats of collective events"
 #' @param obj an arcosTS object.
-#' @param eps a numeric, sets the search radius.
-#' @param minpts an integer, minimum cluster size.
-#' @param nprev an integer, number of previous frames to link.
 #'
 #' @return an arcosTS object
 #'

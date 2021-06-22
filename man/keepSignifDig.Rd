@@ -7,9 +7,9 @@
 keepSignifDig(inDT, inDigits)
 }
 \arguments{
-\item{inDigits}{an integer with the number of significant digits.}
+\item{inDT}{a data.table with time series in the long format.}
 
-\item{inlocdt}{a data.table with time series in the long format.}
+\item{inDigits}{an integer with the number of significant digits.}
 }
 \value{
 a data.table with numeric columns trimmed to the provided number of significant digits.
