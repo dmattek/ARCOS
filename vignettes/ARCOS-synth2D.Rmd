@@ -1,0 +1,115 @@
+---
+title: "ARCOS demo of 2D events"
+output: 
+  rmarkdown::html_vignette:
+    toc: true 
+vignette: >
+  %\VignetteIndexEntry{ARCOS demo of 2D events}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+collapse = TRUE,
+comment = "#>"
+)
+```
+
+```{r setup}
+library(ARCOS)
+library(ggplot2)
+library(ggthemes)
+```
+
+
+# Detection from images
+
+Here we detect and track a concentrically growing cluster of active objects directly from a sequence of 12 binary PNG images at 64-by-64 pixel resolution. We treat each pixel in the image as a separate object, to which we assign an `objID` number. The `objID` identifier is the same for objects with the same X/Y position in subsequent frames.
+
+Objects (pixels) have values either 0 or 1, which correspond to an inactive or active object, respectively. Objects with value 1 are *active* and our goal is to detect and track a collective activation of all such objects in all frames of the time sequence. 
+
+## Read data from images
+
+We use the `loadDataFromImages` function to read data from PNG images. The function returns an `arcosTS` object, which is a `data.table` with additional attributes that specify position, measurement, and object ID columns.
+
+```{r,echo=T}
+dtIm = ARCOS::loadDataFromImages(file.path(system.file("concentricGrowth",
+                                                       package="ARCOS"), 
+                                           "png_64"),
+                                 "*.png")
+```
+
+
+The final long-format input data with active/inactive objects. Columns:
+
+- `x` and `y` correspond to X/Y coordinates of an object,
+- `m` contains the binarised measurement $\{0,1\}$ that corresponds to inactive/active objects, respectively. For the identification of collective events we will only use *active* objects, i.e. $m > 0$,
+- `objID` holds an object identifier, which should be *at least* unique within a single time frame,
+- `time` indicates the time frame number.
+
+```{r echo=F, results="asis"}
+knitr::kable(head(dtIm))
+```
+
+## Time sequence
+
+Here we plot the time sequence with a growing concentric circle. Each frame (time point) consists of a matrix of 64x64 objects, where each object can assume a value of 0 (inactive) or 1 (active). In this example objects **do not** change their positions or identities across frames. In general, both positions and object identifiers may change between frames.
+
+```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
+ggplot(dtIm,
+       aes(x = x,
+           y = y)) +
+  geom_raster() +
+  ggthemes::scale_fill_tableau(name = "Meas",
+                               palette = "Classic Gray 5") +
+  facet_wrap(~ frame, ncol = 4) +
+  coord_fixed(ratio=1) +
+  scale_y_continuous(trans = "reverse") +
+  xlab("x") +
+  ylab("y") +
+  theme_bw()
+```
+
+
+## Detection and tracking 
+
+We use the `ARCOS::trackColl` function to identify collective events in frames and to link them between frames.
+
+```{r, echo = T}
+dtColl = ARCOS::trackColl(dtIm)
+```
+
+The result from tracking of collective events is a long-format `data.table` with columns:
+
+- `time` with the frame number,
+- `objID` with an identifier of an object involved in a collective event,
+- `collID` with an identifier of a collective event that is unique across the entire frame sequence.
+
+```{r echo=F, results="asis"}
+knitr::kable(head(dtColl))
+```
+
+## Visualisation
+
+Here we display frames with collective events. The algorithm identified a single event in 10 subsequent frames:
+
+```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
+ggplot(dtColl,
+       aes(x = x,
+           y = y)) +
+  geom_raster(aes(fill = as.factor(collid))) +
+  ggthemes::scale_fill_tableau(name = "ID collective\nevent",
+                               palette = "Tableau 10") +
+  facet_wrap(~ frame) +
+  coord_fixed(ratio=1) +
+  xlab("x") +
+  ylab("y") +
+  theme_bw()
+```
+
+# Moving circle
+
+# Split circle
+
+# Moving multiple circles
