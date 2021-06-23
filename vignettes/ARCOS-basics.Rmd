@@ -16,7 +16,7 @@ comment = "#>"
 )
 ```
 
-```{r setup}
+```{r setup, warning=FALSE}
 library(ARCOS)
 library(ggplot2)
 library(ggnewscale)
@@ -27,27 +27,68 @@ library(ggnewscale)
 
 ARCOS stands for **A**utomated **R**ecognition of **Co**llective **S**ignalling. The package implements an algorithm for identification and tracking of spatially clustered objects in time series data. It works with 1-, 2-, and 3D geometries. 
 
-The algorithm tackles the problem of identification of protein activation in 2- and 3D cell cultures that occur collectively in neighbouring cells over time. Such collective waves of protein activation have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis ([Gagliardi et al., 2020](https://doi.org/10.1101/2020.06.11.145573), [Takeuchi et al., 2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al., 2020](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis ([Ender et al., 2020](https://doi.org/10.1101/2020.11.20.387167)), osteoblast regeneration ([De Simone et al., 2021](https://doi.org/10.1038/s41586-020-03085-8)), and in the coordination of collective cell migration ([Aoki et al., 2017](https://doi.org/10.1016/j.devcel.2017.10.016), [Hino et al., 2020](https://doi.org/10.1016/j.devcel.2020.05.011)).
+The algorithm identifies collective protein activation in 2- and 3D cell cultures over time. Such collective waves of protein activation have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis ([Gagliardi et al., 2020](https://doi.org/10.1016/j.devcel.2021.05.007), [Takeuchi et al., 2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al., 2020](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis ([Ender et al., 2020](https://doi.org/10.1101/2020.11.20.387167)), osteoblast regeneration ([De Simone et al., 2021](https://doi.org/10.1038/s41586-020-03085-8)), and in the coordination of collective cell migration ([Aoki et al., 2017](https://doi.org/10.1016/j.devcel.2017.10.016), [Hino et al., 2020](https://doi.org/10.1016/j.devcel.2020.05.011)).
 
 Despite the focus on cell signalling, the algorithm can be also applied to other spatially correlated phenomena that occur over time.
 
+![](resources/VideoS9_relativeto4D_half.png)
 
-Key features of the *aggregative tracking* algorithm implemented in the `ARCOS::trackColl` function:
+## Data format
 
-- data for tracking should be organised in the long format where each row is object's location and time,
-- the function accepts objects in a long-format `data.table`,
-- the `data.table` [package](https://cran.r-project.org/web/packages/data.table/) is used as the main data structure throughout the ARCOS package,
-- the `RANN::nn2` [function](https://www.rdocumentation.org/packages/RANN/versions/2.6.1/topics/nn2) is used to calculate nearest neighbour distances,
-- the `dbscan::dbscan` [function](https://www.rdocumentation.org/packages/dbscan/versions/1.1-6/topics/dbscan) is used for spatial clustering.
+ARCOS defines an `arcosTS` object that extends the `data.table` [class](https://cran.r-project.org/web/packages/data.table/). In practice, the `arcosTS` function adds additional attributes that prescribe column names relevant for the analysis to the existing `data.table` object.
 
+Time series should be arranged in **long format**, where each row is object's location, time, and optionally the measurement value.
 
-General flow of the algorithm:
+## The algorithm
+
+General flow of the *aggregative tracking* algorithm implemented in the `ARCOS::trackColl` function:
 
 1. In the first frame, every available object becomes a *seed* of a collective event.
 3. The `dbscan` algorithm aims to cluster all objects in the current frame. Objects within a *threshold distance* are clustered into collective events with a minimum *threshold size*.
 4. Move to the next frame and match objects to collective events identified in previous frames. To match objects between frames, calculate the Cartesian product of two long-format tables. One holds all current objects, the other holds all objects from collective events in the previous frame(s). 
 5. All unmatched objects in the current frame form *seeds* of new collective events.
 
+The `RANN::nn2` [function](https://www.rdocumentation.org/packages/RANN/versions/2.6.1/topics/nn2) is used to calculate nearest neighbour distances. The `dbscan::dbscan` [function](https://www.rdocumentation.org/packages/dbscan/versions/1.1-6/topics/dbscan) is used for spatial clustering.
+
+## Functions
+
+**Main functions**:
+
+- `arcosTS` creates an arcosTS object from time series data in long format stored in a `data.table`. Assigns relevant column names and data parameters.
+- `trackColl` identifies and tracks collective events.
+
+**Visualisation functions**:
+
+- `plotTracks` plots a random selection of tracks in 1 or 2D.
+- `runCollVis` visualises collective events in an interactive shiny app.
+
+**Post-processing**:
+
+- `calcStatsColl` calculates basic statistics of collective events such as duration aand size. 
+- `selColl` selects collective events based on their duration and size.
+
+**Export functions**:
+
+- `export2napari` exports data in a format suitable for [napari](https://napari.org) image viewer.
+- `savePlotColl2D` saves individual frames as images.
+
+**Measurement-related**:
+
+- `interpolMeas` interpolates missing data in time series.
+- `histMeas` plots a histogram of the measurement.
+- `clipMeas` clips the measurement to a prescribed range or quantiles.
+- `binMeas` de-trends, normalises and binarises the measurement in time series.
+- `plotBinMeas` plots the result of de-trending and binarisation.
+- `histTrackLen` plots a histogram of track lengths.
+- `selTrackLen` selects tracks from time series data based on their length.
+
+**Utility functions**:
+
+- `is.arcosTS` checks whether an object is an arcosTS object.
+- `keepSignifDig` trims numeric columns to a prescribed number of significant digits.
+- `genSynth2D` generate synthetic data in 2D.
+- `loadDataFromFile` loads time series data from a file and returns an arcosTS object.
+- `loadDataFromImages` loads time series data from images and returns an arcosTS object.
 
 # Main application
 

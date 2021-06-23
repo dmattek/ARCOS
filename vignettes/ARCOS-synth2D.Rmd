@@ -1,10 +1,10 @@
 ---
-title: "ARCOS demo of 2D events"
+title: "ARCOS detect from images"
 output: 
   rmarkdown::html_vignette:
     toc: true 
 vignette: >
-  %\VignetteIndexEntry{ARCOS demo of 2D events}
+  %\VignetteIndexEntry{ARCOS detect from images}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,32 +19,72 @@ comment = "#>"
 ```{r setup}
 library(ARCOS)
 library(ggplot2)
-library(ggthemes)
+
+# Custom functions
+
+myPlotBinRasterTS <- function(objTS, xlim = c(0,65), ylim = c(65,0)) {
+
+  ggplot(objTS,
+       aes(x = x,
+           y = y)) +
+  geom_raster(aes(fill = as.factor(m))) +
+  scale_fill_manual(name = "Meas.",
+                    values = c("grey80",
+                                "grey20")) +
+  facet_wrap(~ frame, ncol = 4) +
+  coord_fixed(ratio=1) +
+  scale_x_continuous(limits = xlim) +
+  scale_y_continuous(trans = "reverse", limits = ylim) +
+  xlab("x") +
+  ylab("y") +
+  theme_minimal()
+}
+
+myPlotRasterColl <- function(objColl, xlim = c(0,65), ylim = c(65,0)) {
+  ggplot(objColl,
+       aes(x = x,
+           y = y)) +
+  geom_raster(aes(fill = as.factor(collid))) +
+  scale_fill_discrete(name = "ID coll.") +
+  facet_wrap(~ frame) +
+  coord_fixed(ratio=1) +
+  scale_x_continuous(limits = xlim) +
+  scale_y_continuous(trans = "reverse", limits = ylim) +
+  xlab("x") +
+  ylab("y") +
+  theme_minimal()
+}
 ```
 
+# Introduction
 
-# Detection from images
+Here we demonstrate tracking of collective events from a sequence of binary images. Each pixel in the image is treated as a separate object, to which an `objID` number is assigned. The `objID` identifier is the same for objects with the same X/Y position in subsequent frames.
 
-Here we detect and track a concentrically growing cluster of active objects directly from a sequence of 12 binary PNG images at 64-by-64 pixel resolution. We treat each pixel in the image as a separate object, to which we assign an `objID` number. The `objID` identifier is the same for objects with the same X/Y position in subsequent frames.
+Pixel values, the *measurement*, assume values 0 or 1, which correspond to an inactive or active object, respectively. Objects with value 1 are *active* and our goal is to detect and track a collective activation of all such objects in all frames of the time sequence. 
 
-Objects (pixels) have values either 0 or 1, which correspond to an inactive or active object, respectively. Objects with value 1 are *active* and our goal is to detect and track a collective activation of all such objects in all frames of the time sequence. 
+# Growing circle
+
+Here we detect and track a concentrically growing cluster of active objects directly from a sequence of 12 binary PNG images at 64-by-64 pixel resolution.
 
 ## Read data from images
 
 We use the `loadDataFromImages` function to read data from PNG images. The function returns an `arcosTS` object, which is a `data.table` with additional attributes that specify position, measurement, and object ID columns.
 
+Since images are binary, we set the `thres` parameter to `-1` to load all data, zeroes and ones, without thresholding.
+
 ```{r,echo=T}
-dtIm = ARCOS::loadDataFromImages(file.path(system.file("concentricGrowth",
+dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/concentricGrowth",
                                                        package="ARCOS"), 
                                            "png_64"),
-                                 "*.png")
+                                 "*.png", 
+                                 thres = -1)
 ```
 
 
 The final long-format input data with active/inactive objects. Columns:
 
 - `x` and `y` correspond to X/Y coordinates of an object,
-- `m` contains the binarised measurement $\{0,1\}$ that corresponds to inactive/active objects, respectively. For the identification of collective events we will only use *active* objects, i.e. $m > 0$,
+- `m` contains binarised measurement $\{0,1\}$ that corresponds to inactive/active objects, respectively. For identification of collective events we will only use *active* objects, i.e. $m > 0$,
 - `objID` holds an object identifier, which should be *at least* unique within a single time frame,
 - `time` indicates the time frame number.
 
@@ -57,18 +97,7 @@ knitr::kable(head(dtIm))
 Here we plot the time sequence with a growing concentric circle. Each frame (time point) consists of a matrix of 64x64 objects, where each object can assume a value of 0 (inactive) or 1 (active). In this example objects **do not** change their positions or identities across frames. In general, both positions and object identifiers may change between frames.
 
 ```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
-ggplot(dtIm,
-       aes(x = x,
-           y = y)) +
-  geom_raster() +
-  ggthemes::scale_fill_tableau(name = "Meas",
-                               palette = "Classic Gray 5") +
-  facet_wrap(~ frame, ncol = 4) +
-  coord_fixed(ratio=1) +
-  scale_y_continuous(trans = "reverse") +
-  xlab("x") +
-  ylab("y") +
-  theme_bw()
+myPlotBinRasterTS(dtIm)
 ```
 
 
@@ -77,7 +106,7 @@ ggplot(dtIm,
 We use the `ARCOS::trackColl` function to identify collective events in frames and to link them between frames.
 
 ```{r, echo = T}
-dtColl = ARCOS::trackColl(dtIm)
+dtColl = ARCOS::trackColl(dtIm[m>0])
 ```
 
 The result from tracking of collective events is a long-format `data.table` with columns:
@@ -92,24 +121,66 @@ knitr::kable(head(dtColl))
 
 ## Visualisation
 
-Here we display frames with collective events. The algorithm identified a single event in 10 subsequent frames:
+Here we display frames only with collective events. The algorithm identified a single event in 10 subsequent frames:
 
 ```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
-ggplot(dtColl,
-       aes(x = x,
-           y = y)) +
-  geom_raster(aes(fill = as.factor(collid))) +
-  ggthemes::scale_fill_tableau(name = "ID collective\nevent",
-                               palette = "Tableau 10") +
-  facet_wrap(~ frame) +
-  coord_fixed(ratio=1) +
-  xlab("x") +
-  ylab("y") +
-  theme_bw()
+myPlotRasterColl(dtColl)
 ```
 
 # Moving circle
 
+Detect and track a moving cluster of active objects directly from a sequence of 16 binary PNG images at 64-by-64 pixel resolution.
+
+```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
+dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/movingCircle",
+                                                       package="ARCOS"), 
+                                           "png_64"),
+                                 "*.png", 
+                                 thres = -1)
+myPlotBinRasterTS(dtIm)
+```
+
+```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
+dtColl = ARCOS::trackColl(dtIm[m>0])
+
+myPlotRasterColl(dtColl)
+```
+
 # Split circle
 
+Detect and track a cluster of active objects that splits into two parts. Analysis directly from a sequence of 15 binary PNG images at 64-by-64 pixel resolution.
+
+The analysis should consider everything as a single cluster even after the split.
+
+```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
+dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/splitCircle",
+                                                       package="ARCOS"), 
+                                           "png_64"),
+                                 "*.png", 
+                                 thres = -1)
+myPlotBinRasterTS(dtIm)
+```
+
+```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
+dtColl = ARCOS::trackColl(dtIm[m>0])
+
+myPlotRasterColl(dtColl)
+```
+
 # Moving multiple circles
+
+Detect and track multiple moving clusters of active objects directly from a sequence of 9 binary PNG images at 64-by-64 pixel resolution.
+
+```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
+dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/movingMulti",
+                                                       package="ARCOS"), 
+                                           "png_64"),
+                                 "*.png", 
+                                 thres = -1)
+myPlotBinRasterTS(dtIm)
+```
+```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
+dtColl = ARCOS::trackColl(dtIm[m>0])
+
+myPlotRasterColl(dtColl)
+```

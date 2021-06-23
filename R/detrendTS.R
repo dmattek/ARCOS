@@ -14,6 +14,7 @@
 #' @param peakThr a threshold for rescaling of the de-trended signal, default 0.2.
 #' @param biasMet a string with the de-trending method, default "runmed".
 #'
+#' @keywords internal
 #' @return a numeric vector with a smoothed time series.
 #' @importFrom stats lm predict.lm runmed
 #'

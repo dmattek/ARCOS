@@ -23,3 +23,4 @@ Stats of collective events calculated by the \code{trackCollEvents} function by 
 \examples{
 cat("no examples")
 }
+\keyword{internal}

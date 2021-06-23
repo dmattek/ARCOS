@@ -19,6 +19,7 @@
 #' @param inGGtheme additional ggplot2 theme definitions, default NULL.
 #' @param inPlotType definition of the output image type, either "png" or "pdf".
 #'
+#' @keywords internal
 #' @return does not return any value; saves a sequence of images to the specified folder.
 #' @import data.table
 #'

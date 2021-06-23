@@ -29,3 +29,4 @@ Filter collective events calculated by the \code{trackCollEvents} function by si
 \examples{
 cat("no examples")
 }
+\keyword{internal}

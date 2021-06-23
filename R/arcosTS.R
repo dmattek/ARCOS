@@ -83,7 +83,9 @@ validate_arcosTS <- function(obj) {
   invisible(obj)
 }
 
-#' Helper of the arcosTS class
+#' Create an arcosTS class
+#'
+#' Creates an arcosTS object from time series data in long format stored in a `data.table`. Assigns relevant column names and data parameters.
 #'
 #' @param dt a data.table with time series in the long format.
 #' @param colPos a vector with names of positional columns; default "x".
@@ -99,7 +101,15 @@ validate_arcosTS <- function(obj) {
 #' @export
 #'
 #' @examples
-#' cat("no examples")
+#' library(ARCOS)
+#' dts = arcosTS(dt = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
+#'                               id = c(1, 2, 1, 2, 3, 1, 2, 3, 4, 1, 2, 4, 1, 4),
+#'                               x = c(1, 3, 1.2, 2.5, 3.5, 0.9, 2.6, 2.9, 3.2, 1.1, 2.8, 3.1, 1, 3)),
+#'               colPos = "x",
+#'               col = list(Frame = "frame",
+#'                          IDobj = "id"),
+#'               interVal = 1,
+#'               interType = "fixed")
 arcosTS <- function(dt,
                     colPos = "x",
                     colMeas = NULL,

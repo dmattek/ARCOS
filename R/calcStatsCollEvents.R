@@ -5,6 +5,7 @@
 #' @param inDTcoll a data.table with collective events in the long format produced by the \code{trackCollEvents} function. Consists of 3 columns: integer frame number, object id, id's of collective events.
 #' @param inCols a list with column names, \code{list(frame = , id = , collid = )}, that correspond to the integer frame number, position, object id and id of collective events, respectively.
 #'
+#' @keywords internal
 #' @return a data.table as the \code{inDTcoll} with aggregated stats of collective events.
 #' @import data.table
 #'

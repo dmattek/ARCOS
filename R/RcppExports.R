@@ -8,6 +8,7 @@
 #' @param a lower bound (double).
 #' @param b upper bound (double).
 #'
+#' @keywords internal
 #' @return a numeric vector.
 #'
 #' @examples

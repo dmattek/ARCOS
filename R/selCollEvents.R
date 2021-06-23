@@ -7,6 +7,7 @@
 #' @param inCollDur a vector with 2 integers that correspond to the minimum and maximum duration of clusters in frame numbers.
 #' @param inCollTotSz a vector with 2 integers that correspond to the minimum and maximum total size of clusters in frame numbers. The total size is the number of unique objects involved in a collective event throughout its entire duration.
 #'
+#' @keywords internal
 #' @return a data.table as the \code{inDTcoll} with collective events within provided duration and size bounds.
 #' @import data.table
 #'

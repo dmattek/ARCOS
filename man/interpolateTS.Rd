@@ -43,3 +43,4 @@ dtInt = ARCOS:::interpolateTS(inDT = dt,
                       points(dtInt$t, dtInt$y, col = "red", pch = 3)
 
 }
+\keyword{internal}

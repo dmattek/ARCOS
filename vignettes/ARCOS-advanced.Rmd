@@ -66,7 +66,7 @@ ARCOS::arcosTS(dt = dts,
 Plot the time series. Each object has a distinct identifier represented by a different colour in the plot:
 
 ```{r, echo = F, fig.width=5, fig.height=5, caption="Visualisation of object traces over time"}
-plot(dts)
+plotTracks(dts)
 ```
 
 ## Detection and tracking
@@ -97,7 +97,7 @@ Plot:
 Each trace is assigned an identifier of the collective event, which is represented by the shape of the point in the plot:
 
 ```{r, echo = F, fig.width=5, fig.height=5, caption="Visualisation of collective events over time"}
-plot(dcoll)
+plotTracks(dcoll)
 ```
 
 The algorithm with the default search radius `eps=1.0` has identified two collective events. One is an event with only a single object, the latter is an event that consists of 1 to 3 objects at different points in time.

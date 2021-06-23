@@ -7,6 +7,7 @@
 #' @param inFNfreq an integer with the interval between frames.
 #' @param inDeb logical, whether to output debug information.
 #'
+#' @keywords internal
 #' @return a data.table with interpolated missing time points.
 #' @import data.table
 #'

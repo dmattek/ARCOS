@@ -24,3 +24,4 @@ Clip a numeric vector between lower and upper bounds.
 \examples{
 cat("no example")
 }
+\keyword{internal}

@@ -33,6 +33,7 @@
 #' @param posCols a vector with names of position columns, default \code{c("x")}.
 #' @param deb logical, whether to output debug information.
 #'
+#' @keywords internal
 #' @return a data.table with cluster numbers and id's of the corresponding objects
 #' @import data.table
 #'
@@ -73,8 +74,7 @@ trackCollEvents <- function(dt,
                             cols = list(
                               frame = "time",
                               id = "trackID",
-                              clid = "clTrackID"
-                            ),
+                              clid = "clTrackID"),
                             posCols = c("x"),
                             deb = FALSE) {
   ## Checks

@@ -7,44 +7,40 @@
 <!-- badges: end -->
 
 ARCOS stands for **A**utomated **R**ecognition of **Co**llective
-**S**ignalling.
+**S**ignalling. The package implements an algorithm for identification
+and tracking of spatially clustered objects in time series data. It
+works with 1-, 2-, and 3D geometries.
 
-The goal of ARCOS is to identify and track spatially clustered objects
-in time series data in 1-, 2-, and 3D geometries. The algorithm tackles
-the problem of identification of protein activation in 2- and 3D cell
-cultures that occur collectively in neighbouring cells over time.
-Despite its focus on cell signalling, the algorithm can be also applied
+The algorithm identifies collective protein activation in 2- and 3D cell
+cultures over time. Such collective waves of protein activation have
+been recently identified in various biological systems. They have been
+demonstrated to play an important role in the maintenance of epithelial
+homeostasis ([Gagliardi et al.,
+2020](https://doi.org/10.1016/j.devcel.2021.05.007), [Takeuchi et al.,
+2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al.,
+2020](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis
+([Ender et al., 2020](https://doi.org/10.1101/2020.11.20.387167)),
+osteoblast regeneration ([De Simone et al.,
+2021](https://doi.org/10.1038/s41586-020-03085-8)), and in the
+coordination of collective cell migration ([Aoki et al.,
+2017](https://doi.org/10.1016/j.devcel.2017.10.016), [Hino et al.,
+2020](https://doi.org/10.1016/j.devcel.2020.05.011)).
+
+Despite the focus on cell signalling, the algorithm can be also applied
 to other spatially correlated phenomena that occur over time.
 
-Collective waves of protein activation have been recently identified in
-various biological systems. They have been demonstrated to play an
-important role in the maintenance of epithelial homeostasis ([Gagliardi
-et al. 2020](https://doi.org/10.1101/2020.06.11.145573), [Takeuchi et
-al. 2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et
-al. 2020](https://doi.org/10.7554/eLife.60541)), in the acinar
-morphogenesis ([Ender et
-al. 2020](https://doi.org/10.1101/2020.11.20.387167)), osteoblast
-regeneration ([De Simone et
-al. 2021](https://doi.org/10.1038/s41586-020-03085-8)), and in the
-coordination of collective cell migration ([Aoki et
-al. 2017](https://doi.org/10.1016/j.devcel.2017.10.016), [Hino et
-al. 2020](https://doi.org/10.1016/j.devcel.2020.05.011)).
+![](vignettes/resources/VideoS9_relativeto4D_half.mp4)
 
-Key features of the *aggregative tracking* algorithm implemented in the
-`ARCOS::trackColl` function:
+## Data format
 
--   data for tracking should be organised in the long format where each
-    row is object’s location and time,
--   the function accepts objects in a long-format `data.table`,
--   the `data.table`
-    [package](https://cran.r-project.org/web/packages/data.table/) is
-    used as the main data structure throughout the ARCOS package,
--   the `RANN::nn2`
-    [function](https://www.rdocumentation.org/packages/RANN/versions/2.6.1/topics/nn2)
-    is used to calculate nearest neighbour distances,
--   the `dbscan::dbscan`
-    [function](https://www.rdocumentation.org/packages/dbscan/versions/1.1-6/topics/dbscan)
-    is used for spatial clustering.
+ARCOS defines an `arcosTS` object that extends the `data.table`
+[class](https://cran.r-project.org/web/packages/data.table/). In
+practice, the `arcosTS` function adds additional attributes that
+prescribe column names relevant for the analysis to the existing
+`data.table` object.
+
+Time series should be arranged in **long format**, where each row is
+object’s location, time, and optionally the measurement value.
 
 ## Installation
 
@@ -66,13 +62,9 @@ The evolution of active states takes place over 8 consecutive frames
 
 ``` r
 library(ARCOS)
-#> Warning: replacing previous import 'data.table::melt' by 'reshape2::melt' when
-#> loading 'ARCOS'
 library(ggplot2)
 
 dts = ARCOS::genSynth2D(inSeed = 7)
-
-knitr::kable(head(ARCOS::keepSignifDig(dts, 4)))
 ```
 
 |   t |      x |        y |   m |  id |
@@ -88,23 +80,7 @@ In the plot below, grey circles correspond to inactive and black to
 active states of objects. The collective activation (*wave*) develops
 over 8 time points.
 
-``` r
-p1 = ggplot(dts,
-            aes(x = x,
-                y = y)) +
-  geom_point(aes(color = as.factor(m)), size = 5) +
-  scale_color_manual(values = c("grey80",
-                                "grey20")) +
-  facet_wrap(~ t, ncol = 4) +
-  coord_fixed(ratio=1) +
-  theme_void() +
-  theme(text = element_text(size = 20),
-        legend.position = "none")
-
-p1
-```
-
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-ex1plotTS-1.png" width="100%" />
 
 The following snippet will identify the collective event and will store
 the result in `dcoll`. We are interested in a collective event comprised
@@ -114,8 +90,6 @@ of *active* object, hence we select rows with `m>0`.
 # Track collective events
 dcoll = ARCOS::trackColl(dts[m>0], 
                          eps = 2.)
-
-knitr::kable(head(ARCOS::keepSignifDig(dcoll, 4)))
 ```
 
 |   t |  id | collid.frame | collid |     x |     y |   m |
@@ -135,7 +109,7 @@ unique only within a frame.
 For visualisation, we can add convex hulls around collective events.
 
 ``` r
-# Create convex hulls around collective events fro visualisation
+# Create convex hulls around collective events for visualisation
 dcollch = dcoll[,
                 .SD[grDevices::chull(x, y)],
                 by = .(t,
@@ -168,7 +142,7 @@ p2 = ggplot(dts,
 p2
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-ex1plotColl-1.png" width="100%" />
 
 ### Save frames
 

@@ -62,3 +62,4 @@ arbitrary annotations as asterisks.
 \examples{
 cat("no example")
 }
+\keyword{internal}

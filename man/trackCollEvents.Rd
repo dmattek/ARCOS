@@ -90,3 +90,4 @@ ggplot(dt,
  scale_color_discrete(name = "Object id:") +
  theme_bw()
 }
+\keyword{internal}
