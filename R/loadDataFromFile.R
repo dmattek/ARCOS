@@ -32,9 +32,6 @@ loadDataFromFile <- function(fname,
   if (!(colPos %in% locColNames))
     stop("Position columns missing from the data file.")
 
-  if (!(colMeas %in% locColNames))
-    stop("Measurement column missing from the data file.")
-
   if (!(col$Frame %in% locColNames))
     stop("Frame column missing from the data file.")
 
