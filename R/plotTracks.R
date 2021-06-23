@@ -1,21 +1,36 @@
-#' Plot an arcosTS object
+#' Plot tracks from an arcosTS object
 #'
+#' Plot a random selection of tracks in 1 or 2D.
+#'
+#' @title "Plot tracks"
 #' @param obj an arcosTS object.
+#' @param nmax an integer, maximum number of tracks to sample; default 20.
 #'
-#' @return
-#' @export
+#' @return a ggplot2 object.
+#'
+#' @rdname plotTracks
+#' @export plotTracks
 #'
 #' @examples
 #' cat("no examples")
-plot.arcosTS <- function(obj) {
+plotTracks <- function(obj, nmax = 20) {
+  UseMethod("plotTracks")
+}
 
-  MAX_PLOT_TRACKS = 20
+plotTracks.default <- function(obj, nmax = 20) {
+  cat("This is a generic function\n")
+}
+
+#' @rdname plotTracks
+#' @export plotTracks.arcosTS
+#' @export
+plotTracks.arcosTS <- function(obj, nmax = 20) {
 
   stopifnot(is.arcosTS(obj))
 
   locDim = length(attr(obj, "colPos"))
   if (locDim > 2) {
-    cat(sprintf("The arcosTS object has %d spatial dimesions. Only the first 2 dimensions will be plotted.\n",
+    cat(sprintf("The arcosTS object has %d spatial dimesions. Only first 2 dimensions will be plotted.\n",
                 locDim))
     cat("Use xxx function to plot 3D...\n")
   }
@@ -23,13 +38,13 @@ plot.arcosTS <- function(obj) {
   locVtrackIDuni = unique(obj[[attr(obj, "colIDobj")]])
   locNtracks = length(locVtrackIDuni)
 
-  if (locNtracks > MAX_PLOT_TRACKS) {
+  if (locNtracks > nmax) {
     cat(sprintf("%d tracks in the dataset. Plotting random %d only.\n",
                 locNtracks,
-                MAX_PLOT_TRACKS))
+                nmax))
 
     locVtrackIDuni = sample(locVtrackIDuni,
-                            MAX_PLOT_TRACKS)
+                            nmax)
   }
 
   if (locDim == 1) {
