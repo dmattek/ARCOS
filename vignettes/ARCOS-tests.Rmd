@@ -1,0 +1,981 @@
+---
+title: "ARCOS demo of synthetic test"
+output:   
+  rmarkdown::html_vignette:
+    toc: true 
+vignette: >
+  %\VignetteIndexEntry{ARCOS demo of synthetic test}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+collapse = TRUE,
+comment = "#>"
+)
+```
+
+```{r setup}
+library(ARCOS)
+library(data.table)
+library(ggplot2)
+library(ggthemes)
+
+library(testthat)
+
+lPar = list()
+
+lPar$db.eps = 1.0
+lPar$db.minPts = 1L
+
+## Custom functions
+
+# Wrapper function for testing
+myTest = function(inDTcalc, inFtrue, inDir = "testdata") {
+  
+  resTest = testthat::test_that("test chunk", {
+    locDTtrueRes = fread(file.path(system.file(inDir, 
+                                               package="ARCOS"),
+                                   inFtrue))
+    attr(inDTcalc, "sorted") = NULL
+    attr(inDTcalc, "class") = c("data.table", "data.frame")
+    
+    if ("clTrackID" %in% names(locDTtrueRes)) setnames(inDTcalc, "collid", "clTrackID")
+    expect_equal(inDTcalc, 
+                 locDTtrueRes)
+  })
+}
+
+# Wrapper functions for custom plots
+myPlotTile = function(inDT, 
+                      inFillVar = "trackID", 
+                      inFillName = "Track ID",
+                      inX = "time",
+                      inY = "x") {
+  locP = ggplot(inDT,
+                aes(x = get(inX),
+                    y = as.factor(get(inY)))) +
+    geom_tile(aes(fill = as.factor(get(inFillVar))), 
+              colour = "grey50") +
+    ggthemes::scale_fill_tableau(name = inFillName,
+                                 palette = "Tableau 10") +
+    xlab("Time") +
+    ylab("Position")
+  
+  return(locP)
+}
+
+myPlotLine = function(inDT, 
+                      inVarObj = "id", 
+                      inVarColl = NULL,
+                      inX = "time",
+                      inY = "x") {
+  locP = ggplot(inDT,
+                aes_string(x = inX,
+                           y = inY,
+                           group = inVarObj,
+                           color = inVarObj)) +
+    geom_path() +
+    scale_color_tableau(name = "Object\nid:",
+                        palette = "Tableau 10") +
+    xlab("Time") +
+    ylab("Position") +
+    theme_bw()
+  
+  if (is.null(inVarColl)) {
+    locP = locP +
+      geom_point()
+  } else {
+    locP = locP +
+      geom_point(aes(shape = as.factor(collid)),
+                 size = 3) +
+      scale_shape_discrete(name = "Collective\nid:")
+  }
+  
+  return(locP)
+}
+```
+
+# Introduction
+
+Demonstration of the ARCOS algorithm on synthetic data used for unit testing.
+
+# Link 1 frame
+
+Only spatial clusters in consecutive frames are linked.
+
+## Test 1 - 1 central
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", package="ARCOS"), "1central_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              col = list(Frame = "time",
+                                         IDobj = "trackID",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotTile(dts)
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts[m>0], 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotTile(dcoll,
+           "collid",
+           "Coll ID")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+             .(time, trackID, collid)],
+       "1central_res.csv")
+```
+
+## Test 2 - 3 spreading
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "3spreading_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              col = list(Frame = "time",
+                                         IDobj = "trackID",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+
+myPlotTile(dts[m>0])
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts[m>0], 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotTile(dcoll,
+           "collid",
+           "Coll ID")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+             .(time, trackID, collid)],
+       "3spreading_res.csv")
+```
+
+## Test 3 - 5 overlapping
+
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "5overlapping_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              col = list(Frame = "time",
+                                         IDobj = "trackID",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+
+myPlotTile(dts)
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts[m>0], 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotTile(dcoll,
+           "collid",
+           "Coll ID")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(time, trackID, collid)],
+       "5overlapping_res.csv")
+```
+
+## Test 4 - 6 overlapping
+
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "6overlapping_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              col = list(Frame = "time",
+                                         IDobj = "trackID",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+
+myPlotTile(dts)
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts[m>0], 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotTile(dcoll,
+           "collid",
+           "Coll ID")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(time, trackID, collid)],
+       "6overlapping_res.csv")
+```
+
+## Test 5 - 1 central growing
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "1centralGrowing_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              col = list(Frame = "time",
+                                         IDobj = "trackID",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+
+myPlotTile(dts)
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts[m>0], 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotTile(dcoll,
+           "collid",
+           "Coll ID")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(time, trackID, collid)],
+       "1centralGrowing_res.csv")
+```
+
+## Test 6 - 2 central growing
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "2centralGrowing_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              col = list(Frame = "time",
+                                         IDobj = "trackID",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+
+myPlotTile(dts)
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts[m>0], 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotTile(dcoll,
+           "collid",
+           "Coll ID")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(time, trackID, collid)],
+       "2centralGrowing_res.csv")
+```
+
+
+## Test 7 - 2 with 1 common symmetric
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "2with1commonSym_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              col = list(Frame = "time",
+                                         IDobj = "trackID",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+
+myPlotTile(dts)
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts[m>0], 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotTile(dcoll,
+           "collid",
+           "Coll ID")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(time, trackID, collid)],
+       "2with1commonSym_res.csv")
+```
+
+## Test 8 - 2 with 1 common asymmetric
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "2with1commonAsym_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              col = list(Frame = "time",
+                                         IDobj = "trackID",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+
+myPlotTile(dts)
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts[m>0], 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotTile(dcoll,
+           "collid",
+           "Coll ID")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(time, trackID, collid)],
+       "2with1commonAsym_res.csv")
+```
+
+
+# Multiple new objects
+
+## Test 1 - simultaneous
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "multipleSimulNewObjects_in.csv"),
+                              colPos = "pos",
+                              col = list(Frame = "t",
+                                         IDobj = "id",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotLine(inDT = dts,
+           inVarObj = "id", 
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotLine(inDT = dcoll,
+           inVarObj = "id", 
+           inVarColl = "collid",
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(t, id, collid)],
+       "multipleSimulNewObjects_out.csv")
+```
+
+## Test 2 - 4 new objects at once after 1
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "multipleSubseq4NewObjectsAfter1_in.csv"),
+                              colPos = "pos",
+                              col = list(Frame = "t",
+                                         IDobj = "id",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotLine(inDT = dts,
+           inVarObj = "id", 
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotLine(inDT = dcoll,
+           inVarObj = "id", 
+           inVarColl = "collid",
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(t, id, collid)],
+       "multipleSubseq4NewObjectsAfter1_out.csv")
+```
+
+## Test 3 - 3 new objects at once after 2
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "multipleSubseq3NewObjectsAfter2_in.csv"),
+                              colPos = "pos",
+                              col = list(Frame = "t",
+                                         IDobj = "id",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotLine(inDT = dts,
+           inVarObj = "id", 
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotLine(inDT = dcoll,
+           inVarObj = "id", 
+           inVarColl = "collid",
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(t, id, collid)],
+       "multipleSubseq3NewObjectsAfter2_out.csv")
+```
+
+
+## Test 4 - 4 new objects at once after 2
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "multipleSubseq4NewObjectsAfter2_in.csv"),
+                              colPos = "pos",
+                              col = list(Frame = "t",
+                                         IDobj = "id",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotLine(inDT = dts,
+           inVarObj = "id", 
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotLine(inDT = dcoll,
+           inVarObj = "id", 
+           inVarColl = "collid",
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(t, id, collid)],
+       "multipleSubseq4NewObjectsAfter2_out.csv")
+```
+
+
+## Test 4 - 4 subsequently
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "multipleSubseqNewObjects_in.csv"),
+                              colPos = "pos",
+                              col = list(Frame = "t",
+                                         IDobj = "id",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotLine(inDT = dts,
+           inVarObj = "id", 
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotLine(inDT = dcoll,
+           inVarObj = "id", 
+           inVarColl = "collid",
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(t, id, collid)],
+       "multipleSubseqNewObjects_out.csv")
+```
+
+# Split, cross, merge
+
+## Test 1 - split from single
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "1objSplit_in.csv"),
+                              colPos = "pos",
+                              col = list(Frame = "t",
+                                         IDobj = "id",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotLine(inDT = dts,
+           inVarObj = "id", 
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotLine(inDT = dcoll,
+           inVarObj = "id", 
+           inVarColl = "collid",
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(t, id, collid)],
+       "1objSplit_res.csv")
+```
+
+## Test 2 - split from 2 objects
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "2objSplit_in.csv"),
+                              colPos = "pos",
+                              col = list(Frame = "t",
+                                         IDobj = "id",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotLine(inDT = dts,
+           inVarObj = "id", 
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotLine(inDT = dcoll,
+           inVarObj = "id", 
+           inVarColl = "collid",
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(t, id, collid)],
+       "2objSplit_res.csv")
+```
+
+## Test 3 - cross 2 objects
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "2objCross_in.csv"),
+                              colPos = "pos",
+                              col = list(Frame = "t",
+                                         IDobj = "id",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotLine(inDT = dts,
+           inVarObj = "id", 
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotLine(inDT = dcoll,
+           inVarObj = "id", 
+           inVarColl = "collid",
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(t, id, collid)],
+       "2objCross_res.csv")
+```
+
+## Test 4 - cross 2 objects with common
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "2objCrossCommon_in.csv"),
+                              colPos = "pos",
+                              col = list(Frame = "t",
+                                         IDobj = "id",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotLine(inDT = dts,
+           inVarObj = "id", 
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotLine(inDT = dcoll,
+           inVarObj = "id", 
+           inVarColl = "collid",
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(t, id, collid)],
+       "2objCrossCommon_res.csv")
+```
+
+## Test 5 - merge & split 2 objects with common
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "2objMergeSplitCommon_in.csv"),
+                              colPos = "pos",
+                              col = list(Frame = "t",
+                                         IDobj = "id",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotLine(inDT = dts,
+           inVarObj = "id", 
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotLine(inDT = dcoll,
+           inVarObj = "id", 
+           inVarColl = "collid",
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(t, id, collid)],
+       "2objMergeSplitCommon_res.csv")
+```
+
+## Test 6 - merge & split 2 objects crossing
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "2objMergeSplitCross_in.csv"),
+                              colPos = "pos",
+                              col = list(Frame = "t",
+                                         IDobj = "id",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotLine(inDT = dts,
+           inVarObj = "id", 
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotLine(inDT = dcoll,
+           inVarObj = "id", 
+           inVarColl = "collid",
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(t, id, collid)],
+       "2objMergeSplitCross_res.csv")
+```
+
+## Test 7 - merge & split 2 objects near
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "2objMergeSplitNear_in.csv"),
+                              colPos = "pos",
+                              col = list(Frame = "t",
+                                         IDobj = "id",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotLine(inDT = dts,
+           inVarObj = "id", 
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         deb = F)
+
+myPlotLine(inDT = dcoll,
+           inVarObj = "id", 
+           inVarColl = "collid",
+           inX = "t", 
+           inY = "pos")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(t, id, collid)],
+       "2objMergeSplitNear_res.csv")
+```
+
+# Link 2 frames
+
+Spatial clusters are linked 2 frames back, thus a one-frame-gap is allowed in a collective event.
+
+## Test 1 - 1 central
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", package="ARCOS"), "1central_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              col = list(Frame = "time",
+                                         IDobj = "trackID",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+myPlotTile(dts)
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts[m>0], 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         nPrev = 2L,
+                         deb = F)
+
+myPlotTile(dcoll,
+           "collid",
+           "Coll ID")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+             .(time, trackID, collid)],
+       "1central2prev_res.csv")
+```
+
+## Test 2 - 3 spreading
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "3spreading_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              col = list(Frame = "time",
+                                         IDobj = "trackID",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+
+myPlotTile(dts[m>0])
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts[m>0], 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         nPrev = 2L,
+                         deb = F)
+
+myPlotTile(dcoll,
+           "collid",
+           "Coll ID")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+             .(time, trackID, collid)],
+       "3spreading2prev_res.csv")
+```
+
+## Test 3 - 5 overlapping
+
+```{r, echo=T, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "5overlapping_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              col = list(Frame = "time",
+                                         IDobj = "trackID",
+                                         RT = NULL,
+                                         IDcoll = NULL),
+                              interVal = 1L,
+                              interType = "fixed")
+
+
+myPlotTile(dts)
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts[m>0], 
+                         eps = lPar$db.eps, 
+                         minClSz = lPar$db.minPts, 
+                         nPrev = 2L,
+                         deb = F)
+
+myPlotTile(dcoll,
+           "collid",
+           "Coll ID")
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+              .(time, trackID, collid)],
+       "5overlapping2prev_res.csv")
+```
