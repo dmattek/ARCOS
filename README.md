@@ -6,18 +6,16 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-ARCOS stands for **A**utomated **R**ecognition of **Co**llective
-**S**ignalling. The package implements an algorithm for identification
-and tracking of spatially clustered objects in time series data. It
-works with 1-, 2-, and 3D geometries.
+**A**utomated **R**ecognition of **Co**llective **S**ignalling (ARCOS)
+is an [R](https://www.r-project.org) package to identify collective
+spatial events in time series data.
 
-The algorithm identifies collective protein activation in 2- and 3D cell
-cultures over time. Such collective waves of protein activation have
-been recently identified in various biological systems. They have been
-demonstrated to play an important role in the maintenance of epithelial
-homeostasis ([Gagliardi et al.,
-2020](https://doi.org/10.1016/j.devcel.2021.05.007), [Takeuchi et al.,
-2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al.,
+The package focuses on collective protein activation in 2- and 3D cell
+cultures over time. Such collective waves have been recently identified
+in various biological systems. They have been demonstrated to play an
+important role in the maintenance of epithelial homeostasis ([Gagliardi
+et al., 2020](https://doi.org/10.1016/j.devcel.2021.05.007), [Takeuchi
+et al., 2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al.,
 2020](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis
 ([Ender et al., 2020](https://doi.org/10.1101/2020.11.20.387167)),
 osteoblast regeneration ([De Simone et al.,
@@ -26,21 +24,22 @@ coordination of collective cell migration ([Aoki et al.,
 2017](https://doi.org/10.1016/j.devcel.2017.10.016), [Hino et al.,
 2020](https://doi.org/10.1016/j.devcel.2020.05.011)).
 
-Despite the focus on cell signalling, the algorithm can be also applied
-to other spatially correlated phenomena that occur over time.
-
 ![](https://user-images.githubusercontent.com/25979488/123080758-8d053180-d41d-11eb-9d05-b17786091696.mp4)
+
+Despite its focus on cell signalling, the framework can be also applied
+to other spatially correlated phenomena that occur over time.
 
 ## Data format
 
+Time series should be arranged in [long
+format](https://en.wikipedia.org/wiki/Wide_and_narrow_data#Narrow),
+where each row defines object’s location, time, and optionally the
+measurement value.
+
 ARCOS defines an `arcosTS` object that extends the `data.table`
 [class](https://cran.r-project.org/web/packages/data.table/). In
-practice, the `arcosTS` function adds additional attributes that
-prescribe column names relevant for the analysis to the existing
-`data.table` object.
-
-Time series should be arranged in **long format**, where each row is
-object’s location, time, and optionally the measurement value.
+practice, additional attributes are added to the existing `data.table`
+object to define column names relevant for the analysis.
 
 ## Installation
 

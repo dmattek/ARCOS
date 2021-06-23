@@ -25,28 +25,26 @@ library(ggnewscale)
 
 # Intro
 
-ARCOS stands for **A**utomated **R**ecognition of **Co**llective **S**ignalling. The package implements an algorithm for identification and tracking of spatially clustered objects in time series data. It works with 1-, 2-, and 3D geometries. 
+**A**utomated **R**ecognition of **Co**llective **S**ignalling (ARCOS) is an [R](https://www.r-project.org) package to identify collective spatial events in time series data.
 
-The algorithm identifies collective protein activation in 2- and 3D cell cultures over time. Such collective waves of protein activation have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis ([Gagliardi et al., 2020](https://doi.org/10.1016/j.devcel.2021.05.007), [Takeuchi et al., 2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al., 2020](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis ([Ender et al., 2020](https://doi.org/10.1101/2020.11.20.387167)), osteoblast regeneration ([De Simone et al., 2021](https://doi.org/10.1038/s41586-020-03085-8)), and in the coordination of collective cell migration ([Aoki et al., 2017](https://doi.org/10.1016/j.devcel.2017.10.016), [Hino et al., 2020](https://doi.org/10.1016/j.devcel.2020.05.011)).
+The package focuses on collective protein activation in 2- and 3D cell cultures over time. Such collective waves have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis ([Gagliardi et al., 2020](https://doi.org/10.1016/j.devcel.2021.05.007), [Takeuchi et al., 2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al., 2020](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis ([Ender et al., 2020](https://doi.org/10.1101/2020.11.20.387167)), osteoblast regeneration ([De Simone et al., 2021](https://doi.org/10.1038/s41586-020-03085-8)), and in the coordination of collective cell migration ([Aoki et al., 2017](https://doi.org/10.1016/j.devcel.2017.10.016), [Hino et al., 2020](https://doi.org/10.1016/j.devcel.2020.05.011)).
 
-Despite the focus on cell signalling, the algorithm can be also applied to other spatially correlated phenomena that occur over time.
+![Collective ERK activation due to apoptosis in MCF10A WT cells](resources/VideoS9_relativeto4D.png)
 
-![](resources/VideoS9_relativeto4D_half.png)
+Despite its focus on cell signalling, the framework can be also applied to other spatially correlated phenomena that occur over time.
 
 ## Data format
 
-ARCOS defines an `arcosTS` object that extends the `data.table` [class](https://cran.r-project.org/web/packages/data.table/). In practice, the `arcosTS` function adds additional attributes that prescribe column names relevant for the analysis to the existing `data.table` object.
+Time series should be arranged in [long format](https://en.wikipedia.org/wiki/Wide_and_narrow_data#Narrow), where each row defines object's location, time, and optionally the measurement value.
 
-Time series should be arranged in **long format**, where each row is object's location, time, and optionally the measurement value.
+ARCOS defines an `arcosTS` object that extends the `data.table` [class](https://cran.r-project.org/web/packages/data.table/). In practice, additional attributes are added to the existing `data.table` object to define column names relevant for the analysis.
 
 ## The algorithm
 
-General flow of the *aggregative tracking* algorithm implemented in the `ARCOS::trackColl` function:
+General flow of the iterative *aggregative tracking* algorithm implemented in the `ARCOS::trackColl` function:
 
-1. In the first frame, every available object becomes a *seed* of a collective event.
-3. The `dbscan` algorithm aims to cluster all objects in the current frame. Objects within a *threshold distance* are clustered into collective events with a minimum *threshold size*.
-4. Move to the next frame and match objects to collective events identified in previous frames. To match objects between frames, calculate the Cartesian product of two long-format tables. One holds all current objects, the other holds all objects from collective events in the previous frame(s). 
-5. All unmatched objects in the current frame form *seeds* of new collective events.
+1. In the first frame all objects are clustered with the [dbscan](https://en.wikipedia.org/wiki/DBSCAN) algorithm.
+2. Objects in the next frame are added to existing spatial clusters if they are within a threshold distance. The remaining objects form seeds of new clusters.
 
 The `RANN::nn2` [function](https://www.rdocumentation.org/packages/RANN/versions/2.6.1/topics/nn2) is used to calculate nearest neighbour distances. The `dbscan::dbscan` [function](https://www.rdocumentation.org/packages/dbscan/versions/1.1-6/topics/dbscan) is used for spatial clustering.
 
