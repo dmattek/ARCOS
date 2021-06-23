@@ -24,7 +24,7 @@ The algorithm identifies collective protein activation in 2- and 3D cell culture
 
 Despite the focus on cell signalling, the algorithm can be also applied to other spatially correlated phenomena that occur over time.
 
-![](vignettes/resources/VideoS9_relativeto4D_half.mp4)
+![](https://user-images.githubusercontent.com/25979488/123080758-8d053180-d41d-11eb-9d05-b17786091696.mp4)
 
 ## Data format
 
@@ -100,7 +100,7 @@ dcollch = dcoll[,
 
 In the following plot, objects that participate in a collective event are indicated by red dots. The red polygon indicates a convex hull.
 
-```{r ex1plotColl, fig.height=5, fig.width=10}
+```{r ex1plotColl, echo = FALSE, fig.height=5, fig.width=10}
 p2 = ggplot(dts,
             aes(x = x,
                 y = y)) +

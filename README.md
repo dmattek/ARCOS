@@ -1,8 +1,4 @@
 
-
-
-
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # ARCOS
@@ -122,29 +118,6 @@ dcollch = dcoll[,
 
 In the following plot, objects that participate in a collective event
 are indicated by red dots. The red polygon indicates a convex hull.
-
-``` r
-p2 = ggplot(dts,
-            aes(x = x,
-                y = y)) +
-  geom_point(aes(color = as.factor(m)), size = 5) +
-  scale_color_manual(values = c("grey80",
-                                "grey20")) +
-  ggnewscale::new_scale_color() +
-  geom_point(data = dcoll,
-             aes(color = as.factor(collid)), size = 1) +
-  geom_polygon(data = dcollch,
-               aes(color = as.factor(collid)),
-               fill = NA, 
-               size = 1) +
-  facet_wrap(~ t, ncol = 4) +
-  coord_fixed(ratio=1) +
-  theme_void() +
-  theme(text = element_text(size = 20),
-        legend.position = "none")
-
-p2
-```
 
 <img src="man/figures/README-ex1plotColl-1.png" width="100%" />
 
