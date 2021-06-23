@@ -1,4 +1,8 @@
 
+
+
+
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # ARCOS
@@ -29,7 +33,7 @@ coordination of collective cell migration ([Aoki et al.,
 Despite the focus on cell signalling, the algorithm can be also applied
 to other spatially correlated phenomena that occur over time.
 
-![](vignettes/resources/VideoS9_relativeto4D_half.mp4)
+![](https://user-images.githubusercontent.com/25979488/123080758-8d053180-d41d-11eb-9d05-b17786091696.mp4)
 
 ## Data format
 
