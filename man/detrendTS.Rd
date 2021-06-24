@@ -50,3 +50,4 @@ legend(0, 6,
               lty=1:2, cex=0.8,
                      box.lty=0)
 }
+\keyword{internal}

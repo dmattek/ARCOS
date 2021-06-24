@@ -5,6 +5,7 @@
 #' @title "Plot tracks"
 #' @param obj an arcosTS object.
 #' @param nmax an integer, maximum number of tracks to sample; default 20.
+#' @param ... parameters passed to ggplot2::geom_point.
 #'
 #' @return a ggplot2 object.
 #'
@@ -13,18 +14,18 @@
 #'
 #' @examples
 #' cat("no examples")
-plotTracks <- function(obj, nmax = 20) {
+plotTracks <- function(obj, nmax = 20, ...) {
   UseMethod("plotTracks")
 }
 
-plotTracks.default <- function(obj, nmax = 20) {
+plotTracks.default <- function(obj, nmax = 20, ...) {
   cat("This is a generic function\n")
 }
 
 #' @rdname plotTracks
 #' @export plotTracks.arcosTS
 #' @export
-plotTracks.arcosTS <- function(obj, nmax = 20) {
+plotTracks.arcosTS <- function(obj, nmax = 20, ...) {
 
   stopifnot(is.arcosTS(obj))
 
@@ -72,11 +73,11 @@ plotTracks.arcosTS <- function(obj, nmax = 20) {
 
   if (is.null(attr(obj, "colIDcoll"))) {
     locP = locP +
-      ggplot2::geom_point()
+      ggplot2::geom_point(...)
   } else {
     locP = locP +
       ggplot2::geom_point(ggplot2::aes(shape = as.factor(get(attr(obj, "colIDcoll")))),
-                          size = 2) +
+                          ...) +
       ggplot2::scale_shape_discrete("Collective ID")
   }
 

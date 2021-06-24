@@ -5,14 +5,16 @@
 \alias{plotTracks.arcosTS}
 \title{"Plot tracks"}
 \usage{
-plotTracks(obj, nmax = 20)
+plotTracks(obj, nmax = 20, ...)
 
-\method{plotTracks}{arcosTS}(obj, nmax = 20)
+\method{plotTracks}{arcosTS}(obj, nmax = 20, ...)
 }
 \arguments{
 \item{obj}{an arcosTS object.}
 
 \item{nmax}{an integer, maximum number of tracks to sample; default 20.}
+
+\item{...}{parameters passed to ggplot2::geom_point.}
 }
 \value{
 a ggplot2 object.

@@ -24,11 +24,6 @@ library(ggthemes)
 
 library(testthat)
 
-lPar = list()
-
-lPar$db.eps = 1.0
-lPar$db.minPts = 1L
-
 ## Custom functions
 
 # Wrapper function for testing
@@ -46,55 +41,6 @@ myTest = function(inDTcalc, inFtrue, inDir = "testdata") {
                  locDTtrueRes)
   })
 }
-
-# Wrapper functions for custom plots
-myPlotTile = function(inDT, 
-                      inFillVar = "trackID", 
-                      inFillName = "Track ID",
-                      inX = "time",
-                      inY = "x") {
-  locP = ggplot(inDT,
-                aes(x = get(inX),
-                    y = as.factor(get(inY)))) +
-    geom_tile(aes(fill = as.factor(get(inFillVar))), 
-              colour = "grey50") +
-    ggthemes::scale_fill_tableau(name = inFillName,
-                                 palette = "Tableau 10") +
-    xlab("Time") +
-    ylab("Position")
-  
-  return(locP)
-}
-
-myPlotLine = function(inDT, 
-                      inVarObj = "id", 
-                      inVarColl = NULL,
-                      inX = "time",
-                      inY = "x") {
-  locP = ggplot(inDT,
-                aes_string(x = inX,
-                           y = inY,
-                           group = inVarObj,
-                           color = inVarObj)) +
-    geom_path() +
-    scale_color_tableau(name = "Object\nid:",
-                        palette = "Tableau 10") +
-    xlab("Time") +
-    ylab("Position") +
-    theme_bw()
-  
-  if (is.null(inVarColl)) {
-    locP = locP +
-      geom_point()
-  } else {
-    locP = locP +
-      geom_point(aes(shape = as.factor(collid)),
-                 size = 3) +
-      scale_shape_discrete(name = "Collective\nid:")
-  }
-  
-  return(locP)
-}
 ```
 
 # Introduction
@@ -107,6 +53,8 @@ Only spatial clusters in consecutive frames are linked.
 
 ## Test 1 - 1 central
 
+A single object that is active at frames 2, [4,5], and [7,9]. There are gaps of inactivity at frames 3 and 6.
+
 ```{r, echo = T, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", package="ARCOS"), "1central_in.csv"),
                               colPos = "x",
@@ -118,19 +66,21 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", package="ARCOS")
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotTile(dts)
+ARCOS::plotTracks(dts, size = 3)
 ```
+
+The parameter `nPrev = 1L` tells the tracking algorithm to link events only from consecutive frames, i.e. it *looks back* only 1 frame. Hence, clustering will yield 3 events at frames 2, [4,5], [7,8,9].
 
 ```{r, echo = T, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts[m>0], 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotTile(dcoll,
-           "collid",
-           "Coll ID")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
+
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
@@ -140,7 +90,9 @@ myTest(dcoll[,
 
 ## Test 2 - 3 spreading
 
-```{r, echo = T, fig.width=6, fig.height=5}
+Consider 7 objects that become subsequently active every 2 frames. It mimics an activity wave spreading from object #4 to neighbouring objects.
+
+```{r, echo = F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "3spreading_in.csv"),
@@ -154,18 +106,19 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interType = "fixed")
 
 
-myPlotTile(dts[m>0])
+ARCOS::plotTracks(dts[m>0], size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+By linking events that are 1 frame apart (parameter `nPrev = 1L`), the tracking algorithm identifies 3 collective events.
+
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts[m>0], 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotTile(dcoll,
-           "collid",
-           "Coll ID")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -176,8 +129,9 @@ myTest(dcoll[,
 
 ## Test 3 - 5 overlapping
 
+Consider two objects 2 spatial units apart that beocme active at overlapping time points.
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "5overlapping_in.csv"),
@@ -191,18 +145,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interType = "fixed")
 
 
-myPlotTile(dts)
+ARCOS::plotTracks(dts[m>0], size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts[m>0], 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotTile(dcoll,
-           "collid",
-           "Coll ID")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -214,7 +167,7 @@ myTest(dcoll[,
 ## Test 4 - 6 overlapping
 
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "6overlapping_in.csv"),
@@ -228,18 +181,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interType = "fixed")
 
 
-myPlotTile(dts)
+ARCOS::plotTracks(dts[m>0], size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts[m>0], 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotTile(dcoll,
-           "collid",
-           "Coll ID")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -250,7 +202,7 @@ myTest(dcoll[,
 
 ## Test 5 - 1 central growing
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "1centralGrowing_in.csv"),
@@ -264,18 +216,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interType = "fixed")
 
 
-myPlotTile(dts)
+ARCOS::plotTracks(dts[m>0], size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts[m>0], 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotTile(dcoll,
-           "collid",
-           "Coll ID")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -286,7 +237,7 @@ myTest(dcoll[,
 
 ## Test 6 - 2 central growing
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "2centralGrowing_in.csv"),
@@ -300,18 +251,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interType = "fixed")
 
 
-myPlotTile(dts)
+ARCOS::plotTracks(dts[m>0], size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts[m>0], 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotTile(dcoll,
-           "collid",
-           "Coll ID")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -323,7 +273,9 @@ myTest(dcoll[,
 
 ## Test 7 - 2 with 1 common symmetric
 
-```{r, echo = T, fig.width=6, fig.height=5}
+This test addresses a problem of two different activation events (objects #1 and 2) that spread to a common, equidistant neighbour (object #3).
+
+```{r, echo = F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "2with1commonSym_in.csv"),
@@ -337,18 +289,19 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interType = "fixed")
 
 
-myPlotTile(dts)
+ARCOS::plotTracks(dts[m>0], size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+Since there's no obvious way to treat this symmetric case, the algorithm assumes that the common neighbour becomes active due to one of the initiators. Here, the activation wave #2 from object #2 spreads to object #3, while the activation wave #1 from object #1 is confined only to that object.
+
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts[m>0], 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotTile(dcoll,
-           "collid",
-           "Coll ID")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -359,7 +312,9 @@ myTest(dcoll[,
 
 ## Test 8 - 2 with 1 common asymmetric
 
-```{r, echo = T, fig.width=6, fig.height=5}
+A similar situation to the previous case but object #3 is no longer equidistant to objects #1 and 2. Instead, it is closer to object #1.
+
+```{r, echo = F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "2with1commonAsym_in.csv"),
@@ -373,18 +328,18 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interType = "fixed")
 
 
-myPlotTile(dts)
+ARCOS::plotTracks(dts[m>0], size = 3)
 ```
+Since the neighbourhood cut-off is 1 distance unit (parameter `eps`), the collective activation #1 from object #1 spreads to object #3.
 
 ```{r, echo = T, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts[m>0], 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotTile(dcoll,
-           "collid",
-           "Coll ID")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -398,7 +353,7 @@ myTest(dcoll[,
 
 ## Test 1 - simultaneous
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "multipleSimulNewObjects_in.csv"),
@@ -410,23 +365,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotLine(inDT = dts,
-           inVarObj = "id", 
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dts, size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts, 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotLine(inDT = dcoll,
-           inVarObj = "id", 
-           inVarColl = "collid",
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -437,7 +386,7 @@ myTest(dcoll[,
 
 ## Test 2 - 4 new objects at once after 1
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "multipleSubseq4NewObjectsAfter1_in.csv"),
@@ -449,23 +398,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotLine(inDT = dts,
-           inVarObj = "id", 
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dts, size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts, 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotLine(inDT = dcoll,
-           inVarObj = "id", 
-           inVarColl = "collid",
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -476,7 +419,7 @@ myTest(dcoll[,
 
 ## Test 3 - 3 new objects at once after 2
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "multipleSubseq3NewObjectsAfter2_in.csv"),
@@ -488,23 +431,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotLine(inDT = dts,
-           inVarObj = "id", 
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dts, size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts, 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotLine(inDT = dcoll,
-           inVarObj = "id", 
-           inVarColl = "collid",
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -516,7 +453,7 @@ myTest(dcoll[,
 
 ## Test 4 - 4 new objects at once after 2
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "multipleSubseq4NewObjectsAfter2_in.csv"),
@@ -528,23 +465,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotLine(inDT = dts,
-           inVarObj = "id", 
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dts, size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts, 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotLine(inDT = dcoll,
-           inVarObj = "id", 
-           inVarColl = "collid",
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -554,9 +485,9 @@ myTest(dcoll[,
 ```
 
 
-## Test 4 - 4 subsequently
+## Test 5 - 4 subsequently
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "multipleSubseqNewObjects_in.csv"),
@@ -568,23 +499,16 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotLine(inDT = dts,
-           inVarObj = "id", 
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dts, size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts, 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
-
-myPlotLine(inDT = dcoll,
-           inVarObj = "id", 
-           inVarColl = "collid",
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -597,7 +521,7 @@ myTest(dcoll[,
 
 ## Test 1 - split from single
 
-```{r, echo=T, fig.width=6, fig.height=5}
+```{r, echo=F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "1objSplit_in.csv"),
@@ -609,23 +533,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotLine(inDT = dts,
-           inVarObj = "id", 
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dts, size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts, 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotLine(inDT = dcoll,
-           inVarObj = "id", 
-           inVarColl = "collid",
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -636,7 +554,7 @@ myTest(dcoll[,
 
 ## Test 2 - split from 2 objects
 
-```{r, echo=T, fig.width=6, fig.height=5}
+```{r, echo=F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "2objSplit_in.csv"),
@@ -648,23 +566,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotLine(inDT = dts,
-           inVarObj = "id", 
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dts, size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts, 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotLine(inDT = dcoll,
-           inVarObj = "id", 
-           inVarColl = "collid",
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -675,7 +587,7 @@ myTest(dcoll[,
 
 ## Test 3 - cross 2 objects
 
-```{r, echo=T, fig.width=6, fig.height=5}
+```{r, echo=F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "2objCross_in.csv"),
@@ -687,23 +599,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotLine(inDT = dts,
-           inVarObj = "id", 
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dts, size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts, 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotLine(inDT = dcoll,
-           inVarObj = "id", 
-           inVarColl = "collid",
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -714,7 +620,7 @@ myTest(dcoll[,
 
 ## Test 4 - cross 2 objects with common
 
-```{r, echo=T, fig.width=6, fig.height=5}
+```{r, echo=F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "2objCrossCommon_in.csv"),
@@ -726,23 +632,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotLine(inDT = dts,
-           inVarObj = "id", 
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dts, size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts, 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotLine(inDT = dcoll,
-           inVarObj = "id", 
-           inVarColl = "collid",
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -753,7 +653,7 @@ myTest(dcoll[,
 
 ## Test 5 - merge & split 2 objects with common
 
-```{r, echo=T, fig.width=6, fig.height=5}
+```{r, echo=F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "2objMergeSplitCommon_in.csv"),
@@ -765,23 +665,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotLine(inDT = dts,
-           inVarObj = "id", 
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dts, size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts, 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotLine(inDT = dcoll,
-           inVarObj = "id", 
-           inVarColl = "collid",
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -792,7 +686,7 @@ myTest(dcoll[,
 
 ## Test 6 - merge & split 2 objects crossing
 
-```{r, echo=T, fig.width=6, fig.height=5}
+```{r, echo=F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "2objMergeSplitCross_in.csv"),
@@ -804,23 +698,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotLine(inDT = dts,
-           inVarObj = "id", 
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dts, size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts, 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotLine(inDT = dcoll,
-           inVarObj = "id", 
-           inVarColl = "collid",
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -831,7 +719,7 @@ myTest(dcoll[,
 
 ## Test 7 - merge & split 2 objects near
 
-```{r, echo=T, fig.width=6, fig.height=5}
+```{r, echo=F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "2objMergeSplitNear_in.csv"),
@@ -843,23 +731,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotLine(inDT = dts,
-           inVarObj = "id", 
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dts, size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts, 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
                          deb = F)
 
-myPlotLine(inDT = dcoll,
-           inVarObj = "id", 
-           inVarColl = "collid",
-           inX = "t", 
-           inY = "pos")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -874,7 +756,7 @@ Spatial clusters are linked 2 frames back, thus a one-frame-gap is allowed in a 
 
 ## Test 1 - 1 central
 
-```{r, echo=T, fig.width=6, fig.height=5}
+```{r, echo=F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", package="ARCOS"), "1central_in.csv"),
                               colPos = "x",
                               colMeas = "m",
@@ -885,19 +767,19 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", package="ARCOS")
                               interVal = 1L,
                               interType = "fixed")
 
-myPlotTile(dts)
+ARCOS::plotTracks(dts, size = 3)
+
 ```
+Here parameter `nPrev = 2L`, which links events from two consecutive frames, i.e. it *looks back* 2 frames. Hence, clustering will yield 1 continuous events.
 
 ```{r, echo = T, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts[m>0], 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
                          nPrev = 2L,
                          deb = F)
 
-myPlotTile(dcoll,
-           "collid",
-           "Coll ID")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -908,7 +790,7 @@ myTest(dcoll[,
 
 ## Test 2 - 3 spreading
 
-```{r, echo=T, fig.width=6, fig.height=5}
+```{r, echo=F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "3spreading_in.csv"),
@@ -922,19 +804,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interType = "fixed")
 
 
-myPlotTile(dts[m>0])
+ARCOS::plotTracks(dts[m>0], size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts[m>0], 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
                          nPrev = 2L,
                          deb = F)
 
-myPlotTile(dcoll,
-           "collid",
-           "Coll ID")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
@@ -945,7 +825,7 @@ myTest(dcoll[,
 
 ## Test 3 - 5 overlapping
 
-```{r, echo=T, fig.width=6, fig.height=5}
+```{r, echo=F, fig.width=6, fig.height=5}
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
                                                     package="ARCOS"), 
                                         "5overlapping_in.csv"),
@@ -959,19 +839,17 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                               interType = "fixed")
 
 
-myPlotTile(dts)
+ARCOS::plotTracks(dts[m>0], size = 3)
 ```
 
-```{r, echo = T, fig.width=6, fig.height=5}
+```{r, echo = F, fig.width=6, fig.height=5}
 dcoll = ARCOS::trackColl(obj = dts[m>0], 
-                         eps = lPar$db.eps, 
-                         minClSz = lPar$db.minPts, 
+                         eps = 1.0, 
+                         minClSz = 1L, 
                          nPrev = 2L,
                          deb = F)
 
-myPlotTile(dcoll,
-           "collid",
-           "Coll ID")
+ARCOS::plotTracks(dcoll, size = 3)
 ```
 
 ```{r, echo = F, results="asis"}
