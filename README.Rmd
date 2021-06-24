@@ -34,7 +34,7 @@ ARCOS defines an `arcosTS` object that extends the `data.table` [class](https://
 
 ## Installation
 
-You can install the development version from [GitHub](https://github.com/) with:
+You can install the development version from [GitHub](https://github.com/dmattek/ARCOS) with:
 
 ``` r
 # install.packages("devtools")

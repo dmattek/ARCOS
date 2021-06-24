@@ -44,7 +44,7 @@ object to define column names relevant for the analysis.
 ## Installation
 
 You can install the development version from
-[GitHub](https://github.com/) with:
+[GitHub](https://github.com/dmattek/ARCOS) with:
 
 ``` r
 # install.packages("devtools")
