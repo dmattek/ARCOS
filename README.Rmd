@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 **A**utomated **R**ecognition of **Co**llective **S**ignalling (ARCOS) is an [R](https://www.r-project.org) package to identify collective spatial events in time series data.
 
-The package focuses on collective protein activation in 2- and 3D cell cultures over time. Such collective waves have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis ([Gagliardi et al., 2020](https://doi.org/10.1016/j.devcel.2021.05.007), [Takeuchi et al., 2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al., 2020](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis ([Ender et al., 2020](https://doi.org/10.1101/2020.11.20.387167)), osteoblast regeneration ([De Simone et al., 2021](https://doi.org/10.1038/s41586-020-03085-8)), and in the coordination of collective cell migration ([Aoki et al., 2017](https://doi.org/10.1016/j.devcel.2017.10.016), [Hino et al., 2020](https://doi.org/10.1016/j.devcel.2020.05.011)).
+The software identifies and visualises collective protein activation in 2- and 3D cell cultures over time. Such collective waves have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis ([Gagliardi et al., 2020](https://doi.org/10.1016/j.devcel.2021.05.007), [Takeuchi et al., 2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al., 2020](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis ([Ender et al., 2020](https://doi.org/10.1101/2020.11.20.387167)), osteoblast regeneration ([De Simone et al., 2021](https://doi.org/10.1038/s41586-020-03085-8)), and in the coordination of collective cell migration ([Aoki et al., 2017](https://doi.org/10.1016/j.devcel.2017.10.016), [Hino et al., 2020](https://doi.org/10.1016/j.devcel.2020.05.011)).
 
 ![](https://user-images.githubusercontent.com/25979488/123080758-8d053180-d41d-11eb-9d05-b17786091696.mp4)
 
@@ -43,7 +43,7 @@ devtools::install_github("dmattek/ARCOS")
 
 ## Example
 
-The following synthetic dataset contains 81 objects spaced on a 2D 9x9 lattice. Each object has an ID (columns `id`) and can assume two values 0 and 1 (column `m`), which corresponds to an inactive and active state. The evolution of active states takes place over 8 consecutive frames (column `t`).
+The following synthetic dataset contains 81 cells spaced on a 2D 9x9 lattice. Each object has an ID (column `id`) and can assume values 0 and 1 (column `m`), which correspond to an *inactive* and *active* state. The evolution of active states takes place over 8 consecutive time points (column `t`). Each cell moves slightly over time, hence a light wiggle around the initial position.
 
 ```{r ex1gen, warning=FALSE}
 library(ARCOS)
@@ -56,7 +56,7 @@ dts = ARCOS::genSynth2D(inSeed = 7)
 knitr::kable(head(ARCOS::keepSignifDig(dts, 4)))
 ```
 
-In the plot below, grey circles correspond to inactive and black to active states of objects. The collective activation (*wave*) develops over 8 time points.
+In the plot below, grey circles correspond to inactive and black to active states of cells and their collective activation (*wave*) develops over 8 time points.
 
 ```{r ex1plotTS, echo=FALSE, fig.height=5, fig.width=10}
 p1 = ggplot(dts,
@@ -74,11 +74,11 @@ p1 = ggplot(dts,
 p1
 ```
 
-The following snippet will identify the collective event and will store the result in `dcoll`. We are interested in a collective event comprised of *active* object, hence we select rows with `m>0`.
+The following R code will identify the collective event and store the result in `dcoll` variable. We are interested in a collective event comprised of *active* object, hence we select rows with `m > 0`.
 
 ```{r ex1trackColl}
 # Track collective events
-dcoll = ARCOS::trackColl(dts[m>0], 
+dcoll = ARCOS::trackColl(dts[m > 0], 
                          eps = 2.)
 ```
 
@@ -88,7 +88,7 @@ knitr::kable(head(ARCOS::keepSignifDig(dcoll, 4)))
 
 The `dcoll` table contains the results of spatio-temporal clustering. Column `collid` stores a unique identifier of collective event. The `collid.frame` column stores an identifier of collective event that is unique only within a frame.
 
-For visualisation, we can add convex hulls around collective events.
+For better visualisation, we add convex hulls around collective events using the `chull` function from the `grDevices` package.
 
 ```{r ex1calcCH}
 # Create convex hulls around collective events for visualisation
@@ -125,7 +125,7 @@ p2
 
 ### Save frames
 
-The snippet below will save individual time frames as `png` files in the `frames` folder located in the current working directory.
+The code below saves individual time frames as `png` files in the `frames` folder located in the current working directory.
 
 ```{r ex1saveFrames, eval=F}
 ARCOS::savePlotColl2D(dts, dcoll, 
@@ -138,7 +138,7 @@ ARCOS::savePlotColl2D(dts, dcoll,
 
 Individual files can be later combined into a movie using software such as [ffmpeg](http://ffmpeg.org). 
 
-For example, if you have `ffmpeg` installed on your system, create an `mp4` movie at 2 frames/second and a 520 by 420 px resolution by typing the following line in the command line:
+For example, if you have `ffmpeg` installed on your system, create an `mp4` movie at 2 frames/second and a 520x420 pixel resolution by typing the following line in the command line:
 
 ```{bash ex1bash, eval = F}
 ffmpeg -framerate 2 -i "frames/F%04d.png" -vcodec libx264 -s 560x420 -pix_fmt yuv420p frames-all.mp4

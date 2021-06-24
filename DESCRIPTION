@@ -1,7 +1,7 @@
 Package: ARCOS
 Type: Package
 Title: Automatic Recognition of Collective Signalling
-Version: 0.1.0
+Version: 0.2.0
 Author: Maciej Dobrzyński
 Maintainer: Maciej Dobrzyński <macdobry@gmail.com>
 Description: The ARCOS package implements the algorithm for identification and tracking of spatially clustered objects in time series data. It works with 1-, 2-, and 3D geometries. The algorithm tackles the problem of identification of protein activation in 2- and 3D cell cultures that occur collectively in neighbouring cells over time. Despite its focus on cell signalling, the algorithm can be also applied to other spatially correlated phenomena that occur over time.

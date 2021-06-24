@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ARCOS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 <p><strong>A</strong>utomated <strong>R</strong>ecognition of <strong>Co</strong>llective <strong>S</strong>ignalling (ARCOS) is an <a href="https://www.r-project.org">R</a> package to identify collective spatial events in time series data.</p>
-<p>The package focuses on collective protein activation in 2- and 3D cell cultures over time. Such collective waves have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis (<a href="https://doi.org/10.1016/j.devcel.2021.05.007">Gagliardi et al., 2020</a>, <a href="https://doi.org/10.1016/j.cub.2019.11.089">Takeuchi et al., 2020</a>, <a href="https://doi.org/10.7554/eLife.60541">Aikin et al., 2020</a>), in the acinar morphogenesis (<a href="https://doi.org/10.1101/2020.11.20.387167">Ender et al., 2020</a>), osteoblast regeneration (<a href="https://doi.org/10.1038/s41586-020-03085-8">De Simone et al., 2021</a>), and in the coordination of collective cell migration (<a href="https://doi.org/10.1016/j.devcel.2017.10.016">Aoki et al., 2017</a>, <a href="https://doi.org/10.1016/j.devcel.2020.05.011">Hino et al., 2020</a>).</p>
+<p>The software identifies and visualises collective protein activation in 2- and 3D cell cultures over time. Such collective waves have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis (<a href="https://doi.org/10.1016/j.devcel.2021.05.007">Gagliardi et al., 2020</a>, <a href="https://doi.org/10.1016/j.cub.2019.11.089">Takeuchi et al., 2020</a>, <a href="https://doi.org/10.7554/eLife.60541">Aikin et al., 2020</a>), in the acinar morphogenesis (<a href="https://doi.org/10.1101/2020.11.20.387167">Ender et al., 2020</a>), osteoblast regeneration (<a href="https://doi.org/10.1038/s41586-020-03085-8">De Simone et al., 2021</a>), and in the coordination of collective cell migration (<a href="https://doi.org/10.1016/j.devcel.2017.10.016">Aoki et al., 2017</a>, <a href="https://doi.org/10.1016/j.devcel.2020.05.011">Hino et al., 2020</a>).</p>
 <p><video src="https://user-images.githubusercontent.com/25979488/123080758-8d053180-d41d-11eb-9d05-b17786091696.mp4" controls=""><a href="https://user-images.githubusercontent.com/25979488/123080758-8d053180-d41d-11eb-9d05-b17786091696.mp4">Video</a></video></p>
 <p>Despite its focus on cell signalling, the framework can be also applied to other spatially correlated phenomena that occur over time.</p>
 <div id="data-format" class="section level2">
@@ -106,7 +106,7 @@
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#example" class="anchor"></a>Example</h2>
-<p>The following synthetic dataset contains 81 objects spaced on a 2D 9x9 lattice. Each object has an ID (columns <code>id</code>) and can assume two values 0 and 1 (column <code>m</code>), which corresponds to an inactive and active state. The evolution of active states takes place over 8 consecutive frames (column <code>t</code>).</p>
+<p>The following synthetic dataset contains 81 cells spaced on a 2D 9x9 lattice. Each object has an ID (column <code>id</code>) and can assume values 0 and 1 (column <code>m</code>), which correspond to an <em>inactive</em> and <em>active</em> state. The evolution of active states takes place over 8 consecutive time points (column <code>t</code>). Each cell moves slightly over time, hence a light wiggle around the initial position.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
@@ -165,12 +165,12 @@
 </tr>
 </tbody>
 </table>
-<p>In the plot below, grey circles correspond to inactive and black to active states of objects. The collective activation (<em>wave</em>) develops over 8 time points.</p>
+<p>In the plot below, grey circles correspond to inactive and black to active states of cells and their collective activation (<em>wave</em>) develops over 8 time points.</p>
 <p><img src="reference/figures/README-ex1plotTS-1.png" width="100%"></p>
-<p>The following snippet will identify the collective event and will store the result in <code>dcoll</code>. We are interested in a collective event comprised of <em>active</em> object, hence we select rows with <code>m&gt;0</code>.</p>
+<p>The following R code will identify the collective event and store the result in <code>dcoll</code> variable. We are interested in a collective event comprised of <em>active</em> object, hence we select rows with <code>m &gt; 0</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Track collective events</span>
-<span class="va">dcoll</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/trackColl.html">trackColl</a></span><span class="op">(</span><span class="va">dts</span><span class="op">[</span><span class="va">m</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span>, 
+<span class="va">dcoll</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/trackColl.html">trackColl</a></span><span class="op">(</span><span class="va">dts</span><span class="op">[</span><span class="va">m</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span>, 
                          eps <span class="op">=</span> <span class="fl">2.</span><span class="op">)</span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -240,7 +240,7 @@
 </tbody>
 </table>
 <p>The <code>dcoll</code> table contains the results of spatio-temporal clustering. Column <code>collid</code> stores a unique identifier of collective event. The <code>collid.frame</code> column stores an identifier of collective event that is unique only within a frame.</p>
-<p>For visualisation, we can add convex hulls around collective events.</p>
+<p>For better visualisation, we add convex hulls around collective events using the <code>chull</code> function from the <code>grDevices</code> package.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Create convex hulls around collective events for visualisation</span>
 <span class="va">dcollch</span> <span class="op">=</span> <span class="va">dcoll</span><span class="op">[</span>,
@@ -252,7 +252,7 @@
 <div id="save-frames" class="section level3">
 <h3 class="hasAnchor">
 <a href="#save-frames" class="anchor"></a>Save frames</h3>
-<p>The snippet below will save individual time frames as <code>png</code> files in the <code>frames</code> folder located in the current working directory.</p>
+<p>The code below saves individual time frames as <code>png</code> files in the <code>frames</code> folder located in the current working directory.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/savePlotColl2D.html">savePlotColl2D</a></span><span class="op">(</span><span class="va">dts</span>, <span class="va">dcoll</span>, 
                       outdir <span class="op">=</span> <span class="st">"./frames"</span>,
@@ -261,7 +261,7 @@
                       plotwh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span><span class="op">)</span>,
                       imtype <span class="op">=</span> <span class="st">"png"</span><span class="op">)</span></code></pre></div>
 <p>Individual files can be later combined into a movie using software such as <a href="http://ffmpeg.org">ffmpeg</a>.</p>
-<p>For example, if you have <code>ffmpeg</code> installed on your system, create an <code>mp4</code> movie at 2 frames/second and a 520 by 420 px resolution by typing the following line in the command line:</p>
+<p>For example, if you have <code>ffmpeg</code> installed on your system, create an <code>mp4</code> movie at 2 frames/second and a 520x420 pixel resolution by typing the following line in the command line:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ffmpeg</span> <span class="at">-framerate</span> 2 <span class="at">-i</span> <span class="st">"frames/F%04d.png"</span> <span class="at">-vcodec</span> libx264 <span class="at">-s</span> 560x420 <span class="at">-pix_fmt</span> yuv420p frames-all.mp4</span></code></pre></div>
 </div>
 <div id="visualise-interactively" class="section level3">

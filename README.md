@@ -10,12 +10,13 @@
 is an [R](https://www.r-project.org) package to identify collective
 spatial events in time series data.
 
-The package focuses on collective protein activation in 2- and 3D cell
-cultures over time. Such collective waves have been recently identified
-in various biological systems. They have been demonstrated to play an
-important role in the maintenance of epithelial homeostasis ([Gagliardi
-et al., 2020](https://doi.org/10.1016/j.devcel.2021.05.007), [Takeuchi
-et al., 2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al.,
+The software identifies and visualises collective protein activation in
+2- and 3D cell cultures over time. Such collective waves have been
+recently identified in various biological systems. They have been
+demonstrated to play an important role in the maintenance of epithelial
+homeostasis ([Gagliardi et al.,
+2020](https://doi.org/10.1016/j.devcel.2021.05.007), [Takeuchi et al.,
+2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al.,
 2020](https://doi.org/10.7554/eLife.60541)), in the acinar morphogenesis
 ([Ender et al., 2020](https://doi.org/10.1101/2020.11.20.387167)),
 osteoblast regeneration ([De Simone et al.,
@@ -53,11 +54,12 @@ devtools::install_github("dmattek/ARCOS")
 
 ## Example
 
-The following synthetic dataset contains 81 objects spaced on a 2D 9x9
-lattice. Each object has an ID (columns `id`) and can assume two values
-0 and 1 (column `m`), which corresponds to an inactive and active state.
-The evolution of active states takes place over 8 consecutive frames
-(column `t`).
+The following synthetic dataset contains 81 cells spaced on a 2D 9x9
+lattice. Each object has an ID (column `id`) and can assume values 0 and
+1 (column `m`), which correspond to an *inactive* and *active* state.
+The evolution of active states takes place over 8 consecutive time
+points (column `t`). Each cell moves slightly over time, hence a light
+wiggle around the initial position.
 
 ``` r
 library(ARCOS)
@@ -76,18 +78,18 @@ dts = ARCOS::genSynth2D(inSeed = 7)
 |   1 | 4.9050 |  0.06777 |   0 |   6 |
 
 In the plot below, grey circles correspond to inactive and black to
-active states of objects. The collective activation (*wave*) develops
+active states of cells and their collective activation (*wave*) develops
 over 8 time points.
 
 <img src="man/figures/README-ex1plotTS-1.png" width="100%" />
 
-The following snippet will identify the collective event and will store
-the result in `dcoll`. We are interested in a collective event comprised
-of *active* object, hence we select rows with `m>0`.
+The following R code will identify the collective event and store the
+result in `dcoll` variable. We are interested in a collective event
+comprised of *active* object, hence we select rows with `m > 0`.
 
 ``` r
 # Track collective events
-dcoll = ARCOS::trackColl(dts[m>0], 
+dcoll = ARCOS::trackColl(dts[m > 0], 
                          eps = 2.)
 ```
 
@@ -105,7 +107,8 @@ Column `collid` stores a unique identifier of collective event. The
 `collid.frame` column stores an identifier of collective event that is
 unique only within a frame.
 
-For visualisation, we can add convex hulls around collective events.
+For better visualisation, we add convex hulls around collective events
+using the `chull` function from the `grDevices` package.
 
 ``` r
 # Create convex hulls around collective events for visualisation
@@ -122,7 +125,7 @@ are indicated by red dots. The red polygon indicates a convex hull.
 
 ### Save frames
 
-The snippet below will save individual time frames as `png` files in the
+The code below saves individual time frames as `png` files in the
 `frames` folder located in the current working directory.
 
 ``` r
@@ -138,7 +141,7 @@ Individual files can be later combined into a movie using software such
 as [ffmpeg](http://ffmpeg.org).
 
 For example, if you have `ffmpeg` installed on your system, create an
-`mp4` movie at 2 frames/second and a 520 by 420 px resolution by typing
+`mp4` movie at 2 frames/second and a 520x420 pixel resolution by typing
 the following line in the command line:
 
 ``` bash

@@ -8,11 +8,11 @@
 #' @param a lower bound (double).
 #' @param b upper bound (double).
 #'
-#' @keywords internal
 #' @return a numeric vector.
 #'
 #' @examples
-#' cat("no example")
+#' v = runif(10)
+#' rcpp_clip(v, 3, 7)
 rcpp_clip <- function(x, a, b) {
     .Call('_ARCOS_rcpp_clip', PACKAGE = 'ARCOS', x, a, b)
 }

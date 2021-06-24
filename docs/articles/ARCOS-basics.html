@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ARCOS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -78,7 +78,7 @@
 
       
 
-      </header><script src="ARCOS-basics_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
+      </header><script src="ARCOS-basics_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Basic usage of ARCOS</h1>
@@ -99,7 +99,7 @@
 <h1 class="hasAnchor">
 <a href="#intro" class="anchor"></a>Intro</h1>
 <p><strong>A</strong>utomated <strong>R</strong>ecognition of <strong>Co</strong>llective <strong>S</strong>ignalling (ARCOS) is an <a href="https://www.r-project.org">R</a> package to identify collective spatial events in time series data.</p>
-<p>The package focuses on collective protein activation in 2- and 3D cell cultures over time. Such collective waves have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis (<a href="https://doi.org/10.1016/j.devcel.2021.05.007">Gagliardi et al., 2020</a>, <a href="https://doi.org/10.1016/j.cub.2019.11.089">Takeuchi et al., 2020</a>, <a href="https://doi.org/10.7554/eLife.60541">Aikin et al., 2020</a>), in the acinar morphogenesis (<a href="https://doi.org/10.1101/2020.11.20.387167">Ender et al., 2020</a>), osteoblast regeneration (<a href="https://doi.org/10.1038/s41586-020-03085-8">De Simone et al., 2021</a>), and in the coordination of collective cell migration (<a href="https://doi.org/10.1016/j.devcel.2017.10.016">Aoki et al., 2017</a>, <a href="https://doi.org/10.1016/j.devcel.2020.05.011">Hino et al., 2020</a>).</p>
+<p>The software identifies and visualises collective protein activation in 2- and 3D cell cultures over time. Such collective waves have been recently identified in various biological systems. They have been demonstrated to play an important role in the maintenance of epithelial homeostasis (<a href="https://doi.org/10.1016/j.devcel.2021.05.007">Gagliardi et al., 2020</a>, <a href="https://doi.org/10.1016/j.cub.2019.11.089">Takeuchi et al., 2020</a>, <a href="https://doi.org/10.7554/eLife.60541">Aikin et al., 2020</a>), in the acinar morphogenesis (<a href="https://doi.org/10.1101/2020.11.20.387167">Ender et al., 2020</a>), osteoblast regeneration (<a href="https://doi.org/10.1038/s41586-020-03085-8">De Simone et al., 2021</a>), and in the coordination of collective cell migration (<a href="https://doi.org/10.1016/j.devcel.2017.10.016">Aoki et al., 2017</a>, <a href="https://doi.org/10.1016/j.devcel.2020.05.011">Hino et al., 2020</a>).</p>
 <div class="figure">
 <img src="resources/VideoS9_relativeto4D.png" alt=""><p class="caption">Collective ERK activation due to apoptosis in MCF10A WT cells</p>
 </div>
@@ -140,7 +140,7 @@
 <p><strong>Post-processing</strong>:</p>
 <ul>
 <li>
-<code>calcStatsColl</code> calculates basic statistics of collective events such as duration aand size.</li>
+<code>calcStatsColl</code> calculates basic statistics of collective events such as duration and size.</li>
 <li>
 <code>selColl</code> selects collective events based on their duration and size.</li>
 </ul>
@@ -186,7 +186,7 @@
 <div id="main-application" class="section level1">
 <h1 class="hasAnchor">
 <a href="#main-application" class="anchor"></a>Main application</h1>
-<p>The following synthetic dataset contains 81 objects spaced on a 2D 9x9 lattice. Each object has an ID (columns <code>id</code>) and can assume two values 0 and 1 (column <code>m</code>), which corresponds to an inactive and active state. The evolution of active states takes place over 8 consecutive frames (column <code>t</code>).</p>
+<p>The following synthetic dataset contains 81 cells spaced on a 2D 9x9 lattice. Each object has an ID (column <code>id</code>) and can assume values 0 and 1 (column <code>m</code>), which correspond to an <em>inactive</em> and <em>active</em> state. The evolution of active states takes place over 8 consecutive time points (column <code>t</code>). Each cell moves slightly over time, hence a light wiggle around the initial position.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dts</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/genSynth2D.html">genSynth2D</a></span><span class="op">(</span>inSeed <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>
 
@@ -244,7 +244,7 @@
 </tr>
 </tbody>
 </table>
-<p>In the plot below, grey circles correspond to inactive and black to active states of objects. The collective activation (<em>wave</em>) develops over 8 time points.</p>
+<p>In the plot below, grey circles correspond to inactive and black to active states of cells and their collective activation (<em>wave</em>) develops over 8 time points.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">p1</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">dts</span>,
             <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>,
@@ -260,10 +260,10 @@
 
 <span class="va">p1</span></code></pre></div>
 <p><img src="ARCOS-basics_files/figure-html/unnamed-chunk-3-1.png" width="960"></p>
-<p>The following snippet will identify the collective event and will store the result in <code>dcoll</code>. We are interested in a collective event comprised of <em>active</em> object, hence we select rows with <code>m&gt;0</code>.</p>
+<p>The following R code will identify the collective event and store the result in <code>dcoll</code> variable. We are interested in a collective event comprised of <em>active</em> object, hence we select rows with <code>m &gt; 0</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Track collective events</span>
-<span class="va">dcoll</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/trackColl.html">trackColl</a></span><span class="op">(</span><span class="va">dts</span><span class="op">[</span><span class="va">m</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span>, 
+<span class="va">dcoll</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/trackColl.html">trackColl</a></span><span class="op">(</span><span class="va">dts</span><span class="op">[</span><span class="va">m</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span>, 
                          eps <span class="op">=</span> <span class="fl">2.</span><span class="op">)</span>
 
 <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/keepSignifDig.html">keepSignifDig</a></span><span class="op">(</span><span class="va">dcoll</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -335,7 +335,7 @@
 </tbody>
 </table>
 <p>The <code>dcoll</code> table contains the results of spatio-temporal clustering. Column <code>collid</code> stores a unique identifier of collective event. The <code>collid.frame</code> column stores an identifier of collective event that is unique only within a frame.</p>
-<p>For visualisation, we can add convex hulls around collective events.</p>
+<p>For better visualisation, we add convex hulls around collective events using the <code>chull</code> function from the <code>grDevices</code> package.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Create convex hulls around collective events fro visualisation</span>
 <span class="va">dcollch</span> <span class="op">=</span> <span class="va">dcoll</span><span class="op">[</span>,
@@ -368,7 +368,7 @@
 <div id="save-frames" class="section level2">
 <h2 class="hasAnchor">
 <a href="#save-frames" class="anchor"></a>Save frames</h2>
-<p>The snippet below will save individual time frames as <code>png</code> files in the <code>frames</code> folder located in the current working directory.</p>
+<p>The code below saves individual time frames as <code>png</code> files in the <code>frames</code> folder located in the current working directory.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/savePlotColl2D.html">savePlotColl2D</a></span><span class="op">(</span><span class="va">dts</span>, <span class="va">dcoll</span>, 
                       outdir <span class="op">=</span> <span class="st">"./frames"</span>,
@@ -377,7 +377,7 @@
                       plotwh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span><span class="op">)</span>,
                       imtype <span class="op">=</span> <span class="st">"png"</span><span class="op">)</span></code></pre></div>
 <p>Individual files can be later combined into a movie using software such as <a href="http://ffmpeg.org">ffmpeg</a>.</p>
-<p>For example, if you have <code>ffmpeg</code> installed on your system, create an <code>mp4</code> movie at 2 frames/second and a 520 by 420 px resolution by typing the following line in the command line:</p>
+<p>For example, if you have <code>ffmpeg</code> installed on your system, create an <code>mp4</code> movie at 2 frames/second and a 520x420 pixel resolution by typing the following line in the command line:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ffmpeg</span> <span class="at">-framerate</span> 2 <span class="at">-i</span> <span class="st">"frames/F%04d.png"</span> <span class="at">-vcodec</span> libx264 <span class="at">-s</span> 560x420 <span class="at">-pix_fmt</span> yuv420p frames-all.mp4</span></code></pre></div>
 </div>
 <div id="visualise-interactively" class="section level2">
