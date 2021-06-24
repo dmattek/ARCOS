@@ -2,13 +2,11 @@
 .Rhistory
 .RData
 .Ruserdata
-inst/doc
-doc
-docs
-Meta
-.Rdata
 .httr-oauth
 .DS_Store
+doc
+inst/doc
+Meta
 old
 /doc/
 /Meta/
