@@ -8,11 +8,11 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-  
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-collapse = TRUE,
-comment = "#>"
+  collapse = TRUE,
+  comment = "#>"
 )
 ```
 
@@ -21,38 +21,61 @@ library(ARCOS)
 library(ggplot2)
 
 # Custom functions
-
-myPlotBinRasterTS <- function(objTS, xlim = c(0,65), ylim = c(65,0)) {
-
-  ggplot(objTS,
-       aes(x = x,
-           y = y)) +
-  geom_raster(aes(fill = as.factor(m))) +
-  scale_fill_manual(name = "Meas.",
-                    values = c("grey80",
-                                "grey20")) +
-  facet_wrap(~ frame, ncol = 4) +
-  coord_fixed(ratio=1) +
-  scale_x_continuous(limits = xlim) +
-  scale_y_continuous(trans = "reverse", limits = ylim) +
-  xlab("x") +
-  ylab("y") +
-  theme_minimal()
+myPlotBinTS <- function(objTS, 
+                        xlim = c(0,65), 
+                        ylim = c(65,0),
+                        ncol = 4,
+                        plotType = c("raster", "point"),
+                        pointSize = 1) {
+  
+  locFrame = attr(objTS, "colFrame")
+  locPos = attr(objTS, "colPos")
+  locM = attr(objTS, "colMeas")
+  
+  locP = ggplot(objTS,
+                aes(x = get(locPos[2]),
+                    y = get(locPos[1])))
+  
+  if (plotType == "point") {
+    locP = locP +
+      geom_point(aes(color = as.factor(get(locM))), size = pointSize) +
+      scale_color_manual(values = c("grey80",
+                                    "grey20"))
+  } else if (plotType == "raster") {
+    locP = locP +
+      geom_raster(aes(fill = as.factor(get(locM)))) +
+      scale_fill_manual(values = c("grey80",
+                                   "grey20"))
+  }
+  
+  locP = locP +
+    facet_wrap(~ frame, ncol = ncol) +
+    coord_fixed(ratio=1) +
+    scale_x_continuous(limits = xlim) +
+    scale_y_continuous(trans = "reverse", limits = ylim) +
+    theme_void() +
+    theme(text = element_text(size = 20),
+          legend.position = "none")
+  
+  return(locP)
 }
 
-myPlotRasterColl <- function(objColl, xlim = c(0,65), ylim = c(65,0)) {
+myPlotRasterColl <- function(objColl, 
+                             xlim = c(0,65), 
+                             ylim = c(65,0),
+                             ncol = 4) {
   ggplot(objColl,
-       aes(x = x,
-           y = y)) +
-  geom_raster(aes(fill = as.factor(collid))) +
-  scale_fill_discrete(name = "ID coll.") +
-  facet_wrap(~ frame) +
-  coord_fixed(ratio=1) +
-  scale_x_continuous(limits = xlim) +
-  scale_y_continuous(trans = "reverse", limits = ylim) +
-  xlab("x") +
-  ylab("y") +
-  theme_minimal()
+         aes(x = x,
+             y = y)) +
+    geom_raster(aes(fill = as.factor(collid))) +
+    scale_fill_discrete(name = "ID coll.") +
+    facet_wrap(~ frame, ncol = ncol) +
+    coord_fixed(ratio=1) +
+    scale_x_continuous(limits = xlim) +
+    scale_y_continuous(trans = "reverse", limits = ylim) +
+    theme_void() +
+    theme(text = element_text(size = 20),
+          legend.position = "none")
 }
 ```
 
@@ -97,7 +120,7 @@ knitr::kable(head(dtIm))
 Here we plot the time sequence with a growing concentric circle. Each frame (time point) consists of a matrix of 64x64 objects, where each object can assume a value of 0 (inactive) or 1 (active). In this example objects **do not** change their positions or identities across frames. In general, both positions and object identifiers may change between frames.
 
 ```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
-myPlotBinRasterTS(dtIm)
+myPlotBinTS(dtIm, plotType = "raster")
 ```
 
 
@@ -131,16 +154,17 @@ myPlotRasterColl(dtColl)
 
 Detect and track a moving cluster of active objects directly from a sequence of 16 binary PNG images at 64-by-64 pixel resolution.
 
-```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
+```{r,echo=F, fig.width=5, fig.height = 5, caption="Concentrically growing circle"}
 dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/movingCircle",
                                                        package="ARCOS"), 
                                            "png_64"),
                                  "*.png", 
                                  thres = -1)
-myPlotBinRasterTS(dtIm)
+
+myPlotBinTS(dtIm, plotType = "raster")
 ```
 
-```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
+```{r, echo = F, fig.width=5, fig.height = 5, caption="Collective events"}
 dtColl = ARCOS::trackColl(dtIm[m>0])
 
 myPlotRasterColl(dtColl)
@@ -152,19 +176,20 @@ Detect and track a cluster of active objects that splits into two parts. Analysi
 
 The analysis should consider everything as a single cluster even after the split.
 
-```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
+```{r,echo=F, fig.width=6, fig.height = 4, caption="Concentrically growing circle"}
 dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/splitCircle",
                                                        package="ARCOS"), 
                                            "png_64"),
                                  "*.png", 
                                  thres = -1)
-myPlotBinRasterTS(dtIm)
+
+myPlotBinTS(dtIm, plotType = "raster", ncol = 5)
 ```
 
-```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
+```{r, echo = F, fig.width=6, fig.height = 4, caption="Collective events"}
 dtColl = ARCOS::trackColl(dtIm[m>0])
 
-myPlotRasterColl(dtColl)
+myPlotRasterColl(dtColl, ncol = 5)
 ```
 
 # Moving multiple circles
@@ -177,10 +202,65 @@ dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/moving
                                            "png_64"),
                                  "*.png", 
                                  thres = -1)
-myPlotBinRasterTS(dtIm)
+
+myPlotBinTS(dtIm, plotType = "raster", ncol = 3)
 ```
 ```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
 dtColl = ARCOS::trackColl(dtIm[m>0])
 
-myPlotRasterColl(dtColl)
+myPlotRasterColl(dtColl, ncol = 3)
+```
+
+# 3 events
+
+Detect and track multiple activation sites from a sequence of 20 binary PNG images at 32-by-32 pixel resolution. Sprites created with [Piskel web-app](https://www.piskelapp.com). Small random Gaussian noise added to X/Y positions.
+
+```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
+dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/4events",
+                                                       package="ARCOS"), 
+                                           "png_32"),
+                                 "*.png", 
+                                 thres = -1)
+
+# add Gaussian noise to X/Y
+dtIm[,
+     `:=`(x = x + rnorm(.N, 0, .1),
+          y = y + rnorm(.N, 0, .1))]
+
+myPlotBinTS(dtIm,
+            xlim = c(0,25), ylim = c(25,0), 
+            plotType = "point", ncol = 5)
+```
+
+```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
+dtColl = ARCOS::trackColl(dtIm[m>0], eps = 2)
+
+# Create convex hulls around collective events fro visualisation
+dtCollCH = dtColl[,
+                  .SD[grDevices::chull(x, y)],
+                  by = .(frame,
+                         collid)]
+
+p2 = ggplot(dtIm,
+            aes(x = x,
+                y = y)) +
+  geom_point(aes(color = as.factor(m)), size = 1) +
+  scale_color_manual(values = c("grey80",
+                                "grey20")) +
+  ggnewscale::new_scale_color() +
+  geom_point(data = dtColl,
+             aes(color = as.factor(collid)), size = 1) +
+  geom_polygon(data = dtCollCH,
+               aes(color = as.factor(collid)),
+               fill = NA, 
+               size = 1) +
+  facet_wrap(~ frame, ncol = 5) +
+  coord_fixed(ratio=1) +
+  scale_x_continuous(limits = c(0,25)) +
+  scale_y_continuous(trans = "reverse", limits = c(25, 0)) +
+  theme_void() +
+  theme(text = element_text(size = 20),
+        legend.position = "none")
+
+p2
 ```
