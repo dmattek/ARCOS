@@ -1,0 +1,444 @@
+---
+title: "ARCOS detect random events"
+output: 
+  rmarkdown::html_vignette:
+    toc: true 
+vignette: >
+  %\VignetteIndexEntry{ARCOS detect random events}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo = F, warning=FALSE}
+library(ARCOS, quietly = T)
+library(data.table, quietly = T)
+library(ggplot2, quietly = T)
+library(ggthemes, quietly = T)
+
+lPar = list()
+
+lPar$dirCore = "."
+lPar$dirFramesOut = "output-frames"
+lPar$saveFrames = TRUE
+
+```
+
+# Introduction
+
+Generate a sequence of concentrically growing waves with random duration placed randomly in X/Y/T.
+
+```{r definitions, echo = F}
+# Colour palette used for plotting
+myColPal = ggthemes::tableau_color_pal(palette = "Tableau 20")(20)
+
+# Mid-Point Circle Drawing Algorithm
+# https://www.geeksforgeeks.org/mid-point-circle-drawing-algorithm/
+myMidPtCir = function(x0, y0, r) {
+  x = r
+  y = 0
+  
+  c0 = matrix(c(x+x0, y+y0),
+              ncol = 2, 
+              byrow = T)
+  
+  if (r > 0) {
+    c0 = rbind(c0,
+               matrix(c( x + x0, -y + y0,
+                         y + x0,  x + y0,
+                         -y + x0,  x + y0),
+                      ncol = 2,
+                      byrow = T))
+  }
+  
+  # Initialising the value of P
+  P = 1 - r
+  while (x > y) { 
+    y = y + 1
+    
+    # Mid-point is inside or on the perimeter
+    if (P <= 0) {
+      P = P + 2*y + 1
+    } 
+    else
+    {
+      #Mid-point is outside the perimeter
+      x = x - 1
+      P = P + 2*y - 2*x + 1
+    }
+    
+    # All the perimeter points have already been printed
+    if (x < y) break
+    
+    # Printing the generated point and its reflection
+    # in the other octants after translation
+    c0 = rbind(c0,
+               matrix(c(x + x0, y + y0,
+                        -x + x0, y + y0,
+                        x + x0, -y + y0,
+                        -x + x0, -y + y0), 
+                      ncol = 2, 
+                      byrow = T))
+    
+    # If the generated point is on the line x = y then 
+    # the perimeter points have already been printed
+    if (x != y)
+    {
+      c0 = rbind(c0,
+                 matrix(c(y + x0, x + y0,
+                          -y + x0, x + y0,
+                          y + x0, -x + y0,
+                          -y + x0, -x + y0),
+                        ncol = 2,
+                        byrow = T))
+    }
+  }
+  
+  return(c0)
+}
+
+# Create a sequence of collective events.
+# A collective event is a concentrically growing circle that
+# increases its radius at every frame.
+# The location of the collective event is random on a maxx-by-maxy lattice,
+# and the duration is random between 1 and maxdur frames.
+# There are nevents that occur within maxt frames.
+myCreateCollEventSeq = function(nevents = 10,
+                                maxt = 25,
+                                maxx = 20,
+                                maxy = 20,
+                                maxdur = 5,
+                                inSeed = NULL) {
+  
+  if (!is.null(inSeed)) set.seed((inSeed))
+  
+  tpts = sort(sample(1:maxt, nevents))
+  posx = sample(1:maxx, nevents)
+  posy = sample(1:maxy, nevents)
+  dur = sample(1:maxdur, nevents, replace = T)
+  
+  # xytAll matrix columns:
+  # - event id
+  # - time
+  # - x/y
+  
+  # start with a dummy first row
+  xytAll = c(0,0,0,0)
+  
+  for (iEv in seq_len(nevents)) {
+    
+    # create the first frame of the event
+    xytEv = c(iEv,
+              tpts[iEv], 
+              myMidPtCir(posx[iEv], 
+                         posy[iEv], 0))
+    
+    # create subsequent frames of the event
+    for (iT in seq_len(dur[iEv])) {
+      #cat(sprintf("iEv=%d iT=%d\n", iEv, iT))
+      
+      # xy positions
+      xy = myMidPtCir(posx[iEv], posy[iEv], iT)
+      
+      # clip xy
+      xy[xy[, 1] < 0, 1] <- 0
+      xy[xy[, 1] > maxx, 1] <- maxx
+      
+      xy[xy[, 2] < 0, 2] <- 0
+      xy[xy[, 2] > maxy, 2] <- maxy
+      
+      nrowxy = nrow(xy)
+      
+      # combine event id, time, and object id
+      xyt = cbind(rep(iEv, nrowxy),
+                  rep(iT + tpts[iEv], nrowxy),
+                  xy)
+      
+      # combine frames
+      xytEv = rbind(xytEv,
+                    xyt)
+    }
+    
+    xytAll = rbind(xytAll,
+                   xytEv)
+  }
+  
+  # remove dummy first row
+  xytAll = xytAll[-1, ]
+  
+  # clip t
+  xytAll <- xytAll[xytAll[, 2] <= maxt, ]
+  
+  # add object id based on xy;
+  # object in the same xy location have the same object id
+  id = xytAll[, 4] * maxx + xytAll[, 3]
+  xytAll = cbind(xytAll,
+                 id)
+  
+  # create arcosTS object
+  ts = data.table(t = xytAll[, 2],
+                  x = xytAll[, 3],
+                  y = xytAll[, 4],
+                  eventid = xytAll[, 1],
+                  id = xytAll[, 5])
+  
+  # because of xy clipping and/or multiple events,
+  # there can be duplicated rows, i.e. same xyt; remove.
+  ts = ts[!duplicated(ts)]
+  
+  ARCOS::arcosTS(dt = ts, 
+                 colPos = c("x", "y"), 
+                 col = list(IDobj = "id",
+                            Frame = "t"),
+                 interVal = 1,
+                 interType = "fixed")
+  
+  return(ts) 
+}
+
+# Custom plotting function
+myPlotBinTS <- function(objTS,
+                        colorVar,
+                        colorPal = c("grey80",
+                                     "grey20"),
+                        legendPos = "none",
+                        xlim = c(0,65), 
+                        ylim = c(65,0),
+                        ncol = 4,
+                        plotType = c("raster", "point", "tile"),
+                        pointSize = 1) {
+  
+  locFrame = attr(objTS, "colFrame")
+  locPos = attr(objTS, "colPos")
+  
+  locP = ggplot(objTS,
+                aes(x = get(locPos[1]),
+                    y = get(locPos[2])))
+  
+  if (plotType == "point") {
+    locP = locP +
+      geom_point(aes(color = as.factor(get(colorVar))), size = pointSize) +
+      scale_color_manual(name = "ID", values = colorPal)
+  } else if (plotType == "raster") {
+    locP = locP +
+      geom_raster(aes(fill = as.factor(get(colorVar)))) +
+      scale_fill_manual(name = "ID", values = colorPal)
+  } else if (plotType == "tile") {
+    locP = locP +
+      geom_tile(aes(fill = as.factor(get(colorVar)))) +
+      scale_fill_manual(name = "ID", values = colorPal)
+  }
+  
+  locP = locP +
+    facet_wrap(locFrame, ncol = ncol) +
+    coord_fixed(ratio=1) +
+    scale_x_continuous(limits = xlim, expand = c(0,0)) +
+    scale_y_continuous(trans = "reverse", limits = ylim, expand = c(0,0)) +
+    theme_void() +
+    theme(text = element_text(size = 20),
+          legend.position = legendPos, 
+          panel.border=element_rect(colour="black", 
+                                    fill = NA,
+                                    size=1))
+  
+  return(locP)
+}
+
+```
+
+# Collective events
+
+Create an `arcosTS` object. The `eventid` column corresponds to an ID of a synthetic event. The `id` column is the ID of an object.
+
+```{r collCreate}
+# create events
+nevents = 10L
+maxt = 25L
+maxx = 20L
+maxy = 20L
+maxdur = 5L
+
+ts = myCreateCollEventSeq(nevents = nevents,
+                          maxt = maxt,
+                          maxx = maxx,
+                          maxy = maxy,
+                          maxdur = maxdur,
+                          inSeed = 1)
+```
+
+```{r collPrint, echo=F, results="asis"}
+knitr::kable(head(ts))
+```
+
+```{r collPlot, echo = F, fig.width=10, fig.height=10, warning=FALSE}
+# For visualisation, expand t column to include all frames, even empty ones.
+setkey(ts, t)
+ts = ts[setkey(ts[,
+                  .(seq(min(t, na.rm = T),
+                        max(t, na.rm = T),
+                        1))],
+               V1)]
+
+# reapply attributes
+ARCOS::arcosTS(dt = ts,
+               colPos = c("x", "y"), 
+               col = list(IDobj = "id",
+                          Frame = "t"),
+               interVal = 1,
+               interType = "fixed")
+
+vEventID = unique(ts$eventid)[!is.na(unique(ts$eventid))]
+names(myColPal) = vEventID
+
+
+myPlotBinTS(ts, 
+            colorVar = "eventid",
+            colorPal = myColPal,
+            plotType = "tile", 
+            legendPos = "right",
+            ncol = 5, 
+            xlim = c(-1, maxx+1), 
+            ylim = c(maxy+1, -1))
+```
+
+# Identification of collective events
+
+Identify and track collective events. The `collid` column is the result of the tracking algorithm. 
+
+Note that the events can overlap, therefore the ID of collective event (column `collid`) from the tracking algorithm may differ from the original event id (column `eventid`).
+
+```{r collID}
+tcoll = ARCOS::trackColl(ts[complete.cases(ts)], 
+                         eps = 2)
+```
+
+```{r collOutPrint, echo=F, results="asis"}
+knitr::kable(head(tcoll))
+```
+
+```{r collOutPlot, echo = F, fig.width=10, fig.height=10, warning=FALSE}
+# For visualisation, expand t column to include all frames, even empty ones.
+setkey(tcoll, t)
+tcoll = tcoll[setkey(tcoll[,
+                           .(seq(min(t, na.rm = T),
+                                 max(t, na.rm = T),
+                                 1))],
+                     V1)]
+
+# reapply attributes
+ARCOS::arcosTS(dt = tcoll,
+               colPos = c("x", "y"), 
+               col = list(IDobj = "id",
+                          Frame = "t", 
+                          IDcoll = "collid"),
+               interVal = 1,
+               interType = "fixed")
+
+vCollID = unique(tcoll$eventid)[!is.na(unique(tcoll$eventid))]
+names(myColPal) = vCollID
+
+myPlotBinTS(tcoll, 
+            colorVar = "collid",
+            colorPal = vCollID,
+            legendPos = "right",
+            plotType = "tile", 
+            ncol = 5, 
+            xlim = c(-1, maxx+1), 
+            ylim = c(maxy+1, -1))
+```
+
+# Save frames
+
+Save facets as individual frames in PNG files. Can be further converted to an animation.
+
+```{r collOutSaveFrames, fig.width=3, fig.height=3, eval = F}
+# Create output directory for saving PNG frames
+if (lPar$saveFrames) {
+  dir.create(file.path(lPar$dirCore,
+                       lPar$dirFramesOut), 
+             recursive = TRUE, showWarnings = F)
+}
+
+vCollID = unique(tcoll$collid)[!is.na(unique(tcoll$collid))]
+names(myColPal) = vCollID
+
+if (lPar$saveFrames) {
+  for (ii in seq_len(maxt)) {
+    locFrame = tcoll[t == ii]
+    
+    pOut = ggplot(locFrame,
+                  aes(x = x,
+                      y = y)) +
+      theme_void() +
+      theme(text = element_text(size = 20),
+            legend.position = "none", 
+            panel.border=element_rect(colour="black", 
+                                      fill = NA,
+                                      size=1),
+            panel.background = element_rect(fill = "grey90")) +
+      geom_text(x=0, y=0, 
+                label=sprintf("%d", ii))
+    
+    # Generate an empty plot, if data does not exists in the frame.
+    if (sum(complete.cases(locFrame)) > 0) {
+      pOut = pOut +
+        geom_tile(aes(fill = as.factor(get("collid")))) +
+        scale_fill_manual(name = "ID", 
+                          values = myColPal,
+        ) +
+        coord_fixed(ratio=1) +
+        scale_x_continuous(limits = c(-1, maxx), expand = c(0,0)) +
+        scale_y_continuous(trans = "reverse", 
+                           limits = c(maxy, -1), expand = c(0,0))
+    } 
+    
+    locFname = file.path(lPar$dirCore,
+                         lPar$dirFramesOut,
+                         sprintf("frame-%04d.png", ii))
+    
+    ggsave(filename = locFname, plot = 
+             pOut, width = 3, height = 3)
+    
+  }
+}
+
+
+```
+
+# Create animation
+
+Convert a sequence of PNG files into an animated GIF using ImageMagick's `convert` and/or into an MP4 movie using `ffmpeg`.
+
+```{r collOutSaveAnim, eval = F}
+# Use ImageMagick to create an animated GIF
+vFrames <- sort(
+  list.files(
+    file.path(lPar$dirCore,
+              lPar$dirFramesOut), 
+    "^.*\\.png$", 
+    full.names = T))
+
+system2("convert", 
+        args = c(vFrames, 
+                 c("-loop", "0", 
+                   file.path(lPar$dirCore,
+                             lPar$dirFramesOut, 
+                             "frame-anim.gif"))))
+
+# Using ffmpeg to create mp4
+system2("ffmpeg", 
+        args = c("-y -framerate", 5, 
+                 "-i", sprintf("%s/frame-%%04d.png",
+                               file.path(lPar$dirCore,
+                                         lPar$dirFramesOut)),
+                 "-vcodec libx264 -s 560x420 -pix_fmt yuv420p",
+                   file.path(lPar$dirCore,
+                             lPar$dirFramesOut, 
+                             "frame-anim.mp4")))
+```
