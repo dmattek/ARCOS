@@ -365,16 +365,16 @@ trackColl.arcosTS <- function(obj, eps = 1., minClSz = 1L, nPrev = 1L, deb = FAL
   }
 
   locDT = trackCollEvents(obj,
-                                 eps = eps,
-                                 minClSz = minClSz,
-                                 nPrev = nPrev,
-                                 cols = list(
-                                   frame = attr(obj, "colFrame"),
-                                   id = attr(obj, "colIDobj"),
-                                   clid = "collid"
-                                 ),
-                                 posCols = attr(obj, "colPos"),
-                                 deb = FALSE)
+                          eps = eps,
+                          minClSz = minClSz,
+                          nPrev = nPrev,
+                          cols = list(
+                            frame = attr(obj, "colFrame"),
+                            id = attr(obj, "colIDobj"),
+                            clid = "collid"
+                          ),
+                          posCols = attr(obj, "colPos"),
+                          deb = FALSE)
 
   if (deb)
     cat("Finished detecting and tracking collective events.\n")

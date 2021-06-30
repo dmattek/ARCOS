@@ -87,7 +87,7 @@ savePlotCollEvents2D = function(inDTobj,
                                 inCols$clid)]
 
   # Calculate min/max for the colour scale
-  # Thanks to this, the colour scale will stay the same through all frames
+  # Thanks to this, the colour scale will stay the same throughout the frame sequence
   locColourLim = c(min(inDTobj[[inCols$m]]),
                    max(inDTobj[[inCols$m]]))
 
@@ -111,7 +111,6 @@ savePlotCollEvents2D = function(inDTobj,
       locDTannoF = NULL
     }
 
-    #ii = 1
     locP = ggplot2::ggplot()
 
     if (nrow(locDTobjF) > 0) {
