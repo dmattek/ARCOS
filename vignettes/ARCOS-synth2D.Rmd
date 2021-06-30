@@ -229,7 +229,8 @@ dtIm[,
 
 myPlotBinTS(dtIm,
             xlim = c(0,25), ylim = c(25,0), 
-            plotType = "point", ncol = 5)
+            plotType = "point", 
+            ncol = 5, pointSize = .25)
 ```
 
 ```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
@@ -244,12 +245,12 @@ dtCollCH = dtColl[,
 p2 = ggplot(dtIm,
             aes(x = x,
                 y = y)) +
-  geom_point(aes(color = as.factor(m)), size = 1) +
+  geom_point(aes(color = as.factor(m)), size = .25) +
   scale_color_manual(values = c("grey80",
                                 "grey20")) +
   ggnewscale::new_scale_color() +
   geom_point(data = dtColl,
-             aes(color = as.factor(collid)), size = 1) +
+             aes(color = as.factor(collid)), size = .1) +
   geom_polygon(data = dtCollCH,
                aes(color = as.factor(collid)),
                fill = NA, 

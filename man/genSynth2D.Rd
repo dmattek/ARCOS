@@ -7,13 +7,13 @@
 genSynth2D(inSeed = NULL)
 }
 \arguments{
-\item{inSeed}{an integer with the seed for random number generator, default NULL.}
+\item{inSeed}{an integer with the seed for the random number generator, default NULL.}
 }
 \value{
 an arcosTS object
 }
 \description{
-81 objects in 2D in 8 time frames. X/Y positions have a small added gaussian noise added.
+81 objects in 2D in 8 time frames. X/Y positions have a small added Gaussian noise added.
 }
 \examples{
 library(ARCOS)
