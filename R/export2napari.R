@@ -51,10 +51,10 @@ export2napari.arcosTS <- function(objColl, dirpath, ...) {
 
   ## Prepare the layer with convex hulls around collective events
   locDTch <- objColl[,
-                    .SD[grDevices::chull(get(colPos[1]),
-                                         get(colPos[2]))],
-                    by = c(colFrame,
-                           colIDcoll)]
+                     .SD[grDevices::chull(get(colPos[1]),
+                                          get(colPos[2]))],
+                     by = c(colFrame,
+                            colIDcoll)]
 
   # Remove single vertices
   setkeyv(locDTch,
@@ -62,11 +62,11 @@ export2napari.arcosTS <- function(objColl, dirpath, ...) {
             colIDcoll))
 
   locDTch <- locDTch[ setkeyv(locDTch[,
-                                     .N,
-                                     by = .(collid,
-                                            Image_Metadata_T)][N > 1],
-                             c(colFrame,
-                               colIDcoll)) ]
+                                      .N,
+                                      by = c(colIDcoll,
+                                             colFrame)][N > 1],
+                              c(colFrame,
+                                colIDcoll)) ]
 
   # Additional columns to conform to Napari standard
   locCols4napari <- c(
@@ -99,7 +99,7 @@ export2napari.arcosTS <- function(objColl, dirpath, ...) {
     colIDcoll)
 
   dtNap <- dtNap[,
-                ..locCols4napari]
+                 ..locCols4napari]
 
   setnames(dtNap,
            c("index", "shape-type", "vertex-index", "axis-0", "axis-1", "axis-2", "collid"))
