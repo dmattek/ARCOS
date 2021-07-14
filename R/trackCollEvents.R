@@ -170,12 +170,13 @@ trackCollEvents <- function(dt,
         ),
         by = c(cols$frame)]
 
-  # Keep only objects with identified clusters, i.e. cl > 0
+  # Keep only objects that belong to clusters identified by dbscan,
+  # i.e. column cl > 0
   locDT = locDT[get(locSclidFrame) > 0]
 
   # To every cluster number add the cumulated cluster number from previous frame(s).
   # This ensures that clusters identified by dbscan in individual frames
-  # have unique cluster number in the entire sequence.
+  # have unique cluster number across the entire sequence.
   locDTclAggr = locDT[,
                       .(cl.max = max(get(locSclidFrame))),
                       by = c(cols$frame)]

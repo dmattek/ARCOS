@@ -211,7 +211,7 @@ dtColl = ARCOS::trackColl(dtIm[m>0])
 myPlotRasterColl(dtColl, ncol = 3)
 ```
 
-# 3 events
+# Multiple events
 
 Detect and track multiple activation sites from a sequence of 20 binary PNG images at 32-by-32 pixel resolution. Sprites created with [Piskel web-app](https://www.piskelapp.com). Small random Gaussian noise added to X/Y positions.
 
@@ -223,6 +223,9 @@ dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/4event
                                  thres = -1)
 
 # add Gaussian noise to X/Y
+# Change the seed to explore other configurations
+set.seed(7)
+
 dtIm[,
      `:=`(x = x + rnorm(.N, 0, .1),
           y = y + rnorm(.N, 0, .1))]
@@ -234,7 +237,7 @@ myPlotBinTS(dtIm,
 ```
 
 ```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
-dtColl = ARCOS::trackColl(dtIm[m>0], eps = 2)
+dtColl = ARCOS::trackColl(dtIm[m > 0], eps = 2.5)
 
 # Create convex hulls around collective events fro visualisation
 dtCollCH = dtColl[,
@@ -242,22 +245,29 @@ dtCollCH = dtColl[,
                   by = .(frame,
                          collid)]
 
+# Colour palette from ggthemes::tableau_color_pal(palette = "Tableau 10")(10)
+# to avoid dependency on ggthemes.
+myColorPal = c("#4E79A7", "#F28E2B", "#E15759",
+               "#76B7B2", "#59A14F", "#EDC948",
+               "#B07AA1", "#FF9DA7", "#9C755F",
+               "#BAB0AC")
+
 p2 = ggplot(dtIm,
             aes(x = x,
                 y = y)) +
   geom_point(aes(color = as.factor(m)), size = .25) +
-  scale_color_manual(values = c("grey80",
-                                "grey20")) +
+  scale_color_manual(values = c("0" = "grey80",
+                                "1" = "grey20")) +
   ggnewscale::new_scale_color() +
   geom_point(data = dtColl,
              aes(color = as.factor(collid)), size = .1) +
   geom_polygon(data = dtCollCH,
                aes(color = as.factor(collid)),
                fill = NA, 
-               size = 1) +
+               size = 0.5) +
   facet_wrap(~ frame, ncol = 5) +
   coord_fixed(ratio=1) +
-  scale_x_continuous(limits = c(0,25)) +
+  scale_x_continuous(limits = c(0, 25)) +
   scale_y_continuous(trans = "reverse", limits = c(25, 0)) +
   theme_void() +
   theme(text = element_text(size = 20),

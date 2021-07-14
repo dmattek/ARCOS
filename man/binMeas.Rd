@@ -10,6 +10,7 @@ binMeas(
   smoothK = 3L,
   biasK = 51L,
   peakThr = 0.2,
+  polyDeg = 1L,
   biasMet = c("runmed", "lm", "none"),
   binThr = 0.5
 )
@@ -19,6 +20,7 @@ binMeas(
   smoothK = 3L,
   biasK = 51L,
   peakThr = 0.2,
+  polyDeg = 1L,
   biasMet = c("runmed", "lm", "none"),
   binThr = 0.5
 )
@@ -32,6 +34,8 @@ binMeas(
 
 \item{peakThr}{a double, threshold for peak detection from signal rescaled to [0,1], default 0.2.}
 
+\item{polyDeg}{an integer, sets the degree of the polynomial for lm fitting; default 1.}
+
 \item{biasMet}{method for de-trending, choose from runmed (median filter), lm (linear regression), none, default runmed.}
 
 \item{binThr}{a double, threshold for signal binarisation, default 0.5.}
@@ -43,7 +47,16 @@ an arcosTS object.
 Smooth, de-trend, and binarise the measurement
 }
 \details{
-A wrapper for \code{detrendTS}.
+First a short-term median filter with size \code{smoothK} is applied to remove fast noise from the time series.
+If the de-trending method is set to \code{"none"}, smoothing is applied on globally rescaled time series.
+The subsequent de-trending can be performed with a long-term median filter with the size \code{biasK} (\code{biasMet = "runmed"})
+or by fitting a polynomial of degree \code{polyDeg} (\code{biasMet = "lm"}).
+
+After de-trending, if the global difference between min/max is greater than the threshold \code{peakThr}
+the signal is rescaled to the \code{[0,1]} range.
+
+The final signal is binarised using the \code{binThr} threshold.
+.
 }
 \examples{
 cat("no examples")

@@ -9,6 +9,7 @@ detrendTS(
   smoothK = 3L,
   biasK = 51L,
   peakThr = 0.2,
+  polyDeg = 1L,
   biasMet = c("runmed", "lm", "none")
 )
 }
@@ -21,20 +22,17 @@ detrendTS(
 
 \item{peakThr}{a threshold for rescaling of the de-trended signal, default 0.2.}
 
+\item{polyDeg}{an integer, sets the degree of the polynomial for lm fitting; default 1.}
+
 \item{biasMet}{a string with the de-trending method, default "runmed".}
 }
 \value{
-a numeric vector with a smoothed time series.
+a numeric vector with a smoothed and/or de-trended and rescaled time series.
 }
 \description{
-First, the short-term median filter with size \code{smoothK} is applied to smooth the time series.
-Two options are available for the subsequent de-trending:
-a long-term median filter with the size \code{biasK} and linear regression.
-No further parameters are required for linear regression.
-}
-\details{
-After de-trending, the signal is rescaled to the \code{[0,1]} range,
-if the global difference between min/max is greater than the threshold \code{peakThr}.
+First a short-term median filter with size \code{smoothK} is applied to remove fast noise from the time series.
+The subsequent de-trending can be performed with a long-term median filter with the size \code{biasK} (\code{biasMet = "runmed"})
+or by fitting a polynomial of degree \code{polyDeg} (\code{biasMet = "lm"}).
 }
 \examples{
 library(ARCOS)
