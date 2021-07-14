@@ -1,21 +1,18 @@
 #' Smooth and de-trend time series
 #'
-#' First, the short-term median filter with size \code{smoothK} is applied to smooth the time series.
-#' Two options are available for the subsequent de-trending:
-#' a long-term median filter with the size \code{biasK} and linear regression.
-#' No further parameters are required for linear regression.
-#'
-#' After de-trending, the signal is rescaled to the \code{[0,1]} range,
-#' if the global difference between min/max is greater than the threshold \code{peakThr}.
+#' First a short-term median filter with size \code{smoothK} is applied to remove fast noise from the time series.
+#' The subsequent de-trending can be performed with a long-term median filter with the size \code{biasK} (\code{biasMet = "runmed"})
+#' or by fitting a polynomial of degree \code{polyDeg} (\code{biasMet = "lm"}).
 #'
 #' @param x a numeric vector with the time series for smoothing.
 #' @param smoothK an integer, size of the short-term median smoothing filter, default 3L.
 #' @param biasK an integer, size of the long-term de-trending median filter, default 51L.
 #' @param peakThr a threshold for rescaling of the de-trended signal, default 0.2.
+#' @param polyDeg an integer, sets the degree of the polynomial for lm fitting; default 1.
 #' @param biasMet a string with the de-trending method, default "runmed".
 #'
 #' @keywords internal
-#' @return a numeric vector with a smoothed time series.
+#' @return a numeric vector with a smoothed and/or de-trended and rescaled time series.
 #' @importFrom stats lm predict.lm runmed
 #'
 #' @examples
@@ -31,7 +28,7 @@
 #'        col=c("black", "red"),
 #'               lty=1:2, cex=0.8,
 #'                      box.lty=0)
-detrendTS = function(x, smoothK = 3L, biasK = 51L, peakThr = 0.2, biasMet = c("runmed", "lm", "none")) {
+detrendTS = function(x, smoothK = 3L, biasK = 51L, peakThr = 0.2, polyDeg = 1L, biasMet = c("runmed", "lm", "none")) {
 
   biasMet = match.arg(biasMet)
 
@@ -47,7 +44,9 @@ detrendTS = function(x, smoothK = 3L, biasK = 51L, peakThr = 0.2, biasMet = c("r
 
       } else if(biasMet == "lm") {
         # de-trend using linear regression
-        locResLM = stats::lm(y~x,
+        locForm = paste0("y ~", paste0(sprintf("I(x^%s)", 1:polyDeg), collapse = "+"))
+
+        locResLM = stats::lm(as.formula(locForm),
                              data.frame(x = seq_along(locS),
                                         y = locS))
         locN = stats::predict.lm(locResLM)
@@ -84,13 +83,23 @@ detrendTS = function(x, smoothK = 3L, biasK = 51L, peakThr = 0.2, biasMet = c("r
 
 #' Smooth, de-trend, and binarise the measurement
 #'
-#' A wrapper for \code{detrendTS}.
+#' First a short-term median filter with size \code{smoothK} is applied to remove fast noise from the time series.
+#' If the de-trending method is set to \code{"none"}, smoothing is applied on globally rescaled time series.
+#' The subsequent de-trending can be performed with a long-term median filter with the size \code{biasK} (\code{biasMet = "runmed"})
+#' or by fitting a polynomial of degree \code{polyDeg} (\code{biasMet = "lm"}).
+#'
+#' After de-trending, if the global difference between min/max is greater than the threshold \code{peakThr}
+#' the signal is rescaled to the \code{[0,1]} range.
+#'
+#' The final signal is binarised using the \code{binThr} threshold.
+#' .
 #'
 #' @title "Smooth, de-trend, and binarise the measurement"
 #' @param obj an arcosTS object.
 #' @param smoothK an integer, length of the short-term median filter, i.e. smoothing, default 3L.
 #' @param biasK an integer, length of the long-term median filter, i.e. de-trending, default 51L.
 #' @param peakThr a double, threshold for peak detection from signal rescaled to [0,1], default 0.2.
+#' @param polyDeg an integer, sets the degree of the polynomial for lm fitting; default 1.
 #' @param biasMet method for de-trending, choose from runmed (median filter), lm (linear regression), none, default runmed.
 #' @param binThr a double, threshold for signal binarisation, default 0.5.
 #'
@@ -106,6 +115,7 @@ binMeas <- function(obj,
                     smoothK = 3L,
                     biasK = 51L,
                     peakThr = 0.2,
+                    polyDeg = 1L,
                     biasMet = c("runmed", "lm", "none"),
                     binThr = 0.5) {
   UseMethod("binMeas")
@@ -115,6 +125,7 @@ binMeas.default <- function(obj,
                             smoothK = 3L,
                             biasK = 51L,
                             peakThr = 0.2,
+                            polyDeg = 1L,
                             biasMet = c("runmed", "lm", "none"),
                             binThr = 0.5) {
   cat("This is a generic function\n")
@@ -127,6 +138,7 @@ binMeas.arcosTS <- function(obj,
                             smoothK = 3L,
                             biasK = 51L,
                             peakThr = 0.2,
+                            polyDeg = 1L,
                             biasMet = c("runmed", "lm", "none"),
                             binThr = 0.5) {
 
@@ -150,24 +162,27 @@ binMeas.arcosTS <- function(obj,
     obj[,
         meas.resc := (get(colMeas) - locMin) / (locMax - locMin)]
 
-    # detrendTS with biasMet = none performs only short-term smoothing
+    # if biasMet = none, perform only short-term smoothing on globally rescaled measurement
     obj[,
         meas.resc := detrendTS(meas.resc,
                                smoothK = smoothK,
                                biasK = biasK,
                                peakThr = peakThr,
+                               polyDeg = polyDeg,
                                biasMet = biasMet),
         by = c(attr(obj, "colIDobj"))]
   } else {
-    # Smooth (and de-trend) per time series
-    # 1. Short smooth
-    # 2. if biasMet in c(runmed, lm), de-trend
-    # 3. rescale detrended signal to [0,1] pPER time series
+    # if biasMet in c(runmed, lm), smooth (and de-trend) per time series.
+    # 1. Short-term smooth
+    # 2. De-trend, either by subtracting the time series smoothed with a long-term
+    #    median filter (biasMet = "runmed") or a polynomial fit (biasMet = "lm")
+    # 3. Rescale de-trended signal to [0,1] per time series
     obj[,
         meas.resc := detrendTS(get(colMeas),
                                smoothK = smoothK,
                                biasK = biasK,
                                peakThr = peakThr,
+                               polyDeg = polyDeg,
                                biasMet = biasMet),
         by = c(attr(obj, "colIDobj"))]
 
