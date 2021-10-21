@@ -259,7 +259,7 @@ savePlotColl2D.arcosTS <- function(objTS, objColl,
                                    xlim = c(0, 1024),
                                    ylim = c(0, 1024),
                                    plotwh = c(3,3),
-                                   revy = FALSE,
+                                   revy = TRUE,
                                    stretchf = TRUE,
                                    ggtheme = NULL,
                                    imtype = c("png", "pdf")) {
