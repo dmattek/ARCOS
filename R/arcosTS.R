@@ -102,6 +102,7 @@ validate_arcosTS <- function(obj) {
 #'
 #' @examples
 #' library(ARCOS)
+#' library(data.table)
 #' dts = arcosTS(dt = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
 #'                               id = c(1, 2, 1, 2, 3, 1, 2, 3, 4, 1, 2, 4, 1, 4),
 #'                               x = c(1, 3, 1.2, 2.5, 3.5, 0.9, 2.6, 2.9, 3.2, 1.1, 2.8, 3.1, 1, 3)),
