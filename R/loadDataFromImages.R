@@ -7,7 +7,6 @@
 #' @return an arcosTS object.
 #' @export
 #' @importFrom OpenImageR readImage
-#' @importFrom reshape2 melt
 #' @import data.table
 #'
 #' @examples
@@ -15,9 +14,9 @@
 loadDataFromImages <- function(path, ext, thres = 0) {
 
   # Prepare a list with image files
-  vFiles = list.files(path = path,
-                      pattern = ext,
-                      full.names = T)
+  vFiles = sort(list.files(path = path,
+                           pattern = ext,
+                           full.names = T))
 
   # Load images; store data in a long format in a data.table.
   lIn = lapply(seq_along(vFiles), function (ii) {
@@ -26,14 +25,21 @@ loadDataFromImages <- function(path, ext, thres = 0) {
     locFin = vFiles[ii]
 
     # Read a PNG image
-    locM = OpenImageR::readImage(locFin)
+    locDTwide = data.table::as.data.table(OpenImageR::readImage(locFin))
 
-    # Convert to long format
-    locDT = data.table::as.data.table(reshape2::melt(locM,
-                                                     value.name = "m"))
-    setnames(locDT,
-             c("Var1", "Var2"),
-             c("y", "x"))
+    # Add an index column for later melting
+    locDTwide[,
+              var1 := .I]
+
+    # renaming columns
+    data.table::setnames(locDTwide, as.character(1:ncol(locDTwide)))
+
+    # melting; avoiding reshape2::melt that handles matrices directly but is deprecated
+    locDTlong = data.table::melt(locDTwide,
+                                 id.vars = "var1",
+                                 value.name = "m")
+    setnames(locDTlong,
+             c("y", "x", "m"))
 
     # Add "time" and "cellID" columns
     # Keep only pixel values greater than the thres parameter

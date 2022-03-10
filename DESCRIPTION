@@ -20,7 +20,6 @@ Config/testthat/edition: 3
 LinkingTo: Rcpp
 Imports: 
     data.table (>= 1.9.8),
-    reshape2,
     Rcpp,
     RANN,
     dbscan,
@@ -28,5 +27,5 @@ Imports:
     OpenImageR,
     ggplot2,
     grDevices
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 VignetteBuilder: knitr
