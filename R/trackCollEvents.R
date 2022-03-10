@@ -93,12 +93,6 @@ trackCollEvents <- function(dt,
     return(NULL)
   }
 
-  # String vector with position columns defined as f-n arguments
-  locPosColsDefined <- c(
-    cols$x,
-    cols$y,
-    cols$z
-  )
   # Check if position columns are present in the input data
   if (length(setdiff(
     posCols,
@@ -108,14 +102,14 @@ trackCollEvents <- function(dt,
   }
 
   # String vector with position columns present in the input data
-  locPosColsdt <- intersect(
+  locPosColsDT <- intersect(
     posCols,
     names(dt)
   )
 
   if (deb) {
     cat("Names of position columns for distance calculation:\n")
-    print(locPosColsdt)
+    print(locPosColsDT)
   }
 
   # Check if time column present in the input data
@@ -144,12 +138,13 @@ trackCollEvents <- function(dt,
   locDT = dt[,
              c(cols$frame,
                cols$id,
-               locPosColsdt),
+               locPosColsDT),
              with = F]
 
   ## Step 1
   ## Identify spatial clusters in every frame using dbscan
 
+  # A wrapper for dbscaen that only returns a vector with cluster numbers
   LOCmydbscan = function(x) {
     locRes = dbscan::dbscan(as.matrix(x),
                             eps = eps,
@@ -157,12 +152,15 @@ trackCollEvents <- function(dt,
     return(as.integer(locRes$cluster))
   }
 
+  # Create a new column named the same as the column with cluster IDs but with a ".frame" suffix.
+  # This column stores cluster IDs from dbscan; they are unique only within a single frame.
+  # Later, the algorithm will link those clusters and re-assign cluster IDs
   locSclidFrame = paste0(cols$clid, ".frame")
   locDT[,
         (locSclidFrame) := LOCmydbscan(
           eval(
             parse(text = sprintf("cbind(%s)",
-                                 paste(locPosColsdt,
+                                 paste(locPosColsDT,
                                        collapse = ",")
             )
             )
@@ -222,7 +220,7 @@ trackCollEvents <- function(dt,
     # search for positions based on the actual time, if such a column is present.
     locDTposPrev = locDT[get(cols$frame) %between% c(iFrame - nPrev,
                                                      iFrame - 1),
-                         c(locPosColsdt),
+                         c(locPosColsDT),
                          with = F]
 
     # Proceed if objects found in previous frame(s)
@@ -243,7 +241,7 @@ trackCollEvents <- function(dt,
         # Get positions of all objects in a cluster in the current frame
         locDTposCurr = locDT[get(cols$frame) == iFrame &
                                get(cols$clid) == iCl,
-                             c(locPosColsdt),
+                             c(locPosColsDT),
                              with = F]
 
         # Calculate distances to the nearest neighbour
@@ -261,26 +259,12 @@ trackCollEvents <- function(dt,
 
         # Proceed if there are neighbour clusters in previous frame(s)
         if (length(locVclPrevNNeps) > 0) {
-
-          # Calculate unique cluster numbers
-          # of neighbours within eps in previous frame(s)
-          locVclPrevNNuni = unique(locVclPrevNNeps)
-
           # Reassign cluster numbers of the current frame
           # to cluster numbers of neighbours in previous frame(s)
 
-          if (length(locVclPrevNNuni) > 1) {
-            # Current cluster is close to more than 1 clusters in previous frame(s)
-            locDT[get(cols$frame) == iFrame &
-                    get(cols$clid) == iCl,
-                  (cols$clid) := locVclPrevNNall]
-
-          } else {
-            # Current cluster is close to only 1 cluster in previous frame(s)
-            locDT[get(cols$frame) == iFrame &
-                    get(cols$clid) == iCl,
-                  (cols$clid) := rep(locVclPrevNNuni, nrow(locDTposCurr))]
-          }
+          locDT[get(cols$frame) == iFrame &
+                  get(cols$clid) == iCl,
+                (cols$clid) := locVclPrevNNall]
         }
       } # end of loop over clusters in the current frame
     }
