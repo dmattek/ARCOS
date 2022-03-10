@@ -22,6 +22,5 @@ Clip a numeric vector
 Clip a numeric vector between lower and upper bounds.
 }
 \examples{
-v = runif(10)
-rcpp_clip(v, 3, 7)
+cat("no examples")
 }

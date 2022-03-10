@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // rcpp_clip
 NumericVector rcpp_clip(NumericVector x, double a, double b);
 RcppExport SEXP _ARCOS_rcpp_clip(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {

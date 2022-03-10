@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ARCOS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -58,6 +54,9 @@
     </li>
     <li>
       <a href="../articles/ARCOS-basics.html">Basic usage of ARCOS</a>
+    </li>
+    <li>
+      <a href="../articles/ARCOS-rand.html">ARCOS detect random events</a>
     </li>
     <li>
       <a href="../articles/ARCOS-synth2D.html">ARCOS detect from images</a>
@@ -78,7 +77,7 @@
 
       
 
-      </header><script src="ARCOS-advanced_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Advanced usage of ARCOS</h1>
@@ -92,38 +91,51 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span>
 <span class="co">#&gt; Warning: replacing previous import 'data.table::melt' by 'reshape2::melt' when</span>
 <span class="co">#&gt; loading 'ARCOS'</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com">data.table</a></span><span class="op">)</span></code></pre></div>
-<div id="introduction" class="section level1">
-<h1 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>At its core, the tracking algorithm starts with spatial clustering in the first frame with objects using <code>dbscan</code> algorithm. Objects from subsequent frames are added to existing clusters based on their threshold distance. Objects that cannot be added to any of the existing clusters are again spatially clustered and form potential <em>seeds</em> of new clusters. The entire procedure is repeated.</p>
-<p>The application of this clustering procedure to collective activation events in biological systems requires identification of <em>active</em> objects, i.e. objects that will be passed to the clustering algorithm. In practice the single-cell activity over time needs to be thresholded and binarised. ARCOS offers several approaches to perform such approaches that will be covered below.</p>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></code></pre></div>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>At its core, the tracking algorithm starts with spatial clustering in
+the first frame with objects using <code>dbscan</code> algorithm.
+Objects from subsequent frames are added to existing clusters based on
+their threshold distance. Objects that cannot be added to any of the
+existing clusters are again spatially clustered and form potential
+<em>seeds</em> of new clusters. The entire procedure is repeated.</p>
+<p>The application of this clustering procedure to collective activation
+events in biological systems requires identification of <em>active</em>
+objects, i.e. objects that will be passed to the clustering algorithm.
+In practice the single-cell activity over time needs to be thresholded
+and binarised. ARCOS offers several approaches to perform such
+approaches that will be covered below.</p>
 </div>
-<div id="basic-example" class="section level1">
-<h1 class="hasAnchor">
-<a href="#basic-example" class="anchor"></a>Basic example</h1>
-<p>In this example 4 distinct objects are moving in 1 dimension over 5 time points. We aim to identify clusters of objects moving close to each other.</p>
-<div id="time-sequence" class="section level2">
-<h2 class="hasAnchor">
-<a href="#time-sequence" class="anchor"></a>Time sequence</h2>
+<div class="section level2">
+<h2 id="basic-example">Basic example<a class="anchor" aria-label="anchor" href="#basic-example"></a>
+</h2>
+<p>In this example 4 distinct objects are moving in 1 dimension over 5
+time points. We aim to identify clusters of objects moving close to each
+other.</p>
+<div class="section level3">
+<h3 id="time-sequence">Time sequence<a class="anchor" aria-label="anchor" href="#time-sequence"></a>
+</h3>
 <p>The minimal data in the long format consists of 3 columns:</p>
 <ul>
 <li>
-<code>frame</code> with the frame number that corresponds to the time point,</li>
+<code>frame</code> with the frame number that corresponds to the
+time point,</li>
 <li>
 <code>objid</code> with the unique identifier of every object,</li>
 <li>
 <code>x</code> with the position of the object.</li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dts</span> <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html">data.table</a></span><span class="op">(</span>frame <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span>,
-                 objid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span>,
-                 x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">1.2</span>, <span class="fl">2.5</span>, <span class="fl">3.5</span>, <span class="fl">0.9</span>, <span class="fl">2.6</span>, <span class="fl">2.9</span>, <span class="fl">3.2</span>, <span class="fl">1.1</span>, <span class="fl">2.8</span>, <span class="fl">3.1</span>, <span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">dts</span> <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>frame <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span>,
+                 objid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span>,
+                 x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">1.2</span>, <span class="fl">2.5</span>, <span class="fl">3.5</span>, <span class="fl">0.9</span>, <span class="fl">2.6</span>, <span class="fl">2.9</span>, <span class="fl">3.2</span>, <span class="fl">1.1</span>, <span class="fl">2.8</span>, <span class="fl">3.1</span>, <span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>
 
-<span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span><span class="va">dts</span><span class="op">)</span></code></pre></div>
+<span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">dts</span><span class="op">)</span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="right">frame</th>
@@ -203,34 +215,47 @@
 </tr>
 </tbody>
 </table>
-<p>Initiate an <code>arcosTS</code> object. Specify the names of frame, object id, and positions columns. The function simply adds attributes to the existing data.table object.</p>
+<p>Initiate an <code>arcosTS</code> object. Specify the names of frame,
+object id, and positions columns. The function simply adds attributes to
+the existing data.table object.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span>
 
 <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/arcosTS.html">arcosTS</a></span><span class="op">(</span>dt <span class="op">=</span> <span class="va">dts</span>, 
                colPos <span class="op">=</span> <span class="st">"x"</span>, 
-               col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>Frame <span class="op">=</span> <span class="st">"frame"</span>, 
+               col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Frame <span class="op">=</span> <span class="st">"frame"</span>, 
                           RT <span class="op">=</span> <span class="cn">NULL</span>, 
                           IDobj <span class="op">=</span> <span class="st">"objid"</span>, 
                           IDcoll <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>, 
                interVal <span class="op">=</span> <span class="fl">1</span>, 
                interType <span class="op">=</span> <span class="st">"f"</span><span class="op">)</span></code></pre></div>
-<p>Plot the time series. Each object has a distinct identifier represented by a different colour in the plot:</p>
+<p>Plot the time series. Each object has a distinct identifier
+represented by a different colour in the plot:</p>
 <p><img src="ARCOS-advanced_files/figure-html/unnamed-chunk-4-1.png" width="480"></p>
 </div>
-<div id="detection-and-tracking" class="section level2">
-<h2 class="hasAnchor">
-<a href="#detection-and-tracking" class="anchor"></a>Detection and tracking</h2>
-<p>In this step 3 objects on the top are grouped into a single collective event that spans 5 frames. A single object on the bottom forms a single-object event.</p>
-<p>The most important parameter of the <code>trackColl</code> function is the search radius <code>eps</code>, which sets the distance for:</p>
+<div class="section level3">
+<h3 id="detection-and-tracking">Detection and tracking<a class="anchor" aria-label="anchor" href="#detection-and-tracking"></a>
+</h3>
+<p>In this step 3 objects on the top are grouped into a single
+collective event that spans 5 frames. A single object on the bottom
+forms a single-object event.</p>
+<p>The most important parameter of the <code>trackColl</code> function
+is the search radius <code>eps</code>, which sets the distance for:</p>
 <ul>
-<li>the <code>dbscan</code> spatial clustering in a single time frame,</li>
-<li>possible objects that can be part of collective events identified in previous frame(s).</li>
+<li>the <code>dbscan</code> spatial clustering in a single time
+frame,</li>
+<li>possible objects that can be part of collective events identified in
+previous frame(s).</li>
 </ul>
-<p>The minimum size of the spatial cluster is set using the <code>minClSz</code> parameter, which is also passed to <code>dbscan</code>. The parameter <code>nPrev</code> determines the number of previous frames that are searched for collective events in order to match them to objects in the current frame.</p>
+<p>The minimum size of the spatial cluster is set using the
+<code>minClSz</code> parameter, which is also passed to
+<code>dbscan</code>. The parameter <code>nPrev</code> determines the
+number of previous frames that are searched for collective events in
+order to match them to objects in the current frame.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dcoll</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/trackColl.html">trackColl</a></span><span class="op">(</span><span class="va">dts</span><span class="op">)</span></code></pre></div>
-<p>The output contains 3 columns with the frame number, object identifier, and the calculated identifier of the collective event:</p>
+<p>The output contains 3 columns with the frame number, object
+identifier, and the calculated identifier of the collective event:</p>
 <table class="table">
 <thead><tr class="header">
 <th align="right">frame</th>
@@ -341,18 +366,22 @@
 </tbody>
 </table>
 </div>
-<div id="visualisation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#visualisation" class="anchor"></a>Visualisation</h2>
+<div class="section level3">
+<h3 id="visualisation">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation"></a>
+</h3>
 <p>Plot:</p>
-<p>Each trace is assigned an identifier of the collective event, which is represented by the shape of the point in the plot:</p>
+<p>Each trace is assigned an identifier of the collective event, which
+is represented by the shape of the point in the plot:</p>
 <p><img src="ARCOS-advanced_files/figure-html/unnamed-chunk-7-1.png" width="480"></p>
-<p>The algorithm with the default search radius <code>eps=1.0</code> has identified two collective events. One is an event with only a single object, the latter is an event that consists of 1 to 3 objects at different points in time.</p>
+<p>The algorithm with the default search radius <code>eps=1.0</code> has
+identified two collective events. One is an event with only a single
+object, the latter is an event that consists of 1 to 3 objects at
+different points in time.</p>
 </div>
 </div>
-<div id="single-cell-dynamics" class="section level1">
-<h1 class="hasAnchor">
-<a href="#single-cell-dynamics" class="anchor"></a>Single-cell dynamics</h1>
+<div class="section level2">
+<h2 id="single-cell-dynamics">Single-cell dynamics<a class="anchor" aria-label="anchor" href="#single-cell-dynamics"></a>
+</h2>
 <p>TODO</p>
 </div>
   </div>
@@ -368,11 +397,14 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Maciej Dobrzyński.</p>
+  <p></p>
+<p>Developed by Maciej Dobrzyński.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
       </footer>
@@ -380,6 +412,8 @@
 
   
 
+
+  
 
   </body>
 </html>

@@ -11,8 +11,7 @@ using namespace Rcpp;
 //' @return a numeric vector.
 //'
 //' @examples
-//' v = runif(10)
-//' rcpp_clip(v, 3, 7)
+//' cat("no examples")
 // [[Rcpp::export]]
 NumericVector rcpp_clip( NumericVector x, double a, double b){
   return clamp( a, x, b ) ;

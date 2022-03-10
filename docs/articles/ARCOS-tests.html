@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ARCOS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -58,6 +54,9 @@
     </li>
     <li>
       <a href="../articles/ARCOS-basics.html">Basic usage of ARCOS</a>
+    </li>
+    <li>
+      <a href="../articles/ARCOS-rand.html">ARCOS detect random events</a>
     </li>
     <li>
       <a href="../articles/ARCOS-synth2D.html">ARCOS detect from images</a>
@@ -78,7 +77,7 @@
 
       
 
-      </header><script src="ARCOS-tests_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>ARCOS demo of synthetic test</h1>
@@ -92,50 +91,52 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span>
 <span class="co">#&gt; Warning: replacing previous import 'data.table::melt' by 'reshape2::melt' when</span>
 <span class="co">#&gt; loading 'ARCOS'</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com">data.table</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jrnold/ggthemes">ggthemes</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jrnold/ggthemes" class="external-link">ggthemes</a></span><span class="op">)</span>
 
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://testthat.r-lib.org">testthat</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://testthat.r-lib.org" class="external-link">testthat</a></span><span class="op">)</span>
 
 <span class="co">## Custom functions</span>
 
 <span class="co"># Wrapper function for testing</span>
 <span class="va">myTest</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">inDTcalc</span>, <span class="va">inFtrue</span>, <span class="va">inDir</span> <span class="op">=</span> <span class="st">"testdata"</span><span class="op">)</span> <span class="op">{</span>
   
-  <span class="va">resTest</span> <span class="op">=</span> <span class="fu">testthat</span><span class="fu">::</span><span class="fu"><a href="https://testthat.r-lib.org/reference/test_that.html">test_that</a></span><span class="op">(</span><span class="st">"test chunk"</span>, <span class="op">{</span>
-    <span class="va">locDTtrueRes</span> <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html">fread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="va">inDir</span>, 
+  <span class="va">resTest</span> <span class="op">=</span> <span class="fu">testthat</span><span class="fu">::</span><span class="fu"><a href="https://testthat.r-lib.org/reference/test_that.html" class="external-link">test_that</a></span><span class="op">(</span><span class="st">"test chunk"</span>, <span class="op">{</span>
+    <span class="va">locDTtrueRes</span> <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="va">inDir</span>, 
                                                package<span class="op">=</span><span class="st">"ARCOS"</span><span class="op">)</span>,
                                    <span class="va">inFtrue</span><span class="op">)</span><span class="op">)</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/attr.html">attr</a></span><span class="op">(</span><span class="va">inDTcalc</span>, <span class="st">"sorted"</span><span class="op">)</span> <span class="op">=</span> <span class="cn">NULL</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/attr.html">attr</a></span><span class="op">(</span><span class="va">inDTcalc</span>, <span class="st">"class"</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"data.table"</span>, <span class="st">"data.frame"</span><span class="op">)</span>
+    <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">inDTcalc</span>, <span class="st">"sorted"</span><span class="op">)</span> <span class="op">=</span> <span class="cn">NULL</span>
+    <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">inDTcalc</span>, <span class="st">"class"</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"data.table"</span>, <span class="st">"data.frame"</span><span class="op">)</span>
     
-    <span class="kw">if</span> <span class="op">(</span><span class="st">"clTrackID"</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">locDTtrueRes</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setattr.html">setnames</a></span><span class="op">(</span><span class="va">inDTcalc</span>, <span class="st">"collid"</span>, <span class="st">"clTrackID"</span><span class="op">)</span>
-    <span class="fu"><a href="https://testthat.r-lib.org/reference/equality-expectations.html">expect_equal</a></span><span class="op">(</span><span class="va">inDTcalc</span>, 
+    <span class="kw">if</span> <span class="op">(</span><span class="st">"clTrackID"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">locDTtrueRes</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">inDTcalc</span>, <span class="st">"collid"</span>, <span class="st">"clTrackID"</span><span class="op">)</span>
+    <span class="fu"><a href="https://testthat.r-lib.org/reference/equality-expectations.html" class="external-link">expect_equal</a></span><span class="op">(</span><span class="va">inDTcalc</span>, 
                  <span class="va">locDTtrueRes</span><span class="op">)</span>
   <span class="op">}</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
-<div id="introduction" class="section level1">
-<h1 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>Demonstration of the ARCOS algorithm on synthetic data used for unit testing.</p>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>Demonstration of the ARCOS algorithm on synthetic data used for unit
+testing.</p>
 </div>
-<div id="link-1-frame" class="section level1">
-<h1 class="hasAnchor">
-<a href="#link-1-frame" class="anchor"></a>Link 1 frame</h1>
+<div class="section level2">
+<h2 id="link-1-frame">Link 1 frame<a class="anchor" aria-label="anchor" href="#link-1-frame"></a>
+</h2>
 <p>Only spatial clusters in consecutive frames are linked.</p>
-<div id="test-1---1-central" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-1---1-central" class="anchor"></a>Test 1 - 1 central</h2>
-<p>A single object that is active at frames 2, [4,5], and [7,9]. There are gaps of inactivity at frames 3 and 6.</p>
+<div class="section level3">
+<h3 id="test-1---1-central">Test 1 - 1 central<a class="anchor" aria-label="anchor" href="#test-1---1-central"></a>
+</h3>
+<p>A single object that is active at frames 2, [4,5], and [7,9]. There
+are gaps of inactivity at frames 3 and 6.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dts</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/loadDataFromFile.html">loadDataFromFile</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"testdata"</span>, package<span class="op">=</span><span class="st">"ARCOS"</span><span class="op">)</span>, <span class="st">"1central_in.csv"</span><span class="op">)</span>,
+<code class="sourceCode R"><span class="va">dts</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/loadDataFromFile.html">loadDataFromFile</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"testdata"</span>, package<span class="op">=</span><span class="st">"ARCOS"</span><span class="op">)</span>, <span class="st">"1central_in.csv"</span><span class="op">)</span>,
                               colPos <span class="op">=</span> <span class="st">"x"</span>,
                               colMeas <span class="op">=</span> <span class="st">"m"</span>,
-                              col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>Frame <span class="op">=</span> <span class="st">"time"</span>,
+                              col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Frame <span class="op">=</span> <span class="st">"time"</span>,
                                          IDobj <span class="op">=</span> <span class="st">"trackID"</span>,
                                          RT <span class="op">=</span> <span class="cn">NULL</span>,
                                          IDcoll <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>,
@@ -144,7 +145,10 @@
 
 <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/plotTracks.html">plotTracks</a></span><span class="op">(</span><span class="va">dts</span>, size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-2-1.png" width="576"></p>
-<p>The parameter <code>nPrev = 1L</code> tells the tracking algorithm to link events only from consecutive frames, i.e. it <em>looks back</em> only 1 frame. Hence, clustering will yield 3 events at frames 2, [4,5], [7,8,9].</p>
+<p>The parameter <code>nPrev = 1L</code> tells the tracking algorithm to
+link events only from consecutive frames, i.e. it <em>looks back</em>
+only 1 frame. Hence, clustering will yield 3 events at frames 2, [4,5],
+[7,8,9].</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dcoll</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/trackColl.html">trackColl</a></span><span class="op">(</span>obj <span class="op">=</span> <span class="va">dts</span><span class="op">[</span><span class="va">m</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span>, 
                          eps <span class="op">=</span> <span class="fl">1.0</span>, 
@@ -154,60 +158,75 @@
 
 <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/plotTracks.html">plotTracks</a></span><span class="op">(</span><span class="va">dcoll</span>, size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-3-1.png" width="576"></p>
-<p>Test passed 🎉</p>
+<p> [32mTest passed [39m 🥳</p>
 </div>
-<div id="test-2---3-spreading" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-2---3-spreading" class="anchor"></a>Test 2 - 3 spreading</h2>
-<p>Consider 7 objects that become subsequently active every 2 frames. It mimics an activity wave spreading from object #4 to neighbouring objects.</p>
+<div class="section level3">
+<h3 id="test-2---3-spreading">Test 2 - 3 spreading<a class="anchor" aria-label="anchor" href="#test-2---3-spreading"></a>
+</h3>
+<p>Consider 7 objects that become subsequently active every 2 frames. It
+mimics an activity wave spreading from object #4 to neighbouring
+objects.</p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-5-1.png" width="576"></p>
-<p>By linking events that are 1 frame apart (parameter <code>nPrev = 1L</code>), the tracking algorithm identifies 3 collective events.</p>
+<p>By linking events that are 1 frame apart (parameter
+<code>nPrev = 1L</code>), the tracking algorithm identifies 3 collective
+events.</p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-6-1.png" width="576"></p>
-<p>Test passed 🥳</p>
+<p> [32mTest passed [39m 😀</p>
 </div>
-<div id="test-3---5-overlapping" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-3---5-overlapping" class="anchor"></a>Test 3 - 5 overlapping</h2>
-<p>Consider two objects 2 spatial units apart that beocme active at overlapping time points.</p>
+<div class="section level3">
+<h3 id="test-3---5-overlapping">Test 3 - 5 overlapping<a class="anchor" aria-label="anchor" href="#test-3---5-overlapping"></a>
+</h3>
+<p>Consider two objects 2 spatial units apart that beocme active at
+overlapping time points.</p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-8-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-9-1.png" width="576"></p>
-<p>Test passed 🥇</p>
+<p> [32mTest passed [39m 🥳</p>
 </div>
-<div id="test-4---6-overlapping" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-4---6-overlapping" class="anchor"></a>Test 4 - 6 overlapping</h2>
+<div class="section level3">
+<h3 id="test-4---6-overlapping">Test 4 - 6 overlapping<a class="anchor" aria-label="anchor" href="#test-4---6-overlapping"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-11-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-12-1.png" width="576"></p>
-<p>Test passed 🎉</p>
+<p> [32mTest passed [39m 🎉</p>
 </div>
-<div id="test-5---1-central-growing" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-5---1-central-growing" class="anchor"></a>Test 5 - 1 central growing</h2>
+<div class="section level3">
+<h3 id="test-5---1-central-growing">Test 5 - 1 central growing<a class="anchor" aria-label="anchor" href="#test-5---1-central-growing"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-14-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-15-1.png" width="576"></p>
-<p>Test passed 🥇</p>
+<p> [32mTest passed [39m 🥳</p>
 </div>
-<div id="test-6---2-central-growing" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-6---2-central-growing" class="anchor"></a>Test 6 - 2 central growing</h2>
+<div class="section level3">
+<h3 id="test-6---2-central-growing">Test 6 - 2 central growing<a class="anchor" aria-label="anchor" href="#test-6---2-central-growing"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-17-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-18-1.png" width="576"></p>
-<p>Test passed 🎊</p>
+<p> [32mTest passed [39m 🎊</p>
 </div>
-<div id="test-7---2-with-1-common-symmetric" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-7---2-with-1-common-symmetric" class="anchor"></a>Test 7 - 2 with 1 common symmetric</h2>
-<p>This test addresses a problem of two different activation events (objects #1 and 2) that spread to a common, equidistant neighbour (object #3).</p>
+<div class="section level3">
+<h3 id="test-7---2-with-1-common-symmetric">Test 7 - 2 with 1 common symmetric<a class="anchor" aria-label="anchor" href="#test-7---2-with-1-common-symmetric"></a>
+</h3>
+<p>This test addresses a problem of two different activation events
+(objects #1 and 2) that spread to a common, equidistant neighbour
+(object #3).</p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-20-1.png" width="576"></p>
-<p>Since there’s no obvious way to treat this symmetric case, the algorithm assumes that the common neighbour becomes active due to one of the initiators. Here, the activation wave #2 from object #2 spreads to object #3, while the activation wave #1 from object #1 is confined only to that object.</p>
+<p>Since there’s no obvious way to treat this symmetric case, the
+algorithm assumes that the common neighbour becomes active due to one of
+the initiators. Here, the activation wave #2 from object #2 spreads to
+object #3, while the activation wave #1 from object #1 is confined only
+to that object.</p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-21-1.png" width="576"></p>
-<p>Test passed 😸</p>
+<p> [32mTest passed [39m 🌈</p>
 </div>
-<div id="test-8---2-with-1-common-asymmetric" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-8---2-with-1-common-asymmetric" class="anchor"></a>Test 8 - 2 with 1 common asymmetric</h2>
-<p>A similar situation to the previous case but object #3 is no longer equidistant to objects #1 and 2. Instead, it is closer to object #1.</p>
-<p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-23-1.png" width="576"> Since the neighbourhood cut-off is 1 distance unit (parameter <code>eps</code>), the collective activation #1 from object #1 spreads to object #3.</p>
+<div class="section level3">
+<h3 id="test-8---2-with-1-common-asymmetric">Test 8 - 2 with 1 common asymmetric<a class="anchor" aria-label="anchor" href="#test-8---2-with-1-common-asymmetric"></a>
+</h3>
+<p>A similar situation to the previous case but object #3 is no longer
+equidistant to objects #1 and 2. Instead, it is closer to object #1.</p>
+<p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-23-1.png" width="576">
+Since the neighbourhood cut-off is 1 distance unit (parameter
+<code>eps</code>), the collective activation #1 from object #1 spreads
+to object #3.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dcoll</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/trackColl.html">trackColl</a></span><span class="op">(</span>obj <span class="op">=</span> <span class="va">dts</span><span class="op">[</span><span class="va">m</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span>, 
                          eps <span class="op">=</span> <span class="fl">1.0</span>, 
@@ -217,109 +236,113 @@
 
 <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/plotTracks.html">plotTracks</a></span><span class="op">(</span><span class="va">dcoll</span>, size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-24-1.png" width="576"></p>
-<p>Test passed 🥇</p>
+<p> [32mTest passed [39m 🥳</p>
 </div>
 </div>
-<div id="multiple-new-objects" class="section level1">
-<h1 class="hasAnchor">
-<a href="#multiple-new-objects" class="anchor"></a>Multiple new objects</h1>
-<div id="test-1---simultaneous" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-1---simultaneous" class="anchor"></a>Test 1 - simultaneous</h2>
+<div class="section level2">
+<h2 id="multiple-new-objects">Multiple new objects<a class="anchor" aria-label="anchor" href="#multiple-new-objects"></a>
+</h2>
+<div class="section level3">
+<h3 id="test-1---simultaneous">Test 1 - simultaneous<a class="anchor" aria-label="anchor" href="#test-1---simultaneous"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-26-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-27-1.png" width="576"></p>
-<p>Test passed 🎉</p>
+<p> [32mTest passed [39m 🥳</p>
 </div>
-<div id="test-2---4-new-objects-at-once-after-1" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-2---4-new-objects-at-once-after-1" class="anchor"></a>Test 2 - 4 new objects at once after 1</h2>
+<div class="section level3">
+<h3 id="test-2---4-new-objects-at-once-after-1">Test 2 - 4 new objects at once after 1<a class="anchor" aria-label="anchor" href="#test-2---4-new-objects-at-once-after-1"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-29-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-30-1.png" width="576"></p>
-<p>Test passed 🥇</p>
+<p> [32mTest passed [39m 🥳</p>
 </div>
-<div id="test-3---3-new-objects-at-once-after-2" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-3---3-new-objects-at-once-after-2" class="anchor"></a>Test 3 - 3 new objects at once after 2</h2>
+<div class="section level3">
+<h3 id="test-3---3-new-objects-at-once-after-2">Test 3 - 3 new objects at once after 2<a class="anchor" aria-label="anchor" href="#test-3---3-new-objects-at-once-after-2"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-32-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-33-1.png" width="576"></p>
-<p>Test passed 🥇</p>
+<p> [32mTest passed [39m 🥇</p>
 </div>
-<div id="test-4---4-new-objects-at-once-after-2" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-4---4-new-objects-at-once-after-2" class="anchor"></a>Test 4 - 4 new objects at once after 2</h2>
+<div class="section level3">
+<h3 id="test-4---4-new-objects-at-once-after-2">Test 4 - 4 new objects at once after 2<a class="anchor" aria-label="anchor" href="#test-4---4-new-objects-at-once-after-2"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-35-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-36-1.png" width="576"></p>
-<p>Test passed 🥇</p>
+<p> [32mTest passed [39m 🎉</p>
 </div>
-<div id="test-5---4-subsequently" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-5---4-subsequently" class="anchor"></a>Test 5 - 4 subsequently</h2>
+<div class="section level3">
+<h3 id="test-5---4-subsequently">Test 5 - 4 subsequently<a class="anchor" aria-label="anchor" href="#test-5---4-subsequently"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-38-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-39-1.png" width="576"></p>
-<p>Test passed 😀</p>
+<p> [32mTest passed [39m 🌈</p>
 </div>
 </div>
-<div id="split-cross-merge" class="section level1">
-<h1 class="hasAnchor">
-<a href="#split-cross-merge" class="anchor"></a>Split, cross, merge</h1>
-<div id="test-1---split-from-single" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-1---split-from-single" class="anchor"></a>Test 1 - split from single</h2>
+<div class="section level2">
+<h2 id="split-cross-merge">Split, cross, merge<a class="anchor" aria-label="anchor" href="#split-cross-merge"></a>
+</h2>
+<div class="section level3">
+<h3 id="test-1---split-from-single">Test 1 - split from single<a class="anchor" aria-label="anchor" href="#test-1---split-from-single"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-41-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-42-1.png" width="576"></p>
-<p>Test passed 😸</p>
+<p> [32mTest passed [39m 🌈</p>
 </div>
-<div id="test-2---split-from-2-objects" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-2---split-from-2-objects" class="anchor"></a>Test 2 - split from 2 objects</h2>
+<div class="section level3">
+<h3 id="test-2---split-from-2-objects">Test 2 - split from 2 objects<a class="anchor" aria-label="anchor" href="#test-2---split-from-2-objects"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-44-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-45-1.png" width="576"></p>
-<p>Test passed 🎉</p>
+<p> [32mTest passed [39m 🎉</p>
 </div>
-<div id="test-3---cross-2-objects" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-3---cross-2-objects" class="anchor"></a>Test 3 - cross 2 objects</h2>
+<div class="section level3">
+<h3 id="test-3---cross-2-objects">Test 3 - cross 2 objects<a class="anchor" aria-label="anchor" href="#test-3---cross-2-objects"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-47-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-48-1.png" width="576"></p>
-<p>Test passed 🌈</p>
+<p> [32mTest passed [39m 🎊</p>
 </div>
-<div id="test-4---cross-2-objects-with-common" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-4---cross-2-objects-with-common" class="anchor"></a>Test 4 - cross 2 objects with common</h2>
+<div class="section level3">
+<h3 id="test-4---cross-2-objects-with-common">Test 4 - cross 2 objects with common<a class="anchor" aria-label="anchor" href="#test-4---cross-2-objects-with-common"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-50-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-51-1.png" width="576"></p>
-<p>Test passed 🥇</p>
+<p> [32mTest passed [39m 😀</p>
 </div>
-<div id="test-5---merge-split-2-objects-with-common" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-5---merge-split-2-objects-with-common" class="anchor"></a>Test 5 - merge &amp; split 2 objects with common</h2>
+<div class="section level3">
+<h3 id="test-5---merge-split-2-objects-with-common">Test 5 - merge &amp; split 2 objects with common<a class="anchor" aria-label="anchor" href="#test-5---merge-split-2-objects-with-common"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-53-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-54-1.png" width="576"></p>
-<p>Test passed 🥇</p>
+<p> [32mTest passed [39m 🌈</p>
 </div>
-<div id="test-6---merge-split-2-objects-crossing" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-6---merge-split-2-objects-crossing" class="anchor"></a>Test 6 - merge &amp; split 2 objects crossing</h2>
+<div class="section level3">
+<h3 id="test-6---merge-split-2-objects-crossing">Test 6 - merge &amp; split 2 objects crossing<a class="anchor" aria-label="anchor" href="#test-6---merge-split-2-objects-crossing"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-56-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-57-1.png" width="576"></p>
-<p>Test passed 😀</p>
+<p> [32mTest passed [39m 🎉</p>
 </div>
-<div id="test-7---merge-split-2-objects-near" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-7---merge-split-2-objects-near" class="anchor"></a>Test 7 - merge &amp; split 2 objects near</h2>
+<div class="section level3">
+<h3 id="test-7---merge-split-2-objects-near">Test 7 - merge &amp; split 2 objects near<a class="anchor" aria-label="anchor" href="#test-7---merge-split-2-objects-near"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-59-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-60-1.png" width="576"></p>
-<p>Test passed 😀</p>
+<p> [32mTest passed [39m 😀</p>
 </div>
 </div>
-<div id="link-2-frames" class="section level1">
-<h1 class="hasAnchor">
-<a href="#link-2-frames" class="anchor"></a>Link 2 frames</h1>
-<p>Spatial clusters are linked 2 frames back, thus a one-frame-gap is allowed in a collective event.</p>
-<div id="test-1---1-central-1" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-1---1-central-1" class="anchor"></a>Test 1 - 1 central</h2>
-<p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-62-1.png" width="576"> Here parameter <code>nPrev = 2L</code>, which links events from two consecutive frames, i.e. it <em>looks back</em> 2 frames. Hence, clustering will yield 1 continuous events.</p>
+<div class="section level2">
+<h2 id="link-2-frames">Link 2 frames<a class="anchor" aria-label="anchor" href="#link-2-frames"></a>
+</h2>
+<p>Spatial clusters are linked 2 frames back, thus a one-frame-gap is
+allowed in a collective event.</p>
+<div class="section level3">
+<h3 id="test-1---1-central-1">Test 1 - 1 central<a class="anchor" aria-label="anchor" href="#test-1---1-central-1"></a>
+</h3>
+<p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-62-1.png" width="576">
+Here parameter <code>nPrev = 2L</code>, which links events from two
+consecutive frames, i.e. it <em>looks back</em> 2 frames. Hence,
+clustering will yield 1 continuous events.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dcoll</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/trackColl.html">trackColl</a></span><span class="op">(</span>obj <span class="op">=</span> <span class="va">dts</span><span class="op">[</span><span class="va">m</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span>, 
                          eps <span class="op">=</span> <span class="fl">1.0</span>, 
@@ -329,21 +352,21 @@
 
 <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/plotTracks.html">plotTracks</a></span><span class="op">(</span><span class="va">dcoll</span>, size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-63-1.png" width="576"></p>
-<p>Test passed 😀</p>
+<p> [32mTest passed [39m 😸</p>
 </div>
-<div id="test-2---3-spreading-1" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-2---3-spreading-1" class="anchor"></a>Test 2 - 3 spreading</h2>
+<div class="section level3">
+<h3 id="test-2---3-spreading-1">Test 2 - 3 spreading<a class="anchor" aria-label="anchor" href="#test-2---3-spreading-1"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-65-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-66-1.png" width="576"></p>
-<p>Test passed 😀</p>
+<p> [32mTest passed [39m 🌈</p>
 </div>
-<div id="test-3---5-overlapping-1" class="section level2">
-<h2 class="hasAnchor">
-<a href="#test-3---5-overlapping-1" class="anchor"></a>Test 3 - 5 overlapping</h2>
+<div class="section level3">
+<h3 id="test-3---5-overlapping-1">Test 3 - 5 overlapping<a class="anchor" aria-label="anchor" href="#test-3---5-overlapping-1"></a>
+</h3>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-68-1.png" width="576"></p>
 <p><img src="ARCOS-tests_files/figure-html/unnamed-chunk-69-1.png" width="576"></p>
-<p>Test passed 🥳</p>
+<p> [32mTest passed [39m 🥳</p>
 </div>
 </div>
   </div>
@@ -359,11 +382,14 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Maciej Dobrzyński.</p>
+  <p></p>
+<p>Developed by Maciej Dobrzyński.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
+2.0.2.</p>
 </div>
 
       </footer>
@@ -371,6 +397,8 @@
 
   
 
+
+  
 
   </body>
 </html>

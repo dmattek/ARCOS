@@ -5,11 +5,31 @@
 \alias{plotNoodle2D.arcosTS}
 \title{"Plot collective events"}
 \usage{
-plotNoodle2D(objTS, xfac = 1, yfac = 1, tfreq = 1, pos = 1L)
+plotNoodle2D(
+  objTS,
+  xfac = 1,
+  yfac = 1,
+  tfreq = 1,
+  pos = 1L,
+  colpal = c("#4E79A7", "#A0CBE8", "#F28E2B", "#FFBE7D", "#59A14F", "#8CD17D",
+    "#B6992D", "#F1CE63", "#499894", "#86BCB6", "#E15759", "#FF9D9A", "#79706E",
+    "#BAB0AC", "#D37295", "#FABFD2", "#B07AA1", "#D4A6C8", "#9D7660", "#D7B5A6")
+)
 
-\method{plotNoodle2D}{arcosTS}(objTS, xfac = 1, yfac = 1, tfreq = 1, pos = 1L)
+\method{plotNoodle2D}{arcosTS}(
+  objTS,
+  xfac = 1,
+  yfac = 1,
+  tfreq = 1,
+  pos = 1L,
+  colpal = c("#4E79A7", "#A0CBE8", "#F28E2B", "#FFBE7D", "#59A14F", "#8CD17D",
+    "#B6992D", "#F1CE63", "#499894", "#86BCB6", "#E15759", "#FF9D9A", "#79706E",
+    "#BAB0AC", "#D37295", "#FABFD2", "#B07AA1", "#D4A6C8", "#9D7660", "#D7B5A6")
+)
 }
 \arguments{
+\item{objTS}{an arcosTS object.}
+
 \item{xfac}{a numeric, multiplication factor for the x-axis; default 1.}
 
 \item{yfac}{a numeric, multiplication factor for the y-axis; default 1.}
@@ -18,7 +38,7 @@ plotNoodle2D(objTS, xfac = 1, yfac = 1, tfreq = 1, pos = 1L)
 
 \item{pos}{an integer, index of the coordinate to plot in the position vector; default 1L.}
 
-\item{obj}{an arcosTS object.}
+\item{colpal}{a vector with colours in hex format, default colours from the Tableau 20 palette.}
 }
 \value{
 a ggplot2 object.
