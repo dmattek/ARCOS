@@ -27,12 +27,12 @@ loadDataFromImages <- function(path, ext, thres = 0) {
     # Read a PNG image
     locDTwide = data.table::as.data.table(OpenImageR::readImage(locFin))
 
+    # renaming columns
+    data.table::setnames(locDTwide, as.character(1:ncol(locDTwide)))
+
     # Add an index column for later melting
     locDTwide[,
               var1 := .I]
-
-    # renaming columns
-    data.table::setnames(locDTwide, as.character(1:ncol(locDTwide)))
 
     # melting; avoiding reshape2::melt that handles matrices directly but is deprecated
     locDTlong = data.table::melt(locDTwide,
@@ -43,10 +43,11 @@ loadDataFromImages <- function(path, ext, thres = 0) {
 
     # Add "time" and "cellID" columns
     # Keep only pixel values greater than the thres parameter
-    locDT[,
-          `:=`(m = as.numeric(m),
-               IDobj = .I,
-               frame = ii)][m > thres]
+    locDTlong[,
+              `:=`(x = as.numeric(x),
+                   m = as.numeric(m),
+                   IDobj = .I,
+                   frame = ii)][m > thres]
   })
 
   new_arcosTS(dt = data.table::rbindlist(lIn),

@@ -14,8 +14,11 @@
 #' @param inXlim a vector with limits for the x-axis, default c(0, 1024).
 #' @param inYlim a vector with limits for the y-axis, default c(0, 1024).
 #' @param inPlotWH a vector with width and height of the output image in inches, default c(3,3).
-#' @param inRevY logical whether to reverse the y-axis, default TRUE.
-#' @param inStretchF logical whether to stretch the output sequence to include frames without objects, default TRUE.
+#' @param inRevY logical, whether to reverse the y-axis, default TRUE.
+#' @param inStretchF logical, whether to stretch the output sequence to include frames without objects, default TRUE.
+#' @param inPtSzMain numeric, size of main points, default 1.
+#' @param inPtSzBin numeric, size of points that indicate binarised measurement, default 0.1.
+#' @param inPtSzAnno numeric, size of points that indicate annotated data, default 2.
 #' @param inGGtheme additional ggplot2 theme definitions, default NULL.
 #' @param inPlotType definition of the output image type, either "png" or "pdf".
 #'
@@ -43,6 +46,9 @@ savePlotCollEvents2D = function(inDTobj,
                                 inPlotWH = c(3,3),
                                 inRevY = TRUE,
                                 inStretchF = TRUE,
+                                inPtSzMain = 2,
+                                inPtSzBin = 1,
+                                inPtSzAnno = 2,
                                 inGGtheme = NULL,
                                 inPlotType = c("png", "pdf")) {
 
@@ -119,9 +125,10 @@ savePlotCollEvents2D = function(inDTobj,
                             ggplot2::aes(x = .data[[inCols$x]],
                                          y = .data[[inCols$y]],
                                          color = .data[[inCols$m]]),
-                            size = 1,
-                            alpha = 0.8,
-                            shape = 19) +
+                            size = inPtSzMain,
+                            stroke = 0,
+                            shape=16,
+                            alpha = 0.8) +
         ggplot2::scale_color_distiller(palette = "RdYlBu",
                                        limits = locColourLim)
     }
@@ -134,9 +141,10 @@ savePlotCollEvents2D = function(inDTobj,
                               ggplot2::aes(x = .data[[inCols$x]],
                                            y = .data[[inCols$y]],
                                            color = as.factor(get(inCols$mb))),
-                              size = 0.1,
+                              size = inPtSzBin,
                               alpha = 1,
-                              shape = 20,
+                              stroke = 0,
+                              shape=16,
                               color = "#000000")
       }
 
@@ -160,7 +168,7 @@ savePlotCollEvents2D = function(inDTobj,
           ggplot2::geom_point(data = locDTannoF,
                               ggplot2::aes(x = get(inCols$x),
                                            y = get(inCols$y)),
-                              size = 2,
+                              size = inPtSzAnno,
                               stroke = 1,
                               alpha = 0.8,
                               color = "#404040",
@@ -211,6 +219,9 @@ savePlotCollEvents2D = function(inDTobj,
 #' @param plotwh a vector with width and height of the output image in inches, default c(3,3).
 #' @param revy logical whether to reverse the y-axis, default TRUE.
 #' @param stretchf logical whether to stretch the output sequence to include frames without objects, default TRUE.
+#' @param ptszmain numeric, size of main points in the plot, default 1.
+#' @param ptszbin numeric, size of points that indicate binarised measurement, default 0.1.
+#' @param ptszanno numeric, size of points that indicate annotated data, default 2.
 #' @param ggtheme a ggtheme object with additional style definitions; default NULL.
 #' @param imtype definition of the output image type, either "png" or "pdf".
 #'
@@ -230,6 +241,9 @@ savePlotColl2D <- function(objTS, objColl,
                            plotwh = c(3,3),
                            revy = FALSE,
                            stretchf = TRUE,
+                           ptszmain = 2,
+                           ptszbin = 1,
+                           ptszanno = 2,
                            ggtheme = NULL,
                            imtype = c("png", "pdf")) {
   UseMethod("savePlotColl2D")
@@ -244,6 +258,9 @@ savePlotColl2D.default <- function(objTS, objColl,
                                    plotwh = c(3,3),
                                    revy = FALSE,
                                    stretchf = TRUE,
+                                   ptszmain = 2,
+                                   ptszbin = 1,
+                                   ptszanno = 2,
                                    ggtheme = NULL,
                                    imtype = c("png", "pdf")) {
   cat("This is a generic function\n")
@@ -261,6 +278,9 @@ savePlotColl2D.arcosTS <- function(objTS, objColl,
                                    plotwh = c(3,3),
                                    revy = TRUE,
                                    stretchf = TRUE,
+                                   ptszmain = 2,
+                                   ptszbin = 1,
+                                   ptszanno = 2,
                                    ggtheme = NULL,
                                    imtype = c("png", "pdf")) {
 
@@ -313,6 +333,9 @@ savePlotColl2D.arcosTS <- function(objTS, objColl,
                        inPlotWH = plotwh,
                        inRevY = revy,
                        inStretchF = stretchf,
+                       inPtSzMain = ptszmain,
+                       inPtSzBin = ptszbin,
+                       inPtSzAnno = ptszanno,
                        inGGtheme = ggtheme,
                        inPlotType = imtype)
 }
