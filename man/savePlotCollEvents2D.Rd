@@ -18,6 +18,9 @@ savePlotCollEvents2D(
   inPlotWH = c(3, 3),
   inRevY = TRUE,
   inStretchF = TRUE,
+  inPtSzMain = 2,
+  inPtSzBin = 1,
+  inPtSzAnno = 2,
   inGGtheme = NULL,
   inPlotType = c("png", "pdf")
 )
@@ -43,9 +46,15 @@ savePlotCollEvents2D(
 
 \item{inPlotWH}{a vector with width and height of the output image in inches, default c(3,3).}
 
-\item{inRevY}{logical whether to reverse the y-axis, default TRUE.}
+\item{inRevY}{logical, whether to reverse the y-axis, default TRUE.}
 
-\item{inStretchF}{logical whether to stretch the output sequence to include frames without objects, default TRUE.}
+\item{inStretchF}{logical, whether to stretch the output sequence to include frames without objects, default TRUE.}
+
+\item{inPtSzMain}{numeric, size of main points, default 1.}
+
+\item{inPtSzBin}{numeric, size of points that indicate binarised measurement, default 0.1.}
+
+\item{inPtSzAnno}{numeric, size of points that indicate annotated data, default 2.}
 
 \item{inGGtheme}{additional ggplot2 theme definitions, default NULL.}
 

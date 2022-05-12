@@ -16,6 +16,9 @@ savePlotColl2D(
   plotwh = c(3, 3),
   revy = FALSE,
   stretchf = TRUE,
+  ptszmain = 2,
+  ptszbin = 1,
+  ptszanno = 2,
   ggtheme = NULL,
   imtype = c("png", "pdf")
 )
@@ -31,6 +34,9 @@ savePlotColl2D(
   plotwh = c(3, 3),
   revy = TRUE,
   stretchf = TRUE,
+  ptszmain = 2,
+  ptszbin = 1,
+  ptszanno = 2,
   ggtheme = NULL,
   imtype = c("png", "pdf")
 )
@@ -55,6 +61,12 @@ savePlotColl2D(
 \item{revy}{logical whether to reverse the y-axis, default TRUE.}
 
 \item{stretchf}{logical whether to stretch the output sequence to include frames without objects, default TRUE.}
+
+\item{ptszmain}{numeric, size of main points in the plot, default 1.}
+
+\item{ptszbin}{numeric, size of points that indicate binarised measurement, default 0.1.}
+
+\item{ptszanno}{numeric, size of points that indicate annotated data, default 2.}
 
 \item{ggtheme}{a ggtheme object with additional style definitions; default NULL.}
 
