@@ -30,6 +30,21 @@ coordination of collective cell migration ([Aoki et al.,
 Despite its focus on cell signalling, the framework can be also applied
 to other spatially correlated phenomena that occur over time.
 
+## Implementations
+
+This repository refers to the R implementation. Other implementations
+available:
+
+-   Python implementation
+    [arcos4py](https://github.com/bgraedel/arcos4py) written by Benjamin
+    Grädel.
+-   Plugin with GUI for [napari](https://napari.org) image viewer
+    [arcos-gui](https://github.com/bgraedel/arcos-gui) written by
+    Benjamin Grädel
+
+![arcos-gui plugin for napari image
+viewer](man/figures/README-napari-gui-3D.png)
+
 ## Data format
 
 Time series should be arranged in [long
