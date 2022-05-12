@@ -35,12 +35,9 @@ to other spatially correlated phenomena that occur over time.
 This repository refers to the R implementation. Other implementations
 available:
 
--   Python implementation
-    [arcos4py](https://github.com/bgraedel/arcos4py) written by Benjamin
-    Grädel.
--   Plugin with GUI for [napari](https://napari.org) image viewer
+-   A plugin with GUI for [napari](https://napari.org) image viewer,
     [arcos-gui](https://github.com/bgraedel/arcos-gui) written by
-    Benjamin Grädel
+    Benjamin Grädel.
 
 ![arcos-gui plugin for napari image
 viewer](man/figures/README-napari-gui-3D.png)
