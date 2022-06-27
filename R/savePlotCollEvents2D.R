@@ -1,6 +1,6 @@
 #' Save plots of collective events in 2D
 #'
-#' Save subsequent frames as PNG or PDF files with collective events overlaid as convex hull polygons
+#' Save subsequent frames as PNG or PDF files with optional collective events overlaid as convex hull polygons
 #' over the original data. Optionally, a binarised measurement can be plotted as black dots and
 #' arbitrary annotations as asterisks.
 #'
@@ -21,6 +21,7 @@
 #' @param inPtSzAnno numeric, size of points that indicate annotated data, default 2.
 #' @param inGGtheme additional ggplot2 theme definitions, default NULL.
 #' @param inPlotType definition of the output image type, either "png" or "pdf".
+#' @param inColPal colour palette for the main data, default 'RdYlBu'.
 #'
 #' @keywords internal
 #' @return does not return any value; saves a sequence of images to the specified folder.
@@ -29,7 +30,7 @@
 #' @examples
 #' cat("no example")
 savePlotCollEvents2D = function(inDTobj,
-                                inDTcoll,
+                                inDTcoll = NULL,
                                 inDTbin = NULL,
                                 inDTanno = NULL,
                                 inCols = list(frame = "frame",
@@ -50,7 +51,8 @@ savePlotCollEvents2D = function(inDTobj,
                                 inPtSzBin = 1,
                                 inPtSzAnno = 2,
                                 inGGtheme = NULL,
-                                inPlotType = c("png", "pdf")) {
+                                inPlotType = c("png", "pdf"),
+                                inColPal = 'RdYlBu') {
 
   if (!dir.exists(inDirPath))
     dir.create(inDirPath, recursive = T)
@@ -75,22 +77,24 @@ savePlotCollEvents2D = function(inDTobj,
 
   ## Calculate convex hulls around collective events
   # Add selected cluster trackid's to the original table
-  locDTcollObj = merge(inDTobj,
-                       inDTcoll[,
-                                c(inCols$frame,
-                                  inCols$id,
-                                  inCols$clid),
-                                with = F],
-                       by = c(inCols$frame,
-                              inCols$id))
-
-
-
-  locDTch = locDTcollObj[,
-                         .SD[grDevices::chull(get(inCols$x),
-                                              get(inCols$y))],
+  if (!is.null(inDTcoll)) {
+    locDTcollObj = merge(inDTobj,
+                         inDTcoll[,
+                                  c(inCols$frame,
+                                    inCols$id,
+                                    inCols$clid),
+                                  with = F],
                          by = c(inCols$frame,
-                                inCols$clid)]
+                                inCols$id))
+
+
+
+    locDTch = locDTcollObj[,
+                           .SD[grDevices::chull(get(inCols$x),
+                                                get(inCols$y))],
+                           by = c(inCols$frame,
+                                  inCols$clid)]
+  }
 
   # Calculate min/max for the colour scale
   # Thanks to this, the colour scale will stay the same throughout the frame sequence
@@ -108,7 +112,9 @@ savePlotCollEvents2D = function(inDTobj,
     }
 
     # DT with convex hulls of collective events in a frame
-    locDTchF = locDTch[get(inCols$frame) == kk]
+    if (!is.null(inDTcoll)) {
+      locDTchF = locDTch[get(inCols$frame) == kk]
+    }
 
     # DT with manual annotations
     if (!is.null(inDTanno)) {
@@ -129,7 +135,7 @@ savePlotCollEvents2D = function(inDTobj,
                             stroke = 0,
                             shape=16,
                             alpha = 0.8) +
-        ggplot2::scale_color_distiller(palette = "RdYlBu",
+        ggplot2::scale_color_distiller(palette = inColPal,
                                        limits = locColourLim)
     }
 
@@ -149,17 +155,18 @@ savePlotCollEvents2D = function(inDTobj,
       }
 
 
-    if (nrow(locDTchF) > 0) {
-      locP = locP +
-        ggnewscale::new_scale_color() +
-        ggplot2::geom_polygon(data = locDTchF,
-                              ggplot2::aes(x = get(inCols$x),
-                                           y = get(inCols$y),
-                                           group = get(inCols$clid)),
-                              fill = NA,
-                              size = 0.25,
-                              color = "#000000")
-    }
+    if (!is.null(inDTcoll))
+      if (nrow(locDTchF) > 0) {
+        locP = locP +
+          ggnewscale::new_scale_color() +
+          ggplot2::geom_polygon(data = locDTchF,
+                                ggplot2::aes(x = get(inCols$x),
+                                             y = get(inCols$y),
+                                             group = get(inCols$clid)),
+                                fill = NA,
+                                size = 0.25,
+                                color = "#000000")
+      }
 
     if (!is.null(inDTanno))
       if (nrow(locDTannoF) > 0) {
@@ -210,7 +217,7 @@ savePlotCollEvents2D = function(inDTobj,
 #'
 #' @title "Save plots of collective events"
 #' @param objTS an arcosTS object with time series.
-#' @param objColl an arcosTS object with collective events.
+#' @param objColl an arcosTS object with collective events, defult NULL.
 #' @param plotbin a boolean, whether dots with binarised measurement should be plotted; default FALSE.
 #' @param outdir a string with the dierctory to save the folder with frames; default ".".
 #' @param filecore a string with a prefix for output image files, default ".".
@@ -224,6 +231,7 @@ savePlotCollEvents2D = function(inDTobj,
 #' @param ptszanno numeric, size of points that indicate annotated data, default 2.
 #' @param ggtheme a ggtheme object with additional style definitions; default NULL.
 #' @param imtype definition of the output image type, either "png" or "pdf".
+#' @param colpal colour palette for the main data, default 'RdYlBu'.
 #'
 #' @return NULL
 #'
@@ -232,7 +240,8 @@ savePlotCollEvents2D = function(inDTobj,
 #'
 #' @examples
 #' cat("no examples")
-savePlotColl2D <- function(objTS, objColl,
+savePlotColl2D <- function(objTS,
+                           objColl = NULL,
                            plotbin = FALSE,
                            outdir = ".",
                            filecore = "",
@@ -245,11 +254,13 @@ savePlotColl2D <- function(objTS, objColl,
                            ptszbin = 1,
                            ptszanno = 2,
                            ggtheme = NULL,
-                           imtype = c("png", "pdf")) {
+                           imtype = c("png", "pdf"),
+                           colpal = 'RdYlBu') {
   UseMethod("savePlotColl2D")
 }
 
-savePlotColl2D.default <- function(objTS, objColl,
+savePlotColl2D.default <- function(objTS,
+                                   objColl = NULL,
                                    plotbin = FALSE,
                                    outdir = ".",
                                    filecore = "",
@@ -262,14 +273,16 @@ savePlotColl2D.default <- function(objTS, objColl,
                                    ptszbin = 1,
                                    ptszanno = 2,
                                    ggtheme = NULL,
-                                   imtype = c("png", "pdf")) {
+                                   imtype = c("png", "pdf"),
+                                   colpal = 'RdYlBu') {
   cat("This is a generic function\n")
 }
 
 #' @rdname savePlotColl2D
 #' @export savePlotColl2D.arcosTS
 #' @export
-savePlotColl2D.arcosTS <- function(objTS, objColl,
+savePlotColl2D.arcosTS <- function(objTS,
+                                   objColl = NULL,
                                    plotbin = FALSE,
                                    outdir = ".",
                                    filecore = "",
@@ -282,10 +295,11 @@ savePlotColl2D.arcosTS <- function(objTS, objColl,
                                    ptszbin = 1,
                                    ptszanno = 2,
                                    ggtheme = NULL,
-                                   imtype = c("png", "pdf")) {
+                                   imtype = c("png", "pdf"),
+                                   colpal = 'RdYlBu') {
 
   stopifnot(is.arcosTS(objTS))
-  stopifnot(is.arcosTS(objColl))
+  #stopifnot(is.arcosTS(objColl))
 
   colFrame <- attr(objTS, "colFrame")
   colIDobj <- attr(objTS, "colIDobj")
@@ -300,8 +314,8 @@ savePlotColl2D.arcosTS <- function(objTS, objColl,
   if (is.null(colIDobj))
     stop("Object/track identifier column not defined in the data.")
 
-  if (is.null(colIDcoll))
-    stop("Collective event identifier column not defined in the data.")
+  #if (is.null(colIDcoll))
+  #  stop("Collective event identifier column not defined in the data.")
 
   if (is.null(colPos))
     stop("Position columns not defined in the data.")
@@ -337,5 +351,6 @@ savePlotColl2D.arcosTS <- function(objTS, objColl,
                        inPtSzBin = ptszbin,
                        inPtSzAnno = ptszanno,
                        inGGtheme = ggtheme,
-                       inPlotType = imtype)
+                       inPlotType = imtype,
+                       inColPal = colpal)
 }
