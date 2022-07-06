@@ -178,7 +178,7 @@ savePlotCollEvents2D = function(inDTobj,
                               size = inPtSzAnno,
                               stroke = 1,
                               alpha = 0.8,
-                              color = "#404040",
+                              color = "#00FFFF",
                               shape = 4)
       }
 
@@ -219,6 +219,7 @@ savePlotCollEvents2D = function(inDTobj,
 #' @param objTS an arcosTS object with time series.
 #' @param objColl an arcosTS object with collective events, defult NULL.
 #' @param plotbin a boolean, whether dots with binarised measurement should be plotted; default FALSE.
+#' @param datanno a data.table with T/X/Y annotations overlaid on the plot, default NULL.
 #' @param outdir a string with the dierctory to save the folder with frames; default ".".
 #' @param filecore a string with a prefix for output image files, default ".".
 #' @param xlim a vector with limits for the x-axis, default c(0, 1024).
@@ -243,6 +244,7 @@ savePlotCollEvents2D = function(inDTobj,
 savePlotColl2D <- function(objTS,
                            objColl = NULL,
                            plotbin = FALSE,
+                           datanno = NULL,
                            outdir = ".",
                            filecore = "",
                            xlim = c(0, 1024),
@@ -262,6 +264,7 @@ savePlotColl2D <- function(objTS,
 savePlotColl2D.default <- function(objTS,
                                    objColl = NULL,
                                    plotbin = FALSE,
+                                   datanno = NULL,
                                    outdir = ".",
                                    filecore = "",
                                    xlim = c(0, 1024),
@@ -284,6 +287,7 @@ savePlotColl2D.default <- function(objTS,
 savePlotColl2D.arcosTS <- function(objTS,
                                    objColl = NULL,
                                    plotbin = FALSE,
+                                   datanno = NULL,
                                    outdir = ".",
                                    filecore = "",
                                    xlim = c(0, 1024),
@@ -332,7 +336,7 @@ savePlotColl2D.arcosTS <- function(objTS,
   savePlotCollEvents2D(inDTobj = objTS,
                        inDTcoll = objColl,
                        inDTbin = objTSbin,
-                       inDTanno = NULL,
+                       inDTanno = datanno,
                        inCols = list(frame = colFrame,
                                      x = colPos[1],
                                      y = colPos[2],
