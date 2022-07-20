@@ -42,6 +42,9 @@ available:
     Benjamin Grädel. See a YouTube
     [demo](https://www.youtube.com/watch?v=hG_z_BFcAiQ).
 
+Documentation for the entire ARCOS project on
+[gitbook](https://arcos.gitbook.io/home/).
+
 ![arcos-gui plugin for napari image
 viewer](man/figures/README-napari-gui-3D.png)
 
