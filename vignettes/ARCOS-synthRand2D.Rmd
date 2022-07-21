@@ -1,10 +1,10 @@
 ---
-title: "ARCOS detect random events"
+title: "Detect synthetic random collective events"
 output: 
   rmarkdown::html_vignette:
     toc: true 
 vignette: >
-  %\VignetteIndexEntry{ARCOS detect random events}
+  %\VignetteIndexEntry{Detect synthetic random collective events}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, echo = T, warning=FALSE}
+```{r setup, echo = F, warning=FALSE}
 library(ARCOS, quietly = T)
 library(data.table, quietly = T)
 library(ggplot2, quietly = T)
@@ -108,7 +108,7 @@ ts = ARCOS::genRandSynth2D(nevents = nevents,
 knitr::kable(head(ts))
 ```
 
-```{r collPlot, echo = T, fig.width=10, fig.height=10, warning=FALSE}
+```{r collPlot, echo = F, fig.width=10, fig.height=10, warning=FALSE}
 # For visualisation, expand the t column to include all frames, even empty ones.
 setkey(ts, t)
 ts = ts[setkey(ts[,
@@ -144,7 +144,7 @@ Identify and track collective events. The `collid` column is the result of the t
 
 Note that the events can overlap, therefore the ID of collective event (column `collid`) from the tracking algorithm may differ from the original event id (column `eventid`).
 
-```{r collID}
+```{r collID, echo = T}
 tcoll = ARCOS::trackColl(ts[complete.cases(ts)], 
                          eps = 2)
 ```
@@ -153,7 +153,7 @@ tcoll = ARCOS::trackColl(ts[complete.cases(ts)],
 knitr::kable(head(tcoll))
 ```
 
-```{r collOutPlot, echo = T, fig.width=10, fig.height=10, warning=FALSE}
+```{r collOutPlot, echo = F, fig.width=10, fig.height=10, warning=FALSE}
 # For visualisation, expand t column to include all frames, even empty ones.
 setkey(tcoll, t)
 tcoll = tcoll[setkey(tcoll[,

@@ -1,10 +1,10 @@
 ---
-title: "ARCOS detect from images"
+title: "Detect collective events from images"
 output: 
   rmarkdown::html_vignette:
     toc: true 
 vignette: >
-  %\VignetteIndexEntry{ARCOS detect from images}
+  %\VignetteIndexEntry{Detect collective events from images}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, echo = FALSE, warning = FALSE}
 library(ARCOS)
 library(ggplot2)
 
@@ -95,7 +95,7 @@ We use the `loadDataFromImages` function to read data from PNG images. The funct
 
 Since images are binary, we set the `thres` parameter to `-1` to load all data, zeroes and ones, without thresholding.
 
-```{r,echo=T}
+```{r, echo=T}
 dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/concentricGrowth",
                                                        package="ARCOS"), 
                                            "png_64"),
@@ -154,19 +154,24 @@ myPlotRasterColl(dtColl)
 
 Detect and track a moving cluster of active objects directly from a sequence of 16 binary PNG images at 64-by-64 pixel resolution.
 
-```{r,echo=F, fig.width=5, fig.height = 5, caption="Concentrically growing circle"}
+```{r,echo=T}
 dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/movingCircle",
                                                        package="ARCOS"), 
                                            "png_64"),
                                  "*.png", 
                                  thres = -1)
+```
 
+
+```{r,echo=F, fig.width=5, fig.height = 5, caption="Concentrically growing circle"}
 myPlotBinTS(dtIm, plotType = "raster")
 ```
 
-```{r, echo = F, fig.width=5, fig.height = 5, caption="Collective events"}
+```{r, echo = T}
 dtColl = ARCOS::trackColl(dtIm[m>0])
+```
 
+```{r echo = F, fig.width=5, fig.height = 5, caption="Collective events"}
 myPlotRasterColl(dtColl)
 ```
 
@@ -176,19 +181,24 @@ Detect and track a cluster of active objects that splits into two parts. Analysi
 
 The analysis should consider everything as a single cluster even after the split.
 
-```{r,echo=F, fig.width=6, fig.height = 4, caption="Concentrically growing circle"}
+```{r,echo=T}
 dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/splitCircle",
                                                        package="ARCOS"), 
                                            "png_64"),
                                  "*.png", 
                                  thres = -1)
+```
 
+```{r echo = F, fig.width=6, fig.height = 4, caption="Concentrically growing circle"}
 myPlotBinTS(dtIm, plotType = "raster", ncol = 5)
 ```
 
-```{r, echo = F, fig.width=6, fig.height = 4, caption="Collective events"}
+```{r, echo = T}
 dtColl = ARCOS::trackColl(dtIm[m>0])
+```
 
+
+```{r, echo = F, fig.width=6, fig.height = 4, caption="Collective events"}
 myPlotRasterColl(dtColl, ncol = 5)
 ```
 
@@ -196,18 +206,23 @@ myPlotRasterColl(dtColl, ncol = 5)
 
 Detect and track multiple moving clusters of active objects directly from a sequence of 9 binary PNG images at 64-by-64 pixel resolution.
 
-```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
+```{r,echo=T}
 dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/movingMulti",
                                                        package="ARCOS"), 
                                            "png_64"),
                                  "*.png", 
                                  thres = -1)
+```
 
+```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
 myPlotBinTS(dtIm, plotType = "raster", ncol = 3)
 ```
-```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
-dtColl = ARCOS::trackColl(dtIm[m>0])
 
+```{r, echo = T}
+dtColl = ARCOS::trackColl(dtIm[m>0])
+```
+
+```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
 myPlotRasterColl(dtColl, ncol = 3)
 ```
 
@@ -215,7 +230,7 @@ myPlotRasterColl(dtColl, ncol = 3)
 
 Detect and track multiple activation sites from a sequence of 20 binary PNG images at 32-by-32 pixel resolution. Sprites created with [Piskel web-app](https://www.piskelapp.com). Small random Gaussian noise added to X/Y positions.
 
-```{r,echo=F, fig.width=6, fig.height = 5, caption="Concentrically growing circle"}
+```{r,echo=T}
 dtIm = ARCOS::loadDataFromImages(file.path(system.file("testImagePatterns/4events",
                                                        package="ARCOS"), 
                                            "png_32"),
@@ -229,14 +244,16 @@ set.seed(7)
 dtIm[,
      `:=`(x = x + rnorm(.N, 0, .1),
           y = y + rnorm(.N, 0, .1))]
+```
 
+```{r,echo=F, fig.width=6, fig.height = 5, caption="Multiple events"}
 myPlotBinTS(dtIm,
             xlim = c(0,25), ylim = c(25,0), 
             plotType = "point", 
             ncol = 5, pointSize = .25)
 ```
 
-```{r, echo = F, fig.width=6, fig.height = 5, caption="Collective events"}
+```{r, echo = T}
 dtColl = ARCOS::trackColl(dtIm[m > 0], eps = 2.5)
 
 # Create convex hulls around collective events fro visualisation
@@ -244,7 +261,9 @@ dtCollCH = dtColl[,
                   .SD[grDevices::chull(x, y)],
                   by = .(frame,
                          collid)]
+```
 
+```{r, echo = F, fig.width=6, fig.height = 5, caption="Multiple events"}
 # Colour palette from ggthemes::tableau_color_pal(palette = "Tableau 10")(10)
 # to avoid dependency on ggthemes.
 myColorPal = c("#4E79A7", "#F28E2B", "#E15759",

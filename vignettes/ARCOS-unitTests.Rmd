@@ -1,10 +1,10 @@
 ---
-title: "ARCOS demo of synthetic test"
+title: "ARCOS demo of unit tests"
 output:   
   rmarkdown::html_vignette:
     toc: true 
 vignette: >
-  %\VignetteIndexEntry{ARCOS demo of synthetic test}
+  %\VignetteIndexEntry{ARCOS demo of unit tests}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
