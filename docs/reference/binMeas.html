@@ -26,25 +26,25 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/ARCOS-advanced.html">Advanced usage of ARCOS</a>
-    </li>
-    <li>
       <a href="../articles/ARCOS-basics.html">Basic usage of ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-rand.html">ARCOS detect random events</a>
+      <a href="../articles/ARCOS-binTimeseries.html">Pre-processing time-series for ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-synth2D.html">ARCOS detect from images</a>
+      <a href="../articles/ARCOS-synthRand2D.html">Detect synthetic random collective events</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-tests.html">ARCOS demo of synthetic test</a>
+      <a href="../articles/ARCOS-synthRasterImages.html">Detect collective events from images</a>
+    </li>
+    <li>
+      <a href="../articles/ARCOS-unitTests.html">ARCOS demo of unit tests</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
@@ -66,48 +66,63 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">binMeas</span><span class="op">(</span>
-  <span class="va">obj</span>,
-  smoothK <span class="op">=</span> <span class="fl">3L</span>,
-  biasK <span class="op">=</span> <span class="fl">51L</span>,
-  peakThr <span class="op">=</span> <span class="fl">0.2</span>,
-  polyDeg <span class="op">=</span> <span class="fl">1L</span>,
-  biasMet <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"runmed"</span>, <span class="st">"lm"</span>, <span class="st">"none"</span><span class="op">)</span>,
-  binThr <span class="op">=</span> <span class="fl">0.5</span>
-<span class="op">)</span>
-
-<span class="co"># S3 method for arcosTS</span>
-<span class="fu">binMeas</span><span class="op">(</span>
-  <span class="va">obj</span>,
-  smoothK <span class="op">=</span> <span class="fl">3L</span>,
-  biasK <span class="op">=</span> <span class="fl">51L</span>,
-  peakThr <span class="op">=</span> <span class="fl">0.2</span>,
-  polyDeg <span class="op">=</span> <span class="fl">1L</span>,
-  biasMet <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"runmed"</span>, <span class="st">"lm"</span>, <span class="st">"none"</span><span class="op">)</span>,
-  binThr <span class="op">=</span> <span class="fl">0.5</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">binMeas</span><span class="op">(</span></span>
+<span>  <span class="va">obj</span>,</span>
+<span>  smoothK <span class="op">=</span> <span class="fl">3L</span>,</span>
+<span>  biasK <span class="op">=</span> <span class="fl">51L</span>,</span>
+<span>  peakThr <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  polyDeg <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  biasMet <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"runmed"</span>, <span class="st">"lm"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
+<span>  binThr <span class="op">=</span> <span class="fl">0.5</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for arcosTS</span></span>
+<span><span class="fu">binMeas</span><span class="op">(</span></span>
+<span>  <span class="va">obj</span>,</span>
+<span>  smoothK <span class="op">=</span> <span class="fl">3L</span>,</span>
+<span>  biasK <span class="op">=</span> <span class="fl">51L</span>,</span>
+<span>  peakThr <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  polyDeg <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  biasMet <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"runmed"</span>, <span class="st">"lm"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
+<span>  binThr <span class="op">=</span> <span class="fl">0.5</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>obj</dt>
 <dd><p>an arcosTS object.</p></dd>
+
+
 <dt>smoothK</dt>
 <dd><p>an integer, length of the short-term median filter, i.e. smoothing, default 3L.</p></dd>
+
+
 <dt>biasK</dt>
 <dd><p>an integer, length of the long-term median filter, i.e. de-trending, default 51L.</p></dd>
+
+
 <dt>peakThr</dt>
 <dd><p>a double, threshold for peak detection from signal rescaled to [0,1], default 0.2.</p></dd>
+
+
 <dt>polyDeg</dt>
 <dd><p>an integer, sets the degree of the polynomial for lm fitting; default 1.</p></dd>
+
+
 <dt>biasMet</dt>
 <dd><p>method for de-trending, choose from runmed (median filter), lm (linear regression), none, default runmed.</p></dd>
+
+
 <dt>binThr</dt>
 <dd><p>a double, threshold for signal binarisation, default 0.5.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>an arcosTS object.</p>
+    
+
+<p>an arcosTS object.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -123,7 +138,7 @@ the signal is rescaled to the <code>[0,1]</code> range.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"no examples"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"no examples"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> no examples</span>
 </code></pre></div>
     </div>
@@ -139,8 +154,7 @@ the signal is rescaled to the <code>[0,1]</code> range.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

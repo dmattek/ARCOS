@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{genRandSynth2D}
 \alias{genRandSynth2D}
-\title{Random synthetic sequence of collective events in 2D}
+\title{Random synthetic collective events in 2D}
 \usage{
 genRandSynth2D(
   nevents = 10L,

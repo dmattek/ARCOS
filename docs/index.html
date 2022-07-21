@@ -43,26 +43,26 @@
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/ARCOS-advanced.html">Advanced usage of ARCOS</a>
-    </li>
-    <li>
       <a href="articles/ARCOS-basics.html">Basic usage of ARCOS</a>
     </li>
     <li>
-      <a href="articles/ARCOS-rand.html">ARCOS detect random events</a>
+      <a href="articles/ARCOS-binTimeseries.html">Pre-processing time-series for ARCOS</a>
     </li>
     <li>
-      <a href="articles/ARCOS-synth2D.html">ARCOS detect from images</a>
+      <a href="articles/ARCOS-synthRand2D.html">Detect synthetic random collective events</a>
     </li>
     <li>
-      <a href="articles/ARCOS-tests.html">ARCOS demo of synthetic test</a>
+      <a href="articles/ARCOS-synthRasterImages.html">Detect collective events from images</a>
+    </li>
+    <li>
+      <a href="articles/ARCOS-unitTests.html">ARCOS demo of unit tests</a>
     </li>
   </ul>
 </li>
@@ -84,60 +84,49 @@
 </h1></div>
 <!-- badges: start -->
 <!-- badges: end -->
-<p><strong>A</strong>utomated <strong>R</strong>ecognition of
-<strong>Co</strong>llective <strong>S</strong>ignalling (ARCOS) is an <a href="https://www.r-project.org" class="external-link">R</a> package to identify collective
-spatial events in time series data.</p>
-<p>The software identifies and visualises collective protein activation
-in 2- and 3D cell cultures over time. Such collective waves have been
-recently identified in various biological systems. They have been
-demonstrated to play an important role in the maintenance of epithelial
-homeostasis (<a href="https://doi.org/10.1016/j.devcel.2021.05.007" class="external-link">Gagliardi et al.,
-2020</a>, <a href="https://doi.org/10.1016/j.cub.2019.11.089" class="external-link">Takeuchi
-et al., 2020</a>, <a href="https://doi.org/10.7554/eLife.60541" class="external-link">Aikin et
-al., 2020</a>), in the acinar morphogenesis (<a href="https://doi.org/10.1101/2020.11.20.387167" class="external-link">Ender et al.,
-2020</a>), osteoblast regeneration (<a href="https://doi.org/10.1038/s41586-020-03085-8" class="external-link">De Simone et al.,
-2021</a>), and in the coordination of collective cell migration (<a href="https://doi.org/10.1016/j.devcel.2017.10.016" class="external-link">Aoki et al.,
-2017</a>, <a href="https://doi.org/10.1016/j.devcel.2020.05.011" class="external-link">Hino et
-al., 2020</a>).</p>
+<p><strong>A</strong>utomated <strong>R</strong>ecognition of <strong>Co</strong>llective <strong>S</strong>ignalling (ARCOS) is an <a href="https://www.r-project.org" class="external-link">R</a> package to identify space-time correlations in biological data.</p>
+<p>The software identifies and visualises collective protein activation in 2- and 3D cell cultures over time. Such collective phenomena have been recently identified in various biological systems. They have been demonstrated to play an important role in the: (1) maintenance of the epithelial homeostasis (<a href="https://doi.org/10.1016/j.devcel.2021.05.007" class="external-link">Gagliardi et al., 2020</a>, <a href="https://doi.org/10.1016/j.cub.2019.11.089" class="external-link">Takeuchi et al., 2020</a>, <a href="https://doi.org/10.7554/eLife.60541" class="external-link">Aikin et al., 2020</a>), (2) acinar morphogenesis (<a href="https://doi.org/10.1101/2020.11.20.387167" class="external-link">Ender et al., 2020</a>), (3) osteoblast regeneration (<a href="https://doi.org/10.1038/s41586-020-03085-8" class="external-link">De Simone et al., 2021</a>), and (4) coordination of collective cell migration (<a href="https://doi.org/10.1016/j.devcel.2017.10.016" class="external-link">Aoki et al., 2017</a>, <a href="https://doi.org/10.1016/j.devcel.2020.05.011" class="external-link">Hino et al., 2020</a>).</p>
 <p><video src="https://user-images.githubusercontent.com/25979488/123080758-8d053180-d41d-11eb-9d05-b17786091696.mp4" controls=""><a href="https://user-images.githubusercontent.com/25979488/123080758-8d053180-d41d-11eb-9d05-b17786091696.mp4" class="external-link">Video</a></video></p>
-<p>Despite its focus on cell signalling, the framework can be also
-applied to other spatially correlated phenomena that occur over
-time.</p>
+<p>Despite its focus on cell signalling, the framework can be also applied to other spatially correlated phenomena that occur over time in an arbitrary spatial dimension.</p>
 <div class="section level2">
-<h2 id="data-format">Data format<a class="anchor" aria-label="anchor" href="#data-format"></a>
+<h2 id="implementations">Implementations<a class="anchor" aria-label="anchor" href="#implementations"></a>
 </h2>
-<p>Time series should be arranged in <a href="https://en.wikipedia.org/wiki/Wide_and_narrow_data#Narrow" class="external-link">long
-format</a>, where each row defines object’s location, time, and
-optionally the measurement value.</p>
-<p>ARCOS defines an <code>arcosTS</code> object that extends the
-<code>data.table</code> <a href="https://cran.r-project.org/web/packages/data.table/" class="external-link">class</a>. In
-practice, additional attributes are added to the existing
-<code>data.table</code> object to define column names relevant for the
-analysis.</p>
+<p>This repository refers to the R implementation. Other implementations available:</p>
+<ul>
+<li>
+<a href="https://github.com/bgraedel/arcos4py" class="external-link">arcos4py</a>, a Python implementation written by Benjamin Grädel.</li>
+<li>
+<a href="https://github.com/bgraedel/arcos-gui" class="external-link">arcos-gui</a>, a plugin with GUI for <a href="https://napari.org" class="external-link">napari</a> image viewer; written by Benjamin Grädel. See a YouTube <a href="https://www.youtube.com/watch?v=hG_z_BFcAiQ" class="external-link">demo</a>.</li>
+</ul>
+<p>Documentation for the entire ARCOS project on <a href="https://arcos.gitbook.io/home/" class="external-link">gitbook</a>.</p>
+<div class="figure">
+<img src="reference/figures/README-napari-gui-3D.png" alt=""><p class="caption">arcos-gui plugin for napari image viewer</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>You can install the development version from <a href="https://github.com/dmattek/ARCOS" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># install.packages("devtools")</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"dmattek/ARCOS"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"dmattek/ARCOS"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="data-format">Data format<a class="anchor" aria-label="anchor" href="#data-format"></a>
+</h2>
+<p>The minimal input comprises time series arranged in <a href="https://en.wikipedia.org/wiki/Wide_and_narrow_data#Narrow" class="external-link">long format</a>, where each row defines object’s location and time.</p>
+<p>ARCOS defines an <code>arcosTS</code> object that extends the <code>data.table</code> <a href="https://cran.r-project.org/web/packages/data.table/" class="external-link">class</a>. In practice, additional attributes are added to the existing <code>data.table</code> object to define column names relevant for the analysis.</p>
 </div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>The following synthetic dataset contains 81 cells spaced on a 2D 9x9
-lattice. Each object has an ID (column <code>id</code>) and can assume
-values 0 and 1 (column <code>m</code>), which correspond to an
-<em>inactive</em> and <em>active</em> state. The evolution of active
-states takes place over 8 consecutive time points (column
-<code>t</code>). Each cell moves slightly over time, hence a light
-wiggle around the initial position.</p>
+<p>The following synthetic dataset contains 81 objects (e.g., biological cells) spaced on a 2D 9x9 lattice with a spacing of 1x1 length units. Each object has an ID (column <code>id</code>) and can assume values 0 and 1 (column <code>m</code>), which correspond to an <em>inactive</em> and <em>active</em> state. The evolution of active states takes place over 8 consecutive time points (column <code>t</code>). Each object wiggles slightly around its position.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
-
-<span class="va">dts</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/genSynth2D.html">genSynth2D</a></span><span class="op">(</span>inSeed <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate a synthetic dataset with a single event evolving over 8 frames</span></span>
+<span><span class="va">dts</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/genSynth2D.html">genSynth2D</a></span><span class="op">(</span>inSeed <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="right">t</th>
@@ -191,18 +180,13 @@ wiggle around the initial position.</p>
 </tr>
 </tbody>
 </table>
-<p>In the plot below, grey circles correspond to inactive and black to
-active states of cells and their collective activation (<em>wave</em>)
-develops over 8 time points.</p>
+<p>In the plot below, grey circles correspond to inactive and black to active states of objects and their collective activation (<em>wave</em>) develops over 8 time points.</p>
 <p><img src="reference/figures/README-ex1plotTS-1.png" width="100%"></p>
-<p>The following R code will identify the collective event and store the
-result in <code>dcoll</code> variable. We are interested in a collective
-event comprised of <em>active</em> object, hence we select rows with
-<code>m &gt; 0</code>.</p>
+<p>The following R code will identify the collective event and store the result in a <code>dcoll</code> variable. We are interested in a collective event comprised of <em>active</em> objects, hence we select rows with <code>m &gt; 0</code>. The parameter <code>eps</code> sets the threshold radius for the spatial clustering (<code>dbscan</code> algorithm). Here, we set <code>eps = 2</code>, which is enough to find all the nearest active objects in the cluster, given the 1x1 horizontal and vertical spacing of objects in the lattice.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Track collective events</span>
-<span class="va">dcoll</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/trackColl.html">trackColl</a></span><span class="op">(</span><span class="va">dts</span><span class="op">[</span><span class="va">m</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span>, 
-                         eps <span class="op">=</span> <span class="fl">2.</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Track collective events</span></span>
+<span><span class="va">dcoll</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/trackColl.html">trackColl</a></span><span class="op">(</span><span class="va">dts</span><span class="op">[</span><span class="va">m</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span>, </span>
+<span>                         eps <span class="op">=</span> <span class="fl">2.</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="right">t</th>
@@ -270,54 +254,41 @@ event comprised of <em>active</em> object, hence we select rows with
 </tr>
 </tbody>
 </table>
-<p>The <code>dcoll</code> table contains the results of spatio-temporal
-clustering. Column <code>collid</code> stores a unique identifier of
-collective event. The <code>collid.frame</code> column stores an
-identifier of collective event that is unique only within a frame.</p>
-<p>For better visualisation, we add convex hulls around collective
-events using the <code>chull</code> function from the
-<code>grDevices</code> package.</p>
+<p>The <code>dcoll</code> table contains the results of spatio-temporal clustering. Column <code>collid</code> stores a unique identifier of the collective event. The <code>collid.frame</code> column stores an identifier of collective event that is unique only within a frame.</p>
+<p>For better visualisation, we add convex hulls around collective events using the <code>chull</code> function from the <code>grDevices</code> package.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># Create convex hulls around collective events for visualisation</span>
-<span class="va">dcollch</span> <span class="op">=</span> <span class="va">dcoll</span><span class="op">[</span>,
-                <span class="va">.SD</span><span class="op">[</span><span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/chull.html" class="external-link">chull</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">]</span>,
-                by <span class="op">=</span> <span class="fu">.</span><span class="op">(</span><span class="va">t</span>,
-                       <span class="va">collid</span><span class="op">)</span><span class="op">]</span></code></pre></div>
-<p>In the following plot, objects that participate in a collective event
-are indicated by red dots. The red polygon indicates a convex hull.</p>
+<code class="sourceCode R"><span><span class="co"># Create convex hulls around collective events for visualisation</span></span>
+<span><span class="va">dcollch</span> <span class="op">=</span> <span class="va">dcoll</span><span class="op">[</span>,</span>
+<span>                <span class="va">.SD</span><span class="op">[</span><span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/chull.html" class="external-link">chull</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>                by <span class="op">=</span> <span class="fu">.</span><span class="op">(</span><span class="va">t</span>,</span>
+<span>                       <span class="va">collid</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p>In the following plot, objects that participate in the collective event are indicated by red dots. The red polygon indicates a convex hull.</p>
 <p><img src="reference/figures/README-ex1plotColl-1.png" width="100%"></p>
 <div class="section level3">
 <h3 id="save-frames">Save frames<a class="anchor" aria-label="anchor" href="#save-frames"></a>
 </h3>
-<p>The code below saves individual time frames as <code>png</code> files
-in the <code>frames</code> folder located in the current working
-directory.</p>
+<p>The code below saves individual time frames as <code>png</code> files in the <code>frames</code> folder located in the current working directory.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/savePlotColl2D.html">savePlotColl2D</a></span><span class="op">(</span><span class="va">dts</span>, <span class="va">dcoll</span>, 
-                      outdir <span class="op">=</span> <span class="st">"./frames"</span>,
-                      xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.5</span>,<span class="fl">9</span><span class="op">)</span>,
-                      ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.5</span>,<span class="fl">9</span><span class="op">)</span>,
-                      plotwh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span><span class="op">)</span>,
-                      imtype <span class="op">=</span> <span class="st">"png"</span><span class="op">)</span></code></pre></div>
-<p>Individual files can be later combined into a movie using software
-such as <a href="http://ffmpeg.org" class="external-link">ffmpeg</a>.</p>
-<p>For example, if you have <code>ffmpeg</code> installed on your
-system, create an <code>mp4</code> movie at 2 frames/second and a
-520x420 pixel resolution by typing the following line in the command
-line:</p>
+<code class="sourceCode R"><span><span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/savePlotColl2D.html">savePlotColl2D</a></span><span class="op">(</span><span class="va">dts</span>, <span class="va">dcoll</span>, </span>
+<span>                      outdir <span class="op">=</span> <span class="st">"./frames"</span>,</span>
+<span>                      xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.5</span>,<span class="fl">9</span><span class="op">)</span>,</span>
+<span>                      ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.5</span>,<span class="fl">9</span><span class="op">)</span>,</span>
+<span>                      plotwh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span><span class="op">)</span>,</span>
+<span>                      imtype <span class="op">=</span> <span class="st">"png"</span><span class="op">)</span></span></code></pre></div>
+<p>Individual files can be later combined into a movie using software such as <a href="http://ffmpeg.org" class="external-link">ffmpeg</a>.</p>
+<p>For example, if you have <code>ffmpeg</code> installed on your system, create an <code>mp4</code> movie at 2 frames/second and a 520x420 pixel resolution by typing the following line in the command line:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ffmpeg</span> <span class="at">-framerate</span> 2 <span class="at">-i</span> <span class="st">"frames/F%04d.png"</span> <span class="at">-vcodec</span> libx264 <span class="at">-s</span> 560x420 <span class="at">-pix_fmt</span> yuv420p frames-all.mp4</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="visualise-interactively">Visualise interactively<a class="anchor" aria-label="anchor" href="#visualise-interactively"></a>
 </h3>
-<p>Interactive visualisation with an accompanying shiny app located in
-<code>inst/shiny-examples/collVisApp</code>.</p>
+<p>Interactive visualisation with an accompanying shiny app located in <code>inst/shiny-examples/collVisApp</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.rstudio.com/" class="external-link">shiny</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://plotly-r.com" class="external-link">plotly</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span>
-
-<span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/runCollVis.html">runCollVis</a></span><span class="op">(</span><span class="va">dts</span>, <span class="va">dcoll</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://shiny.rstudio.com/" class="external-link">shiny</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://plotly-r.com" class="external-link">plotly</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/runCollVis.html">runCollVis</a></span><span class="op">(</span><span class="va">dts</span>, <span class="va">dcoll</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -360,8 +331,7 @@ line:</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>

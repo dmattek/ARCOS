@@ -16,13 +16,25 @@
     <loc>/articles/ARCOS-basics.html</loc>
   </url>
   <url>
+    <loc>/articles/ARCOS-binTimeseries.html</loc>
+  </url>
+  <url>
     <loc>/articles/ARCOS-rand.html</loc>
   </url>
   <url>
     <loc>/articles/ARCOS-synth2D.html</loc>
   </url>
   <url>
+    <loc>/articles/ARCOS-synthRand2D.html</loc>
+  </url>
+  <url>
+    <loc>/articles/ARCOS-synthRasterImages.html</loc>
+  </url>
+  <url>
     <loc>/articles/ARCOS-tests.html</loc>
+  </url>
+  <url>
+    <loc>/articles/ARCOS-unitTests.html</loc>
   </url>
   <url>
     <loc>/articles/index.html</loc>
@@ -43,10 +55,16 @@
     <loc>/reference/binMeas.html</loc>
   </url>
   <url>
+    <loc>/reference/calcNNdists.html</loc>
+  </url>
+  <url>
     <loc>/reference/calcStatsColl.html</loc>
   </url>
   <url>
     <loc>/reference/calcStatsCollEvents.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calcVecNNdists.html</loc>
   </url>
   <url>
     <loc>/reference/clipMeas.html</loc>
@@ -89,6 +107,9 @@
   </url>
   <url>
     <loc>/reference/loadDataFromImages.html</loc>
+  </url>
+  <url>
+    <loc>/reference/midPtCir.html</loc>
   </url>
   <url>
     <loc>/reference/plot.arcosTS.html</loc>

@@ -26,25 +26,25 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/ARCOS-advanced.html">Advanced usage of ARCOS</a>
-    </li>
-    <li>
       <a href="../articles/ARCOS-basics.html">Basic usage of ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-rand.html">ARCOS detect random events</a>
+      <a href="../articles/ARCOS-binTimeseries.html">Pre-processing time-series for ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-synth2D.html">ARCOS detect from images</a>
+      <a href="../articles/ARCOS-synthRand2D.html">Detect synthetic random collective events</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-tests.html">ARCOS demo of synthetic test</a>
+      <a href="../articles/ARCOS-synthRasterImages.html">Detect collective events from images</a>
+    </li>
+    <li>
+      <a href="../articles/ARCOS-unitTests.html">ARCOS demo of unit tests</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
@@ -66,48 +66,61 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">plotNoodle2D</span><span class="op">(</span>
-  <span class="va">objTS</span>,
-  xfac <span class="op">=</span> <span class="fl">1</span>,
-  yfac <span class="op">=</span> <span class="fl">1</span>,
-  tfreq <span class="op">=</span> <span class="fl">1</span>,
-  pos <span class="op">=</span> <span class="fl">1L</span>,
-  colpal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#4E79A7"</span>, <span class="st">"#A0CBE8"</span>, <span class="st">"#F28E2B"</span>, <span class="st">"#FFBE7D"</span>, <span class="st">"#59A14F"</span>, <span class="st">"#8CD17D"</span>,
-    <span class="st">"#B6992D"</span>, <span class="st">"#F1CE63"</span>, <span class="st">"#499894"</span>, <span class="st">"#86BCB6"</span>, <span class="st">"#E15759"</span>, <span class="st">"#FF9D9A"</span>, <span class="st">"#79706E"</span>,
-    <span class="st">"#BAB0AC"</span>, <span class="st">"#D37295"</span>, <span class="st">"#FABFD2"</span>, <span class="st">"#B07AA1"</span>, <span class="st">"#D4A6C8"</span>, <span class="st">"#9D7660"</span>, <span class="st">"#D7B5A6"</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="co"># S3 method for arcosTS</span>
-<span class="fu">plotNoodle2D</span><span class="op">(</span>
-  <span class="va">objTS</span>,
-  xfac <span class="op">=</span> <span class="fl">1</span>,
-  yfac <span class="op">=</span> <span class="fl">1</span>,
-  tfreq <span class="op">=</span> <span class="fl">1</span>,
-  pos <span class="op">=</span> <span class="fl">1L</span>,
-  colpal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#4E79A7"</span>, <span class="st">"#A0CBE8"</span>, <span class="st">"#F28E2B"</span>, <span class="st">"#FFBE7D"</span>, <span class="st">"#59A14F"</span>, <span class="st">"#8CD17D"</span>,
-    <span class="st">"#B6992D"</span>, <span class="st">"#F1CE63"</span>, <span class="st">"#499894"</span>, <span class="st">"#86BCB6"</span>, <span class="st">"#E15759"</span>, <span class="st">"#FF9D9A"</span>, <span class="st">"#79706E"</span>,
-    <span class="st">"#BAB0AC"</span>, <span class="st">"#D37295"</span>, <span class="st">"#FABFD2"</span>, <span class="st">"#B07AA1"</span>, <span class="st">"#D4A6C8"</span>, <span class="st">"#9D7660"</span>, <span class="st">"#D7B5A6"</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plotNoodle2D</span><span class="op">(</span></span>
+<span>  <span class="va">objTS</span>,</span>
+<span>  xfac <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  yfac <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  tfreq <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  pos <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  colpal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#4E79A7"</span>, <span class="st">"#A0CBE8"</span>, <span class="st">"#F28E2B"</span>, <span class="st">"#FFBE7D"</span>, <span class="st">"#59A14F"</span>, <span class="st">"#8CD17D"</span>,</span>
+<span>    <span class="st">"#B6992D"</span>, <span class="st">"#F1CE63"</span>, <span class="st">"#499894"</span>, <span class="st">"#86BCB6"</span>, <span class="st">"#E15759"</span>, <span class="st">"#FF9D9A"</span>, <span class="st">"#79706E"</span>,</span>
+<span>    <span class="st">"#BAB0AC"</span>, <span class="st">"#D37295"</span>, <span class="st">"#FABFD2"</span>, <span class="st">"#B07AA1"</span>, <span class="st">"#D4A6C8"</span>, <span class="st">"#9D7660"</span>, <span class="st">"#D7B5A6"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for arcosTS</span></span>
+<span><span class="fu">plotNoodle2D</span><span class="op">(</span></span>
+<span>  <span class="va">objTS</span>,</span>
+<span>  xfac <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  yfac <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  tfreq <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  pos <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  colpal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#4E79A7"</span>, <span class="st">"#A0CBE8"</span>, <span class="st">"#F28E2B"</span>, <span class="st">"#FFBE7D"</span>, <span class="st">"#59A14F"</span>, <span class="st">"#8CD17D"</span>,</span>
+<span>    <span class="st">"#B6992D"</span>, <span class="st">"#F1CE63"</span>, <span class="st">"#499894"</span>, <span class="st">"#86BCB6"</span>, <span class="st">"#E15759"</span>, <span class="st">"#FF9D9A"</span>, <span class="st">"#79706E"</span>,</span>
+<span>    <span class="st">"#BAB0AC"</span>, <span class="st">"#D37295"</span>, <span class="st">"#FABFD2"</span>, <span class="st">"#B07AA1"</span>, <span class="st">"#D4A6C8"</span>, <span class="st">"#9D7660"</span>, <span class="st">"#D7B5A6"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>xfac</dt>
+    <dl><dt>objTS</dt>
+<dd><p>an arcosTS object.</p></dd>
+
+
+<dt>xfac</dt>
 <dd><p>a numeric, multiplication factor for the x-axis; default 1.</p></dd>
+
+
 <dt>yfac</dt>
 <dd><p>a numeric, multiplication factor for the y-axis; default 1.</p></dd>
+
+
 <dt>tfreq</dt>
 <dd><p>a numeric, frequency of the temporal column; default 1.</p></dd>
+
+
 <dt>pos</dt>
 <dd><p>an integer, index of the coordinate to plot in the position vector; default 1L.</p></dd>
+
+
 <dt>colpal</dt>
 <dd><p>a vector with colours in hex format, default colours from the Tableau 20 palette.</p></dd>
-<dt>obj</dt>
-<dd><p>an arcosTS object.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a ggplot2 object.</p>
+    
+
+<p>a ggplot2 object.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -116,7 +129,7 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"no examples"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"no examples"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> no examples</span>
 </code></pre></div>
     </div>
@@ -132,8 +145,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

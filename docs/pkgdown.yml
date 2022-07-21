@@ -1,11 +1,11 @@
-pandoc: 2.17.1.1
-pkgdown: 2.0.2
+pandoc: '2.18'
+pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
-  ARCOS-advanced: ARCOS-advanced.html
   ARCOS-basics: ARCOS-basics.html
-  ARCOS-rand: ARCOS-rand.html
-  ARCOS-synth2D: ARCOS-synth2D.html
-  ARCOS-tests: ARCOS-tests.html
-last_built: 2022-02-22T19:29Z
+  ARCOS-binTimeseries: ARCOS-binTimeseries.html
+  ARCOS-synthRand2D: ARCOS-synthRand2D.html
+  ARCOS-synthRasterImages: ARCOS-synthRasterImages.html
+  ARCOS-unitTests: ARCOS-unitTests.html
+last_built: 2022-07-21T15:31Z
 

@@ -29,25 +29,25 @@ Clip a numeric vector between lower and upper bounds."><!-- mathjax --><script s
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/ARCOS-advanced.html">Advanced usage of ARCOS</a>
-    </li>
-    <li>
       <a href="../articles/ARCOS-basics.html">Basic usage of ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-rand.html">ARCOS detect random events</a>
+      <a href="../articles/ARCOS-binTimeseries.html">Pre-processing time-series for ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-synth2D.html">ARCOS detect from images</a>
+      <a href="../articles/ARCOS-synthRand2D.html">Detect synthetic random collective events</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-tests.html">ARCOS demo of synthetic test</a>
+      <a href="../articles/ARCOS-synthRasterImages.html">Detect collective events from images</a>
+    </li>
+    <li>
+      <a href="../articles/ARCOS-unitTests.html">ARCOS demo of unit tests</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
@@ -71,28 +71,34 @@ Clip a numeric vector between lower and upper bounds.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">rcpp_clip</span><span class="op">(</span><span class="va">x</span>, <span class="va">a</span>, <span class="va">b</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">rcpp_clip</span><span class="op">(</span><span class="va">x</span>, <span class="va">a</span>, <span class="va">b</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>a numeric vector.</p></dd>
+
+
 <dt>a</dt>
 <dd><p>lower bound (double).</p></dd>
+
+
 <dt>b</dt>
 <dd><p>upper bound (double).</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a numeric vector.</p>
+    
+
+<p>a numeric vector.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">v</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">rcpp_clip</span><span class="op">(</span><span class="va">v</span>, <span class="fl">3</span>, <span class="fl">7</span><span class="op">)</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rcpp_clip(v, 3, 7):</span> could not find function "rcpp_clip"</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"no examples"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> no examples</span>
 </code></pre></div>
     </div>
   </div>
@@ -107,8 +113,7 @@ Clip a numeric vector between lower and upper bounds.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

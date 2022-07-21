@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{genSynth2D}
 \alias{genSynth2D}
-\title{Synthetic collective event in 2D}
+\title{A single synthetic collective event in 2D}
 \usage{
 genSynth2D(inSeed = NULL)
 }
@@ -13,7 +13,7 @@ genSynth2D(inSeed = NULL)
 an arcosTS object
 }
 \description{
-81 objects in 2D in 8 time frames. X/Y positions have a small added Gaussian noise added.
+81 objects in 2D in 8 time frames. X/Y positions have an additional small Gaussian noise.
 }
 \examples{
 library(ARCOS)

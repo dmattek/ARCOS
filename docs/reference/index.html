@@ -26,25 +26,25 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/ARCOS-advanced.html">Advanced usage of ARCOS</a>
-    </li>
-    <li>
       <a href="../articles/ARCOS-basics.html">Basic usage of ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-rand.html">ARCOS detect random events</a>
+      <a href="../articles/ARCOS-binTimeseries.html">Pre-processing time-series for ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-synth2D.html">ARCOS detect from images</a>
+      <a href="../articles/ARCOS-synthRand2D.html">Detect synthetic random collective events</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-tests.html">ARCOS demo of synthetic test</a>
+      <a href="../articles/ARCOS-synthRasterImages.html">Detect collective events from images</a>
+    </li>
+    <li>
+      <a href="../articles/ARCOS-unitTests.html">ARCOS demo of unit tests</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
@@ -76,6 +76,10 @@
         </td>
         <td><p>"Smooth, de-trend, and binarise the measurement"</p></td>
       </tr><tr><td>
+          <p><code><a href="calcNNdists.html">calcNNdists()</a></code> </p>
+        </td>
+        <td><p>"Calculate NN distances"</p></td>
+      </tr><tr><td>
           <p><code><a href="calcStatsColl.html">calcStatsColl()</a></code> </p>
         </td>
         <td><p>"Stats of collective events"</p></td>
@@ -90,11 +94,11 @@
       </tr><tr><td>
           <p><code><a href="genRandSynth2D.html">genRandSynth2D()</a></code> </p>
         </td>
-        <td><p>Random synthetic sequence of collective events in 2D</p></td>
+        <td><p>Random synthetic collective events in 2D</p></td>
       </tr><tr><td>
           <p><code><a href="genSynth2D.html">genSynth2D()</a></code> </p>
         </td>
-        <td><p>Synthetic collective event in 2D</p></td>
+        <td><p>A single synthetic collective event in 2D</p></td>
       </tr><tr><td>
           <p><code><a href="histMeas.html">histMeas()</a></code> </p>
         </td>
@@ -123,6 +127,10 @@
           <p><code><a href="loadDataFromImages.html">loadDataFromImages()</a></code> </p>
         </td>
         <td><p>Title</p></td>
+      </tr><tr><td>
+          <p><code><a href="midPtCir.html">midPtCir()</a></code> </p>
+        </td>
+        <td><p>Mid-Point Circle Drawing Algorithm</p></td>
       </tr><tr><td>
           <p><code><a href="plotBinMeas.html">plotBinMeas()</a></code> </p>
         </td>
@@ -173,8 +181,7 @@ Clip a numeric vector between lower and upper bounds.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

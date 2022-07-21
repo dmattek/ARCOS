@@ -28,25 +28,25 @@ or by fitting a polynomial of degree polyDeg (biasMet = "lm").'><!-- mathjax -->
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/ARCOS-advanced.html">Advanced usage of ARCOS</a>
-    </li>
-    <li>
       <a href="../articles/ARCOS-basics.html">Basic usage of ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-rand.html">ARCOS detect random events</a>
+      <a href="../articles/ARCOS-binTimeseries.html">Pre-processing time-series for ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-synth2D.html">ARCOS detect from images</a>
+      <a href="../articles/ARCOS-synthRand2D.html">Detect synthetic random collective events</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-tests.html">ARCOS demo of synthetic test</a>
+      <a href="../articles/ARCOS-synthRasterImages.html">Detect collective events from images</a>
+    </li>
+    <li>
+      <a href="../articles/ARCOS-unitTests.html">ARCOS demo of unit tests</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
@@ -70,50 +70,63 @@ or by fitting a polynomial of degree <code>polyDeg</code> (<code>biasMet = "lm"<
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">detrendTS</span><span class="op">(</span>
-  <span class="va">x</span>,
-  smoothK <span class="op">=</span> <span class="fl">3L</span>,
-  biasK <span class="op">=</span> <span class="fl">51L</span>,
-  peakThr <span class="op">=</span> <span class="fl">0.2</span>,
-  polyDeg <span class="op">=</span> <span class="fl">1L</span>,
-  biasMet <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"runmed"</span>, <span class="st">"lm"</span>, <span class="st">"none"</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">detrendTS</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  smoothK <span class="op">=</span> <span class="fl">3L</span>,</span>
+<span>  biasK <span class="op">=</span> <span class="fl">51L</span>,</span>
+<span>  peakThr <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  polyDeg <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  biasMet <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"runmed"</span>, <span class="st">"lm"</span>, <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>a numeric vector with the time series for smoothing.</p></dd>
+
+
 <dt>smoothK</dt>
 <dd><p>an integer, size of the short-term median smoothing filter, default 3L.</p></dd>
+
+
 <dt>biasK</dt>
 <dd><p>an integer, size of the long-term de-trending median filter, default 51L.</p></dd>
+
+
 <dt>peakThr</dt>
 <dd><p>a threshold for rescaling of the de-trended signal, default 0.2.</p></dd>
+
+
 <dt>polyDeg</dt>
 <dd><p>an integer, sets the degree of the polynomial for lm fitting; default 1.</p></dd>
+
+
 <dt>biasMet</dt>
 <dd><p>a string with the de-trending method, default "runmed".</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a numeric vector with a smoothed and/or de-trended and rescaled time series.</p>
+    
+
+<p>a numeric vector with a smoothed and/or de-trended and rescaled time series.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">vT</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0.001</span><span class="op">)</span> <span class="op">*</span> <span class="fl">10</span> <span class="op">*</span> <span class="va">pi</span></span>
-<span class="r-in"><span class="va">vY</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">vT</span><span class="op">)</span><span class="op">+</span><span class="va">vT</span><span class="op">/</span><span class="fl">10</span> <span class="op">+</span> <span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">vT</span><span class="op">)</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span></span>
-<span class="r-in"><span class="va">vYs</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">:::</span><span class="fu">detrendTS</span><span class="op">(</span><span class="va">vY</span>, smoothK <span class="op">=</span> <span class="fl">21</span>, biasMet <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">vT</span><span class="op">/</span><span class="va">pi</span>, <span class="va">vY</span>, type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">vT</span><span class="op">/</span><span class="va">pi</span>, <span class="va">vYs</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">6</span>,</span>
-<span class="r-in">       legend<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Original"</span>, <span class="st">"Smoothed &amp;\nde-trended"</span><span class="op">)</span>,</span>
-<span class="r-in">       col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span><span class="op">)</span>,</span>
-<span class="r-in">              lty<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, cex<span class="op">=</span><span class="fl">0.8</span>,</span>
-<span class="r-in">                     box.lty<span class="op">=</span><span class="fl">0</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">vT</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0.001</span><span class="op">)</span> <span class="op">*</span> <span class="fl">10</span> <span class="op">*</span> <span class="va">pi</span></span></span>
+<span class="r-in"><span><span class="va">vY</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">vT</span><span class="op">)</span><span class="op">+</span><span class="va">vT</span><span class="op">/</span><span class="fl">10</span> <span class="op">+</span> <span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">vT</span><span class="op">)</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="va">vYs</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">:::</span><span class="fu">detrendTS</span><span class="op">(</span><span class="va">vY</span>, smoothK <span class="op">=</span> <span class="fl">21</span>, biasMet <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">vT</span><span class="op">/</span><span class="va">pi</span>, <span class="va">vY</span>, type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">vT</span><span class="op">/</span><span class="va">pi</span>, <span class="va">vYs</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">6</span>,</span></span>
+<span class="r-in"><span>       legend<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Original"</span>, <span class="st">"Smoothed &amp;\nde-trended"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>       col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>              lty<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, cex<span class="op">=</span><span class="fl">0.8</span>,</span></span>
+<span class="r-in"><span>                     box.lty<span class="op">=</span><span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="detrendTS-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
@@ -129,8 +142,7 @@ or by fitting a polynomial of degree <code>polyDeg</code> (<code>biasMet = "lm"<
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

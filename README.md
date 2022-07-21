@@ -8,7 +8,9 @@
 
 **A**utomated **R**ecognition of **Co**llective **S**ignalling (ARCOS)
 is an [R](https://www.r-project.org) package to identify space-time
-correlations in biological data.
+correlations in biological data. The associated publication is available
+on
+[bioRxiv](https://www.biorxiv.org/content/10.1101/2022.07.12.499734v1).
 
 The software identifies and visualises collective protein activation in
 2- and 3D cell cultures over time. Such collective phenomena have been
@@ -28,12 +30,13 @@ of collective cell migration ([Aoki et al.,
 ![](https://user-images.githubusercontent.com/25979488/123080758-8d053180-d41d-11eb-9d05-b17786091696.mp4)
 
 Despite its focus on cell signalling, the framework can be also applied
-to other spatially correlated phenomena that occur over time.
+to other spatially correlated phenomena that occur over time in an
+arbitrary spatial dimension.
 
 ## Implementations
 
-This repository refers to the R implementation. Other implementations
-available:
+This repository covers the R implementation. For other implementations
+check:
 
 -   [arcos4py](https://github.com/bgraedel/arcos4py), a Python
     implementation written by Benjamin Grädel.
@@ -42,23 +45,11 @@ available:
     Benjamin Grädel. See a YouTube
     [demo](https://www.youtube.com/watch?v=hG_z_BFcAiQ).
 
-Documentation for the entire ARCOS project on
+Documentation for the entire ARCOS project can be found on
 [gitbook](https://arcos.gitbook.io/home/).
 
 ![arcos-gui plugin for napari image
 viewer](man/figures/README-napari-gui-3D.png)
-
-## Data format
-
-Time series should be arranged in [long
-format](https://en.wikipedia.org/wiki/Wide_and_narrow_data#Narrow),
-where each row defines object’s location, time, and optionally the
-measurement value.
-
-ARCOS defines an `arcosTS` object that extends the `data.table`
-[class](https://cran.r-project.org/web/packages/data.table/). In
-practice, additional attributes are added to the existing `data.table`
-object to define column names relevant for the analysis.
 
 ## Installation
 
@@ -70,19 +61,31 @@ You can install the development version from
 devtools::install_github("dmattek/ARCOS")
 ```
 
+## Data format
+
+The minimal input comprises time series arranged in [long
+format](https://en.wikipedia.org/wiki/Wide_and_narrow_data#Narrow),
+where each row defines object’s location and time.
+
+ARCOS defines an `arcosTS` object that extends the `data.table`
+[class](https://cran.r-project.org/web/packages/data.table/). In
+practice, additional attributes are added to the existing `data.table`
+object to define column names relevant for the analysis.
+
 ## Example
 
-The following synthetic dataset contains 81 cells spaced on a 2D 9x9
-lattice. Each object has an ID (column `id`) and can assume values 0 and
-1 (column `m`), which correspond to an *inactive* and *active* state.
-The evolution of active states takes place over 8 consecutive time
-points (column `t`). Each cell moves slightly over time, hence a light
-wiggle around the initial position.
+The following synthetic dataset contains 81 objects (e.g., biological
+cells) spaced on a 2D 9x9 lattice with a spacing of 1x1 length units.
+Each object has an ID (column `id`) and can assume values 0 and 1
+(column `m`), which correspond to an *inactive* and *active* state. The
+evolution of active states takes place over 8 consecutive time points
+(column `t`). Each object wiggles slightly around its position.
 
 ``` r
 library(ARCOS)
 library(ggplot2)
 
+# Generate a synthetic dataset with a single event evolving over 8 frames
 dts = ARCOS::genSynth2D(inSeed = 7)
 ```
 
@@ -96,14 +99,18 @@ dts = ARCOS::genSynth2D(inSeed = 7)
 |   1 | 4.9050 |  0.06777 |   0 |   6 |
 
 In the plot below, grey circles correspond to inactive and black to
-active states of cells and their collective activation (*wave*) develops
-over 8 time points.
+active states of objects and their collective activation (*wave*)
+develops over 8 time points.
 
 <img src="man/figures/README-ex1plotTS-1.png" width="100%" />
 
 The following R code will identify the collective event and store the
-result in `dcoll` variable. We are interested in a collective event
-comprised of *active* object, hence we select rows with `m > 0`.
+result in a `dcoll` variable. We are interested in a collective event
+comprised of *active* objects, hence we select rows with `m > 0`. The
+parameter `eps` sets the threshold radius for the spatial clustering
+(`dbscan` algorithm). Here, we set `eps = 2`, which is enough to find
+all the nearest active objects in the cluster, given the 1x1 horizontal
+and vertical spacing of objects in the lattice.
 
 ``` r
 # Track collective events
@@ -121,7 +128,7 @@ dcoll = ARCOS::trackColl(dts[m > 0],
 |   3 |  50 |            2 |      1 | 3.838 | 4.911 |   1 |
 
 The `dcoll` table contains the results of spatio-temporal clustering.
-Column `collid` stores a unique identifier of collective event. The
+Column `collid` stores a unique identifier of the collective event. The
 `collid.frame` column stores an identifier of collective event that is
 unique only within a frame.
 
@@ -136,7 +143,7 @@ dcollch = dcoll[,
                        collid)]
 ```
 
-In the following plot, objects that participate in a collective event
+In the following plot, objects that participate in the collective event
 are indicated by red dots. The red polygon indicates a convex hull.
 
 <img src="man/figures/README-ex1plotColl-1.png" width="100%" />

@@ -44,9 +44,9 @@ keepSignifDig <- function(inDT, inDigits) {
 }
 
 
-#' Synthetic collective event in 2D
+#' A single synthetic collective event in 2D
 #'
-#' 81 objects in 2D in 8 time frames. X/Y positions have a small added Gaussian noise added.
+#' 81 objects in 2D in 8 time frames. X/Y positions have an additional small Gaussian noise.
 #'
 #' @param inSeed an integer with the seed for the random number generator, default NULL.
 #'
@@ -132,7 +132,7 @@ genSynth2D <- function(inSeed = NULL) {
   return(locdt)
 }
 
-#' Random synthetic sequence of collective events in 2D
+#' Random synthetic collective events in 2D
 #'
 #' Create a sequence of collective events. A collective event is
 #' a concentrically growing circle that increases its radius at every frame.
@@ -246,8 +246,21 @@ genRandSynth2D <- function(nevents = 10L,
   return(ts)
 }
 
-# Mid-Point Circle Drawing Algorithm
-# https://www.geeksforgeeks.org/mid-point-circle-drawing-algorithm/
+#' Mid-Point Circle Drawing Algorithm
+#'
+#' The algorithm taken from https://www.geeksforgeeks.org/mid-point-circle-drawing-algorithm/
+#'
+#' A utility function to create X/Y positions on a circle.
+#'
+#' @param x0 a numeric, defines the x coordinate of the circle's centre.
+#' @param y0 a numeric, defines the y coordinate of the circle's centre.
+#' @param r a numeric, defines the circle's radius.
+#'
+#' @return a numeric matrix.
+#'
+#' @examples
+#' library(ARCOS)
+#' mcir = ARCOS:::midPtCir(1.4, 4.3, 5)
 midPtCir = function(x0, y0, r) {
   x = r
   y = 0

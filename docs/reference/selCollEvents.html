@@ -26,25 +26,25 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/ARCOS-advanced.html">Advanced usage of ARCOS</a>
-    </li>
-    <li>
       <a href="../articles/ARCOS-basics.html">Basic usage of ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-rand.html">ARCOS detect random events</a>
+      <a href="../articles/ARCOS-binTimeseries.html">Pre-processing time-series for ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-synth2D.html">ARCOS detect from images</a>
+      <a href="../articles/ARCOS-synthRand2D.html">Detect synthetic random collective events</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-tests.html">ARCOS demo of synthetic test</a>
+      <a href="../articles/ARCOS-synthRasterImages.html">Detect collective events from images</a>
+    </li>
+    <li>
+      <a href="../articles/ARCOS-unitTests.html">ARCOS demo of unit tests</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
@@ -66,33 +66,42 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">selCollEvents</span><span class="op">(</span>
-  <span class="va">inDTcoll</span>,
-  inCols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>frame <span class="op">=</span> <span class="st">"frame"</span>, id <span class="op">=</span> <span class="st">"trackID"</span>, collid <span class="op">=</span> <span class="st">"clTrackID"</span><span class="op">)</span>,
-  <span class="va">inCollDur</span>,
-  <span class="va">inCollTotSz</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">selCollEvents</span><span class="op">(</span></span>
+<span>  <span class="va">inDTcoll</span>,</span>
+<span>  inCols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>frame <span class="op">=</span> <span class="st">"frame"</span>, id <span class="op">=</span> <span class="st">"trackID"</span>, collid <span class="op">=</span> <span class="st">"clTrackID"</span><span class="op">)</span>,</span>
+<span>  <span class="va">inCollDur</span>,</span>
+<span>  <span class="va">inCollTotSz</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>inDTcoll</dt>
 <dd><p>a data.table with collective events in the long format produced by the <code>trackCollEvents</code> function. Consists of 3 columns: integer frame number, object id, id's of collective events.</p></dd>
+
+
 <dt>inCols</dt>
 <dd><p>a list with column names, <code>list(frame = , id = , collid = )</code>, that correspond to the integer frame number, position, object id and id of collective events, respectively.</p></dd>
+
+
 <dt>inCollDur</dt>
 <dd><p>a vector with 2 integers that correspond to the minimum and maximum duration of clusters in frame numbers.</p></dd>
+
+
 <dt>inCollTotSz</dt>
 <dd><p>a vector with 2 integers that correspond to the minimum and maximum total size of clusters in frame numbers. The total size is the number of unique objects involved in a collective event throughout its entire duration.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a data.table as the <code>inDTcoll</code> with collective events within provided duration and size bounds.</p>
+    
+
+<p>a data.table as the <code>inDTcoll</code> with collective events within provided duration and size bounds.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"no examples"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"no examples"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> no examples</span>
 </code></pre></div>
     </div>
@@ -108,8 +117,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

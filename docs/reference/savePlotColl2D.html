@@ -26,25 +26,25 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/ARCOS-advanced.html">Advanced usage of ARCOS</a>
-    </li>
-    <li>
       <a href="../articles/ARCOS-basics.html">Basic usage of ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-rand.html">ARCOS detect random events</a>
+      <a href="../articles/ARCOS-binTimeseries.html">Pre-processing time-series for ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-synth2D.html">ARCOS detect from images</a>
+      <a href="../articles/ARCOS-synthRand2D.html">Detect synthetic random collective events</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-tests.html">ARCOS demo of synthetic test</a>
+      <a href="../articles/ARCOS-synthRasterImages.html">Detect collective events from images</a>
+    </li>
+    <li>
+      <a href="../articles/ARCOS-unitTests.html">ARCOS demo of unit tests</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
@@ -66,64 +66,117 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">savePlotColl2D</span><span class="op">(</span>
-  <span class="va">objTS</span>,
-  <span class="va">objColl</span>,
-  plotbin <span class="op">=</span> <span class="cn">FALSE</span>,
-  outdir <span class="op">=</span> <span class="st">"."</span>,
-  filecore <span class="op">=</span> <span class="st">""</span>,
-  xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1024</span><span class="op">)</span>,
-  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1024</span><span class="op">)</span>,
-  plotwh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>,
-  revy <span class="op">=</span> <span class="cn">FALSE</span>,
-  stretchf <span class="op">=</span> <span class="cn">TRUE</span>,
-  ggtheme <span class="op">=</span> <span class="cn">NULL</span>,
-  imtype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"png"</span>, <span class="st">"pdf"</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="co"># S3 method for arcosTS</span>
-<span class="fu">savePlotColl2D</span><span class="op">(</span>
-  <span class="va">objTS</span>,
-  <span class="va">objColl</span>,
-  plotbin <span class="op">=</span> <span class="cn">FALSE</span>,
-  outdir <span class="op">=</span> <span class="st">"."</span>,
-  filecore <span class="op">=</span> <span class="st">""</span>,
-  xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1024</span><span class="op">)</span>,
-  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1024</span><span class="op">)</span>,
-  plotwh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>,
-  revy <span class="op">=</span> <span class="cn">TRUE</span>,
-  stretchf <span class="op">=</span> <span class="cn">TRUE</span>,
-  ggtheme <span class="op">=</span> <span class="cn">NULL</span>,
-  imtype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"png"</span>, <span class="st">"pdf"</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">savePlotColl2D</span><span class="op">(</span></span>
+<span>  <span class="va">objTS</span>,</span>
+<span>  objColl <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  plotbin <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  datanno <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  outdir <span class="op">=</span> <span class="st">"."</span>,</span>
+<span>  filecore <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1024</span><span class="op">)</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1024</span><span class="op">)</span>,</span>
+<span>  plotwh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  revy <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  stretchf <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  ptszmain <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  ptszbin <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  ptszanno <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  ggtheme <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  imtype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"png"</span>, <span class="st">"pdf"</span><span class="op">)</span>,</span>
+<span>  colpal <span class="op">=</span> <span class="st">"RdYlBu"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for arcosTS</span></span>
+<span><span class="fu">savePlotColl2D</span><span class="op">(</span></span>
+<span>  <span class="va">objTS</span>,</span>
+<span>  objColl <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  plotbin <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  datanno <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  outdir <span class="op">=</span> <span class="st">"."</span>,</span>
+<span>  filecore <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1024</span><span class="op">)</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1024</span><span class="op">)</span>,</span>
+<span>  plotwh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  revy <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  stretchf <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  ptszmain <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  ptszbin <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  ptszanno <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  ggtheme <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  imtype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"png"</span>, <span class="st">"pdf"</span><span class="op">)</span>,</span>
+<span>  colpal <span class="op">=</span> <span class="st">"RdYlBu"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>objTS</dt>
 <dd><p>an arcosTS object with time series.</p></dd>
+
+
 <dt>objColl</dt>
-<dd><p>an arcosTS object with collective events.</p></dd>
+<dd><p>an arcosTS object with collective events, defult NULL.</p></dd>
+
+
 <dt>plotbin</dt>
 <dd><p>a boolean, whether dots with binarised measurement should be plotted; default FALSE.</p></dd>
+
+
+<dt>datanno</dt>
+<dd><p>a data.table with T/X/Y annotations overlaid on the plot, default NULL.</p></dd>
+
+
 <dt>outdir</dt>
 <dd><p>a string with the dierctory to save the folder with frames; default ".".</p></dd>
+
+
 <dt>filecore</dt>
 <dd><p>a string with a prefix for output image files, default ".".</p></dd>
+
+
 <dt>xlim</dt>
 <dd><p>a vector with limits for the x-axis, default c(0, 1024).</p></dd>
+
+
 <dt>ylim</dt>
 <dd><p>a vector with limits for the y-axis, default c(0, 1024).</p></dd>
+
+
 <dt>plotwh</dt>
 <dd><p>a vector with width and height of the output image in inches, default c(3,3).</p></dd>
+
+
 <dt>revy</dt>
 <dd><p>logical whether to reverse the y-axis, default TRUE.</p></dd>
+
+
 <dt>stretchf</dt>
 <dd><p>logical whether to stretch the output sequence to include frames without objects, default TRUE.</p></dd>
+
+
+<dt>ptszmain</dt>
+<dd><p>numeric, size of main points in the plot, default 1.</p></dd>
+
+
+<dt>ptszbin</dt>
+<dd><p>numeric, size of points that indicate binarised measurement, default 0.1.</p></dd>
+
+
+<dt>ptszanno</dt>
+<dd><p>numeric, size of points that indicate annotated data, default 2.</p></dd>
+
+
 <dt>ggtheme</dt>
 <dd><p>a ggtheme object with additional style definitions; default NULL.</p></dd>
+
+
 <dt>imtype</dt>
 <dd><p>definition of the output image type, either "png" or "pdf".</p></dd>
+
+
+<dt>colpal</dt>
+<dd><p>colour palette for the main data, default 'RdYlBu'.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -132,7 +185,7 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"no examples"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"no examples"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> no examples</span>
 </code></pre></div>
     </div>
@@ -148,8 +201,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a>
-2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
