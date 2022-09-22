@@ -26,9 +26,10 @@
 #'
 #'
 #' @param dt a data.table with time series in the long format with at least 3 columns: integer frame number, object id, object position.
-#' @param eps a float with the search radius, default 1.
-#' @param minClSz an integer with the minimum size of the cluster, default 1L.
+#' @param eps a float with the search radius for spatial clustering with dbscan, default 1.
+#' @param minClSz an integer with the minimum size of the spatial cluster in dbscan, default 1L.
 #' @param nPrev an integer with the number of previous frames to search for an event, default 1L.
+#' @param epsPrev a float with the search radius for linking clusters between frames, default NULL means that epsPrev = eps.
 #' @param cols a list with column names, \code{list(frame = , id = , clid = )}, that correspond to the integer frame number, object id and id of collective events, respectively.
 #' @param posCols a vector with names of position columns, default \code{c("x")}.
 #' @param deb logical, whether to output debug information.
@@ -71,6 +72,7 @@
 trackCollEvents <- function(dt,
                             eps = 1, minClSz = 1L,
                             nPrev = 1L,
+                            epsPrev = NULL,
                             cols = list(
                               frame = "time",
                               id = "trackID",
@@ -134,7 +136,13 @@ trackCollEvents <- function(dt,
     stop("Parameter nPrev has to be an integer greater than 0!")
   }
 
-  # Make a local copy of input data only with necessary frames
+  if (is.null(epsPrev)) {
+    epsPrev = eps
+  } else if (!(epsPrev > 0)) {
+    stop("Parameter epsPrev has to be greater than 0!")
+  }
+
+  # Make a local copy of the input data only with necessary columns
   locDT = dt[,
              c(cols$frame,
                cols$id,
@@ -144,7 +152,7 @@ trackCollEvents <- function(dt,
   ## Step 1
   ## Identify spatial clusters in every frame using dbscan
 
-  # A wrapper for dbscaen that only returns a vector with cluster numbers
+  # A wrapper for dbscan that only returns a vector with cluster numbers
   LOCmydbscan = function(x) {
     locRes = dbscan::dbscan(as.matrix(x),
                             eps = eps,
@@ -255,7 +263,7 @@ trackCollEvents <- function(dt,
         locVclPrevNNall = locVclPrev[locResNN2$nn.idx]
 
         # Get cluster numbers of neighbours within eps in previous frame(s)
-        locVclPrevNNeps = locVclPrev[locResNN2$nn.idx[locResNN2$nn.dists <= eps]]
+        locVclPrevNNeps = locVclPrev[locResNN2$nn.idx[locResNN2$nn.dists <= epsPrev]]
 
         # Proceed if there are neighbour clusters in previous frame(s)
         if (length(locVclPrevNNeps) > 0) {
@@ -297,9 +305,10 @@ trackCollEvents <- function(dt,
 #'
 #' @title "Track collective events"
 #' @param obj an arcosTS object.
-#' @param eps a numeric, sets the search radius; default 1.
-#' @param minClSz an integer, minimum cluster size; default 1L.
+#' @param eps a numeric, sets the search radius for spatial clustering with dbscan; default 1.
+#' @param minClSz an integer, minimum cluster size for dbscan; default 1L.
 #' @param nPrev an integer, number of previous frames to link; default 1L.
+#' @param epsPrev a float with the search radius for linking clusters between frames, default NULL means that epsPrev = eps.
 #' @param deb boolean, additional debug output; default FALSE,
 #'
 #' @return an arcosTS object
@@ -326,18 +335,18 @@ trackCollEvents <- function(dt,
 #'         interType = "fixed")
 #'
 #' tc = trackColl(ts)
-trackColl <- function(obj, eps = 1., minClSz = 1L, nPrev = 1L, deb = FALSE) {
+trackColl <- function(obj, eps = 1., minClSz = 1L, nPrev = 1L, epsPrev = NULL, deb = FALSE) {
   UseMethod("trackColl")
 }
 
-trackColl.default <- function(obj, eps = 1., minClSz = 1L, nPrev = 1L, deb = FALSE) {
+trackColl.default <- function(obj, eps = 1., minClSz = 1L, nPrev = 1L, epsPrev = NULL, deb = FALSE) {
   cat("This is a generic function\n")
 }
 
 #' @rdname trackColl
 #' @export trackColl.arcosTS
 #' @export
-trackColl.arcosTS <- function(obj, eps = 1., minClSz = 1L, nPrev = 1L, deb = FALSE) {
+trackColl.arcosTS <- function(obj, eps = 1., minClSz = 1L, nPrev = 1L, epsPrev = NULL, deb = FALSE) {
 
   stopifnot(is.arcosTS(obj))
 
@@ -353,6 +362,7 @@ trackColl.arcosTS <- function(obj, eps = 1., minClSz = 1L, nPrev = 1L, deb = FAL
                           eps = eps,
                           minClSz = minClSz,
                           nPrev = nPrev,
+                          epsPrev = epsPrev,
                           cols = list(
                             frame = attr(obj, "colFrame"),
                             id = attr(obj, "colIDobj"),
