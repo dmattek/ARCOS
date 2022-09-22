@@ -162,6 +162,7 @@ genRandSynth2D <- function(nevents = 10L,
 
   if (!is.null(inSeed)) set.seed((inSeed))
 
+  # random starting time points, positions and durations of CEs
   tpts = sort(sample(1:maxt, nevents))
   posx = sample(1:maxx, nevents)
   posy = sample(1:maxy, nevents)
@@ -175,6 +176,7 @@ genRandSynth2D <- function(nevents = 10L,
   # start with a dummy first row
   xytAll = c(0,0,0,0)
 
+  # loop to create events
   for (iEv in seq_len(nevents)) {
 
     # create the first frame of the event
