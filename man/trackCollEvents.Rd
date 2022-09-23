@@ -9,6 +9,7 @@ trackCollEvents(
   eps = 1,
   minClSz = 1L,
   nPrev = 1L,
+  epsPrev = NULL,
   cols = list(frame = "time", id = "trackID", clid = "clTrackID"),
   posCols = c("x"),
   deb = FALSE
@@ -17,11 +18,13 @@ trackCollEvents(
 \arguments{
 \item{dt}{a data.table with time series in the long format with at least 3 columns: integer frame number, object id, object position.}
 
-\item{eps}{a float with the search radius, default 1.}
+\item{eps}{a float with the search radius for spatial clustering with dbscan, default 1.}
 
-\item{minClSz}{an integer with the minimum size of the cluster, default 1L.}
+\item{minClSz}{an integer with the minimum size of the spatial cluster in dbscan, default 1L.}
 
 \item{nPrev}{an integer with the number of previous frames to search for an event, default 1L.}
+
+\item{epsPrev}{a float with the search radius for linking clusters between frames, default NULL means that epsPrev = eps.}
 
 \item{cols}{a list with column names, \code{list(frame = , id = , clid = )}, that correspond to the integer frame number, object id and id of collective events, respectively.}
 

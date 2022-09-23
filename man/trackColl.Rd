@@ -5,18 +5,20 @@
 \alias{trackColl.arcosTS}
 \title{"Track collective events"}
 \usage{
-trackColl(obj, eps = 1, minClSz = 1L, nPrev = 1L, deb = FALSE)
+trackColl(obj, eps = 1, minClSz = 1L, nPrev = 1L, epsPrev = NULL, deb = FALSE)
 
-\method{trackColl}{arcosTS}(obj, eps = 1, minClSz = 1L, nPrev = 1L, deb = FALSE)
+\method{trackColl}{arcosTS}(obj, eps = 1, minClSz = 1L, nPrev = 1L, epsPrev = NULL, deb = FALSE)
 }
 \arguments{
 \item{obj}{an arcosTS object.}
 
-\item{eps}{a numeric, sets the search radius; default 1.}
+\item{eps}{a numeric, sets the search radius for spatial clustering with dbscan; default 1.}
 
-\item{minClSz}{an integer, minimum cluster size; default 1L.}
+\item{minClSz}{an integer, minimum cluster size for dbscan; default 1L.}
 
 \item{nPrev}{an integer, number of previous frames to link; default 1L.}
+
+\item{epsPrev}{a float with the search radius for linking clusters between frames, default NULL means that epsPrev = eps.}
 
 \item{deb}{boolean, additional debug output; default FALSE,}
 }

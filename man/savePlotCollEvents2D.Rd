@@ -9,8 +9,8 @@ savePlotCollEvents2D(
   inDTcoll = NULL,
   inDTbin = NULL,
   inDTanno = NULL,
-  inCols = list(frame = "frame", x = "x", y = "y", id = "trackID", clid = "clTrackID",
-    m = "m", mb = "mb"),
+  inCols = list(frame = "frame", x = "x", y = "y", id = "trackID", clid = "clTrackID", m
+    = "m", mb = "mb"),
   inDirPath = ".",
   inFileCore = "",
   inXlim = c(0, 1024),
