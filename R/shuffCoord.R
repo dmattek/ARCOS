@@ -3,9 +3,12 @@
 #' Shuffle spatial coordinates of all tracks in the dataset.
 #' The time points and the measurement remain intact.
 #'
-#' First, initial positions of every track are shuffled between all objects.
-#' Then original displacements are used to calculate new coordinates with
-#' respect to the new origin.
+#' First, initial positions of all tracks are shuffled between the objects.
+#' Then, original displacements are used to calculate new coordinates with
+#' respect to the new origin. This approach of coordinate shuffling is
+#' useful for bootstrapping of data where objects don't change spatial
+#' coordinates over time. Otherwise, the trajectories with
+#' new initial spatial coordinates go outside of the FOV over time.
 #'
 #' @title "Shuffle coordinates"
 #' @param obj an arcosTS object without collective events.
