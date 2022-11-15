@@ -1,0 +1,107 @@
+#' Track collective events with bootstrapping randomisation
+#'
+#' Identifies collective events using one of five randomisation methods.
+#'
+#' @title "Track collective events with bootstrapping randomisation"
+#' @param obj an arcosTS object.
+#' @param nboot an integer, number of bootstrap iterations; default 100.
+#' @param ncores an integer, number of parallel cores; default 2.
+#' @param method either of the five bootstrapping methods: shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack'.
+#' @param eps a numeric, sets the search radius for spatial clustering with dbscan; default 1.
+#' @param minClSz an integer, minimum cluster size for dbscan; default 1L.
+#' @param nPrev an integer, number of previous frames to link; default 1L.
+#' @param epsPrev a float with the search radius for linking clusters between frames, default NULL means that epsPrev = eps.
+#' @param colldurlim a two-element vector with limits for filtering cluster duration; default c(1, Inf).
+#' @param colltotszlim a two-element vector with limits for filtering cluster size; default c(1, Inf).
+#' @param deb boolean, additional debug output; default FALSE.
+#'
+#' @return a data.table with filtered stats of collective events at every bootstrapping iteration
+#'
+#' @import data.table
+#' @importFrom parallel mclapply
+#'
+#' @rdname trackCollBoot
+#' @export trackCollBoot
+#'
+#' @examples
+#' cat("No example\n")
+trackCollBoot <- function(obj,
+                          nboot = 100L,
+                          ncores = 2L,
+                          method = c('shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack'),
+                          eps = 1., minClSz = 1L, nPrev = 1L, epsPrev = NULL,
+                          colldurlim = c(1, Inf), colltotszlim = c(1, Inf),
+                          deb = FALSE) {
+  UseMethod("trackCollBoot")
+}
+
+trackCollBoot.default <- function(obj,
+                                  nboot = 100L,
+                                  ncores = 2L,
+                                  method = c('shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack'),
+                                  eps = 1., minClSz = 1L, nPrev = 1L, epsPrev = NULL,
+                                  colldurlim = c(1, Inf), colltotszlim = c(1, Inf),
+                                  deb = FALSE) {
+  cat("This is a generic function\n")
+}
+
+#' @rdname trackCollBoot
+#' @export trackCollBoot.arcosTS
+#' @export
+trackCollBoot.arcosTS <- function(obj,
+                                  nboot = 100L,
+                                  ncores = 2L,
+                                  method = c('shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack'),
+                                  eps = 1., minClSz = 1L, nPrev = 1L, epsPrev = NULL,
+                                  colldurlim = c(1, Inf), colltotszlim = c(1, Inf),
+                                  deb = FALSE) {
+
+    method = match.arg(method)
+
+  lbootRes = parallel::mclapply(seq_len(nboot), function(x) {
+
+    if (deb) cat(sprintf("Bootstrap iteration %d\n", x))
+
+    switch (method,
+            shuffCoord = {tsRand = ARCOS::shuffCoord(obj)
+            stmp = lCols$measbin},
+
+            randShiftMeas = {tsRand = ARCOS::randShiftMeas(obj)
+            stmp = paste0(lCols$measbin, '.shuff')},
+
+            shuffMeasTrack = {tsRand = ARCOS::shuffMeasTrack(obj)
+            stmp = paste0(lCols$measbin, '.shuff')},
+
+            shuffMeasFrame = {tsRand = ARCOS::shuffMeasFrame(obj)
+            stmp = paste0(lCols$measbin, '.shuff')},
+
+            shuffBlockTrack = {tsRand = ARCOS::shuffBlockTrack(obj)
+            stmp = paste0(lCols$measbin, '.shuff')}
+    )
+
+    tcollRand = ARCOS::trackColl(tsRand[get(stmp) > 0],
+                                 eps = eps,
+                                 minClSz = minClSz,
+                                 nPrev = nPrev,
+                                 epsPrev = epsPrev)
+
+    tcollselRand = ARCOS::selColl(tcollRand,
+                                  colldur = colldurlim,
+                                  colltotsz = colltotszlim)
+
+    if (nrow(tcollselRand) > 0)
+      tcollselRandAggr = ARCOS::calcStatsColl(tcollselRand)
+    else
+      tcollselRandAggr = data.table(collid = NA,
+                                    clDur = 0,
+                                    totSz = 0,
+                                    minSz = 0,
+                                    maxSz = 0)
+
+    return(tcollselRandAggr)
+  }, mc.cores = ncores)
+
+  locDTbootRes = rbindlist(lbootRes, idcol = 'iter')
+
+  return(locDTbootRes)
+}
