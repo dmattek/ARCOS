@@ -38,6 +38,9 @@
       <a href="../articles/ARCOS-binTimeseries.html">Pre-processing time-series for ARCOS</a>
     </li>
     <li>
+      <a href="../articles/ARCOS-bootstrapping.html">Collective events in synthetic data with bootstrapping</a>
+    </li>
+    <li>
       <a href="../articles/ARCOS-synthRand2D.html">Detect synthetic random collective events</a>
     </li>
     <li>
@@ -66,10 +69,10 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">trackColl</span><span class="op">(</span><span class="va">obj</span>, eps <span class="op">=</span> <span class="fl">1</span>, minClSz <span class="op">=</span> <span class="fl">1L</span>, nPrev <span class="op">=</span> <span class="fl">1L</span>, deb <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">trackColl</span><span class="op">(</span><span class="va">obj</span>, eps <span class="op">=</span> <span class="fl">1</span>, minClSz <span class="op">=</span> <span class="fl">1L</span>, nPrev <span class="op">=</span> <span class="fl">1L</span>, epsPrev <span class="op">=</span> <span class="cn">NULL</span>, deb <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for arcosTS</span></span>
-<span><span class="fu">trackColl</span><span class="op">(</span><span class="va">obj</span>, eps <span class="op">=</span> <span class="fl">1</span>, minClSz <span class="op">=</span> <span class="fl">1L</span>, nPrev <span class="op">=</span> <span class="fl">1L</span>, deb <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">trackColl</span><span class="op">(</span><span class="va">obj</span>, eps <span class="op">=</span> <span class="fl">1</span>, minClSz <span class="op">=</span> <span class="fl">1L</span>, nPrev <span class="op">=</span> <span class="fl">1L</span>, epsPrev <span class="op">=</span> <span class="cn">NULL</span>, deb <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -79,19 +82,23 @@
 
 
 <dt>eps</dt>
-<dd><p>a numeric, sets the search radius; default 1.</p></dd>
+<dd><p>a numeric, sets the search radius for spatial clustering with dbscan; default 1.</p></dd>
 
 
 <dt>minClSz</dt>
-<dd><p>an integer, minimum cluster size; default 1L.</p></dd>
+<dd><p>an integer, minimum cluster size for dbscan; default 1L.</p></dd>
 
 
 <dt>nPrev</dt>
 <dd><p>an integer, number of previous frames to link; default 1L.</p></dd>
 
 
+<dt>epsPrev</dt>
+<dd><p>a float with the search radius for linking clusters between frames, default NULL means that epsPrev = eps.</p></dd>
+
+
 <dt>deb</dt>
-<dd><p>boolean, additional debug output; default FALSE,</p></dd>
+<dd><p>boolean, additional debug output; default FALSE.</p></dd>
 
 </dl></div>
     <div id="value">

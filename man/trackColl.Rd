@@ -20,7 +20,7 @@ trackColl(obj, eps = 1, minClSz = 1L, nPrev = 1L, epsPrev = NULL, deb = FALSE)
 
 \item{epsPrev}{a float with the search radius for linking clusters between frames, default NULL means that epsPrev = eps.}
 
-\item{deb}{boolean, additional debug output; default FALSE,}
+\item{deb}{boolean, additional debug output; default FALSE.}
 }
 \value{
 an arcosTS object

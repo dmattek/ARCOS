@@ -14,7 +14,7 @@ calcNNdists(obj, nnn = 1, act = FALSE)
 
 \item{nnn}{an integer, sets the n-th nearest neighbour; default 1.}
 
-\item{act}{logical, if TRUE, the NN distance is calculated only on active objects, i.e. thos with binarised measurement greater than 1; default FALSE.}
+\item{act}{logical, if TRUE, the NN distance is calculated only on active objects, i.e. those with binarised measurement not smaller than 1; default FALSE.}
 }
 \value{
 a data.table
