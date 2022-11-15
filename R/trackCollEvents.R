@@ -309,7 +309,7 @@ trackCollEvents <- function(dt,
 #' @param minClSz an integer, minimum cluster size for dbscan; default 1L.
 #' @param nPrev an integer, number of previous frames to link; default 1L.
 #' @param epsPrev a float with the search radius for linking clusters between frames, default NULL means that epsPrev = eps.
-#' @param deb boolean, additional debug output; default FALSE,
+#' @param deb boolean, additional debug output; default FALSE.
 #'
 #' @return an arcosTS object
 #'

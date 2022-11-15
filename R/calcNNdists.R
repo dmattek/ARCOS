@@ -44,7 +44,7 @@ calcVecNNdists <- function(x, k = 2, ...) {
 #' @title "Calculate NN distances"
 #' @param obj an arcosTS object.
 #' @param nnn an integer, sets the n-th nearest neighbour; default 1.
-#' @param act logical, if TRUE, the NN distance is calculated only on active objects, i.e. thos with binarised measurement greater than 1; default FALSE.
+#' @param act logical, if TRUE, the NN distance is calculated only on active objects, i.e. those with binarised measurement not smaller than 1; default FALSE.
 #'
 #' @return a data.table
 #'

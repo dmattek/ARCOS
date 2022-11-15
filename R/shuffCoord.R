@@ -1,7 +1,7 @@
 #' Shuffle coordinates
 #'
 #' Shuffle spatial coordinates of all tracks in the dataset.
-#' The time points and the measurement remain intact.
+#' Time points and the measurement remain intact.
 #'
 #' First, initial positions of all tracks are shuffled between the objects.
 #' Then, original displacements are used to calculate new coordinates with
