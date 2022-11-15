@@ -325,3 +325,75 @@ midPtCir = function(x0, y0, r) {
 
   return(c0)
 }
+
+#' Vector shifter
+#'
+#' Shift a vector left or right by a number of spaces.
+#' From: https://stackoverflow.com/a/30542172/1898713
+#' library(SOfun); shifter(a)#'
+#'
+#' @param x a numeric vector
+#' @param n an integer, the number of indices to shift the input vector. Positive, shifts left; negative, shifts right.
+#'
+#' @return a numeric vector
+#'
+#' @examples
+#' library(ARCOS)
+#' ARCOS:::shifter(1:10, 2)
+shifter <- function(x, n = 1) {
+  if (n == 0) x else c(tail(x, -n), head(x, n))
+}
+
+
+#' Block shuffle a binary vector
+#'
+#' Randomly shuffle runs of 0s & 1s in a vector but maintain their alternating order,
+#' i.e. there'll never be joint runs of 0s or 1s from the original sequence.
+#' We assume that the vector consists of 0s & 1s.
+#'
+#' @param x a numeric vector
+#'
+#' @return a numeric vector
+#'
+#' @examples
+#' library(ARCOS)
+#' set.seed(7)
+#' x <- round(runif(20))
+#' ARCOS:::shuffBlockVec(x)
+shuffBlockVec <- function(x) {
+
+  # Calculate lengths of 0s & 1s using run length encoding
+  rleres <- rle(x)
+
+  # Shuffle separately odd and even lengths;
+  # 0s & 1s are shuffled separately to avoid placing adjacent blocks from the original vector
+
+  rlevallen <- length(rleres$lengths)
+
+  if (rlevallen > 1) {
+    seqodd <- seq(1, rlevallen, 2)
+
+    if (length(seqodd) > 1) {
+      lenodd  <- sample(rleres$lengths[seqodd], length(seqodd))
+    } else {
+      lenodd <- rleres$lengths[seqodd]
+    }
+
+    seqeven <- seq(2, rlevallen, 2)
+
+    if (length(seqeven) > 1) {
+      leneven  <- sample(rleres$lengths[seqeven], length(seqeven))
+    } else {
+      leneven <- rleres$lengths[seqeven]
+    }
+
+    # Combine odd and even lengths into a single alternating vector.
+    # https://stackoverflow.com/a/43876294/1898713
+    lenrand <- c(lenodd, leneven)[order(c(seq_along(lenodd), seq_along(leneven)))]
+  } else {
+    lenrand <- rleres$lengths
+  }
+
+  # Recreate the alternating sequence using shuffled lengths
+  return(rep(rleres$values, lenrand))
+}
