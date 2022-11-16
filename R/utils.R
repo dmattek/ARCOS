@@ -183,7 +183,7 @@ genRandSynth2D <- function(nevents = 10L,
     xytEv = c(iEv,
               tpts[iEv],
               midPtCir(posx[iEv],
-                         posy[iEv], 0))
+                       posy[iEv], 0))
 
     # create subsequent frames of the event
     for (iT in seq_len(dur[iEv])) {
@@ -359,8 +359,8 @@ shifter <- function(x, n = 1) {
 #' library(ARCOS)
 #' set.seed(7)
 #' x <- round(runif(20))
-#' ARCOS:::shuffBlockVec(x)
-shuffBlockVec <- function(x) {
+#' ARCOS:::shuffBlockVecAlt(x)
+shuffBlockVecAlt <- function(x) {
 
   # Calculate lengths of 0s & 1s using run length encoding
   rleres <- rle(x)
@@ -368,32 +368,70 @@ shuffBlockVec <- function(x) {
   # Shuffle separately odd and even lengths;
   # 0s & 1s are shuffled separately to avoid placing adjacent blocks from the original vector
 
-  rlevallen <- length(rleres$lengths)
+  # the number of runs in the original vector; both 0s & 1s
+  nruns <- length(rleres$lengths)
 
-  if (rlevallen > 1) {
-    seqodd <- seq(1, rlevallen, 2)
+  if (nruns > 1) {
+    # create a sequence of odd numbers up to the number of runs in the original vector
+    seqodd <- seq(1, nruns, 2)
+    seqoddlen <- length(seqodd)
 
-    if (length(seqodd) > 1) {
-      lenodd  <- sample(rleres$lengths[seqodd], length(seqodd))
-    } else {
-      lenodd <- rleres$lengths[seqodd]
+    # lengths of odd runs
+    lenrunsodd <- rleres$lengths[seqodd]
+
+    # if there is more than 1 odd run, shuffle
+    if (seqoddlen > 1) {
+      lenrunsodd  <- sample(lenrunsodd, seqoddlen)
     }
 
-    seqeven <- seq(2, rlevallen, 2)
+    # create a sequence of even numbers up to the number of runs in the original vector
+    seqeven <- seq(2, nruns, 2)
+    seqevenlen <- length(seqeven)
 
-    if (length(seqeven) > 1) {
-      leneven  <- sample(rleres$lengths[seqeven], length(seqeven))
-    } else {
-      leneven <- rleres$lengths[seqeven]
+    # lengths of even runs
+    lenrunseven <- rleres$lengths[seqeven]
+
+    # if there is more than 1 even run, shuffle
+    if (seqevenlen > 1) {
+      lenrunseven  <- sample(lenrunseven, seqevenlen)
     }
 
-    # Combine odd and even lengths into a single alternating vector.
+    # Combine odd and even run lengths into a single alternating vector.
     # https://stackoverflow.com/a/43876294/1898713
-    lenrand <- c(lenodd, leneven)[order(c(seq_along(lenodd), seq_along(leneven)))]
+    lenrunsrand <- c(lenrunsodd,
+                     lenrunseven)[order(c(seq_along(lenrunsodd),
+                                          seq_along(lenrunseven)))]
+
   } else {
-    lenrand <- rleres$lengths
+    lenrunsrand <- rleres$lengths
   }
 
   # Recreate the alternating sequence using shuffled lengths
-  return(rep(rleres$values, lenrand))
+  return(rep(rleres$values, lenrunsrand))
+}
+
+#' Block shuffle a binary vector
+#'
+#' Randomly shuffle runs of 0s & 1s in a vector. Do not maintain the alternating order of 0s & 1s.
+#' We assume that the vector consists of 0s & 1s.
+#'
+#' @param x a numeric vector
+#'
+#' @return a numeric vector
+#'
+#' @examples
+#' library(ARCOS)
+#' set.seed(7)
+#' x <- round(runif(20))
+#' ARCOS:::shuffBlockVec(x)
+shuffBlockVec <- function(x) {
+
+  # Calculate lengths of 0s & 1s using run length encoding
+  rleres <- rle(x)
+
+  # draw a random vector for shuffling
+  vrand <- sample(seq(1, length(rleres$lengths), 1))
+
+  # Recreate the alternating sequence using shuffled lengths
+  return(rep(rleres$values[vrand], rleres$lengths[vrand]))
 }
