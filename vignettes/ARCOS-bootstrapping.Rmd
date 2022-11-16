@@ -50,7 +50,7 @@ lPar$fov = as.integer(gsub('Gradient([0-9]+).*', '\\1', lPar$fIn))
 
 # measurement
 lPar$sample.period = 1L
-lPar$pxscale = 1 #um/px
+lPar$pxscale = 1 # length units/px
 
 # params for dbscan
 lPar$db.eps = 1.5 # neighbourhood size; units of pixels
@@ -136,7 +136,7 @@ ARCOS::plotBinMeas(tsPlot,
                    xfac = lPar$sample.period, 
                    plotResc = F) +
   theme_few() +
-  xlab("Time [h]") +
+  xlab("Time [frames]") +
   ylab("ERK activity")
 ```
 
@@ -200,7 +200,8 @@ p11 = ARCOS::plotNoodle2D(tcollsel,
                           xfac = lPar$sample.period,
                           yfac = lPar$pxscale,
                           pos = 1,
-                          tfreq = 1) +
+                          tfreq = 1, 
+                          style = 'line') +
   xlab("Time [frames]") +
   ylab("Position X [au]") +
   theme_minimal() +
@@ -230,8 +231,14 @@ if (file.exists(stmp)) {
   dtBootRes = calcBoot(obj = ts, 
                        nboot = lPar$nboot, 
                        ncores = lPar$ncores,
-                       method = 'shuffCoord', deb = F)
-}
+                       method = 'shuffCoord', 
+                       eps = lPar$db.eps, 
+                       epsPrev = lPar$db.eps, 
+                       nPrev = 1L, 
+                       minClSz = lPar$db.minPts,
+                       colldurlim = c(lPar$coll.mindur, 1000), 
+                       colltotszlim = c(lPar$coll.mintotsz, 1000),
+                       deb = F)}
 
 # Aggregate the results of bootstrapping
 dtBootResAggr = dtBootRes[,
@@ -271,10 +278,11 @@ if (nrow(tcollselRand) > 0) {
                              xfac = lPar$sample.period,
                              yfac = lPar$pxscale,
                              pos = 1,
-                             tfreq = 1, style = 'both') +
+                             tfreq = 1, 
+                             style = 'both') +
     coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
-    xlab("Time [h]") +
-    ylab("Position X [um]") +
+    xlab("Time [frames]") +
+    ylab("Position X [au]") +
     theme_minimal() +
     theme(legend.position = "none")
   
@@ -356,7 +364,14 @@ if (file.exists(stmp)) {
   dtBootRes = calcBoot(obj = ts, 
                        nboot = lPar$nboot, 
                        ncores = lPar$ncores,
-                       method = 'randShiftMeas', deb = F)
+                       method = 'randShiftMeas', 
+                       eps = lPar$db.eps, 
+                       epsPrev = lPar$db.eps, 
+                       nPrev = 1L, 
+                       minClSz = lPar$db.minPts,
+                       colldurlim = c(lPar$coll.mindur, 1000), 
+                       colltotszlim = c(lPar$coll.mintotsz, 1000),
+                       deb = F)
 }
 
 # Aggregate the results of bootstrapping
@@ -393,13 +408,14 @@ while (nrow(tcollselRand) == 0 & nTry < 10) {
 if (nrow(tcollselRand) > 0) {
   
   p201 = ARCOS::plotNoodle2D(tcollselRand, 
-                        xfac = lPar$sample.period,
-                        yfac = lPar$pxscale,
-                        pos = 1,
-                        tfreq = 1, style = 'both') +
+                             xfac = lPar$sample.period,
+                             yfac = lPar$pxscale,
+                             pos = 1,
+                             tfreq = 1, 
+                             style = 'both') +
     coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
-    xlab("Time [h]") +
-    ylab("Position X [um]") +
+    xlab("Time [frames]") +
+    ylab("Position X [au]") +
     theme_minimal() +
     theme(legend.position = "none")
   
@@ -484,7 +500,14 @@ if (file.exists(stmp)) {
   dtBootRes = calcBoot(obj = ts, 
                        nboot = lPar$nboot, 
                        ncores = lPar$ncores,
-                       method = 'shuffMeasTrack', deb = F)
+                       method = 'shuffMeasTrack', 
+                       eps = lPar$db.eps, 
+                       epsPrev = lPar$db.eps, 
+                       nPrev = 1L, 
+                       minClSz = lPar$db.minPts,
+                       colldurlim = c(lPar$coll.mindur, 1000), 
+                       colltotszlim = c(lPar$coll.mintotsz, 1000),
+                       deb = F)
 }
 
 # Aggregate the results of bootstrapping
@@ -522,13 +545,14 @@ while (nrow(tcollselRand) == 0 & nTry < 100) {
 if (nrow(tcollselRand) > 0) {
   
   p301 = ARCOS::plotNoodle2D(tcollselRand, 
-                        xfac = lPar$sample.period,
-                        yfac = lPar$pxscale,
-                        pos = 1,
-                        tfreq = 1, style = 'both') +
+                             xfac = lPar$sample.period,
+                             yfac = lPar$pxscale,
+                             pos = 1,
+                             tfreq = 1, 
+                             style = 'both') +
     coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
-    xlab("Time [h]") +
-    ylab("Position X [um]") +
+    xlab("Time [frames]") +
+    ylab("Position X [au]") +
     theme_minimal() +
     theme(legend.position = "none")
   
@@ -612,7 +636,14 @@ if (file.exists(stmp)) {
   dtBootRes = calcBoot(obj = ts, 
                        nboot = lPar$nboot, 
                        ncores = lPar$ncores,
-                       method = 'shuffMeasFrame', deb = F)
+                       method = 'shuffMeasFrame', 
+                       eps = lPar$db.eps, 
+                       epsPrev = lPar$db.eps, 
+                       nPrev = 1L, 
+                       minClSz = lPar$db.minPts,
+                       colldurlim = c(lPar$coll.mindur, 1000), 
+                       colltotszlim = c(lPar$coll.mintotsz, 1000),
+                       deb = F)
 }
 
 dtBootResAggr = dtBootRes[,
@@ -648,13 +679,14 @@ while (nrow(tcollselRand) == 0 & nTry < 100) {
 if (nrow(tcollselRand) > 0) {
   
   p401 = ARCOS::plotNoodle2D(tcollselRand, 
-                        xfac = lPar$sample.period,
-                        yfac = lPar$pxscale,
-                        pos = 1,
-                        tfreq = 1, style = 'both') +
+                             xfac = lPar$sample.period,
+                             yfac = lPar$pxscale,
+                             pos = 1,
+                             tfreq = 1, 
+                             style = 'both') +
     coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
-    xlab("Time [h]") +
-    ylab("Position X [um]") +
+    xlab("Time [frames]") +
+    ylab("Position X [au]") +
     theme_minimal() +
     theme(legend.position = "none")
   
@@ -737,7 +769,14 @@ if (file.exists(stmp)) {
   dtBootRes = calcBoot(obj = ts, 
                        nboot = lPar$nboot, 
                        ncores = lPar$ncores, 
-                       method = 'shuffBlockTrack', deb = F)
+                       method = 'shuffBlockTrack', 
+                       eps = lPar$db.eps, 
+                       epsPrev = lPar$db.eps, 
+                       nPrev = 1L, 
+                       minClSz = lPar$db.minPts,
+                       colldurlim = c(lPar$coll.mindur, 1000), 
+                       colltotszlim = c(lPar$coll.mintotsz, 1000),
+                       deb = F)
 }
 
 # Aggregate the results of bootstrapping
@@ -775,13 +814,14 @@ while (nrow(tcollselRand) == 0 & nTry < 10) {
 if (nrow(tcollselRand) > 0) {
   
   p501 = ARCOS::plotNoodle2D(tcollselRand, 
-                        xfac = lPar$sample.period,
-                        yfac = lPar$pxscale,
-                        pos = 1,
-                        tfreq = 1, style = 'both') +
+                             xfac = lPar$sample.period,
+                             yfac = lPar$pxscale,
+                             pos = 1,
+                             tfreq = 1, 
+                             style = 'both') +
     coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
-    xlab("Time [h]") +
-    ylab("Position X [um]") +
+    xlab("Time [frames]") +
+    ylab("Position X [au]") +
     theme_minimal() +
     theme(legend.position = "none")
   

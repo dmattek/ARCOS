@@ -56,7 +56,12 @@ trackCollBoot.arcosTS <- function(obj,
                                   colldurlim = c(1, Inf), colltotszlim = c(1, Inf),
                                   deb = FALSE) {
 
-    method = match.arg(method)
+  method = match.arg(method)
+
+  stopifnot(is.arcosTS(obj))
+
+  # extract the column with binarised measurement
+  locColSource = attr(obj, 'colMeasBin')
 
   lbootRes = parallel::mclapply(seq_len(nboot), function(x) {
 
@@ -64,19 +69,19 @@ trackCollBoot.arcosTS <- function(obj,
 
     switch (method,
             shuffCoord = {tsRand = ARCOS::shuffCoord(obj)
-            stmp = lCols$measbin},
+            stmp = locColSource},
 
             randShiftMeas = {tsRand = ARCOS::randShiftMeas(obj)
-            stmp = paste0(lCols$measbin, '.shuff')},
+            stmp = paste0(locColSource, '.shuff')},
 
             shuffMeasTrack = {tsRand = ARCOS::shuffMeasTrack(obj)
-            stmp = paste0(lCols$measbin, '.shuff')},
+            stmp = paste0(locColSource, '.shuff')},
 
             shuffMeasFrame = {tsRand = ARCOS::shuffMeasFrame(obj)
-            stmp = paste0(lCols$measbin, '.shuff')},
+            stmp = paste0(locColSource, '.shuff')},
 
             shuffBlockTrack = {tsRand = ARCOS::shuffBlockTrack(obj)
-            stmp = paste0(lCols$measbin, '.shuff')}
+            stmp = paste0(locColSource, '.shuff')}
     )
 
     tcollRand = ARCOS::trackColl(tsRand[get(stmp) > 0],
