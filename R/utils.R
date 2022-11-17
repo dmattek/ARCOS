@@ -1,4 +1,7 @@
-#' Keep significant digits in double numerical columns of a data.table
+#' Keep significant digits
+#'
+#' @description
+#' Keep significant digits in double numerical columns of a data.table.
 #'
 #' @param inDT a data.table with time series in the long format.
 #' @param inDigits an integer with the number of significant digits.
@@ -46,7 +49,8 @@ keepSignifDig <- function(inDT, inDigits) {
 
 #' A single synthetic collective event in 2D
 #'
-#' 81 objects in 2D in 8 time frames. X/Y positions have an additional small Gaussian noise.
+#' @description
+#' Create a single collective event comprising 81 objects in 2D in 8 time frames. X/Y positions have an additional small Gaussian noise.
 #'
 #' @param inSeed an integer with the seed for the random number generator, default NULL.
 #'
@@ -134,6 +138,7 @@ genSynth2D <- function(inSeed = NULL) {
 
 #' Random synthetic collective events in 2D
 #'
+#' @description
 #' Create a sequence of collective events. A collective event is
 #' a concentrically growing circle that increases its radius at every frame.
 #' The location of the collective event is random on a `maxx`-by-`maxy` lattice,
@@ -250,9 +255,9 @@ genRandSynth2D <- function(nevents = 10L,
 
 #' Mid-Point Circle Drawing Algorithm
 #'
-#' The algorithm taken from https://www.geeksforgeeks.org/mid-point-circle-drawing-algorithm/
-#'
+#' @description
 #' A utility function to create X/Y positions on a circle.
+#' The algorithm taken from <https://www.geeksforgeeks.org/mid-point-circle-drawing-algorithm/>
 #'
 #' @param x0 a numeric, defines the x coordinate of the circle's centre.
 #' @param y0 a numeric, defines the y coordinate of the circle's centre.
@@ -328,6 +333,7 @@ midPtCir = function(x0, y0, r) {
 
 #' Vector shifter
 #'
+#' @description
 #' Shift a vector left or right by a number of spaces.
 #' From: https://stackoverflow.com/a/30542172/1898713
 #' library(SOfun); shifter(a)#'
@@ -347,6 +353,7 @@ shifter <- function(x, n = 1) {
 
 #' Block shuffle a binary vector
 #'
+#' @description
 #' Randomly shuffle runs of 0s & 1s in a vector but maintain their alternating order,
 #' i.e. there'll never be joint runs of 0s or 1s from the original sequence.
 #' We assume that the vector consists of 0s & 1s.
@@ -412,6 +419,7 @@ shuffBlockVecAlt <- function(x) {
 
 #' Block shuffle a binary vector
 #'
+#' @description
 #' Randomly shuffle runs of 0s & 1s in a vector. Do not maintain the alternating order of 0s & 1s.
 #' We assume that the vector consists of 0s & 1s.
 #'
@@ -434,4 +442,73 @@ shuffBlockVec <- function(x) {
 
   # Recreate the alternating sequence using shuffled lengths
   return(rep(rleres$values[vrand], rleres$lengths[vrand]))
+}
+
+#' Rotating calipers algorithm
+#'
+#' @description
+#' Calculates the minimum oriented bounding box using the
+#' rotating calipers algorithm.
+#' Credits go to Daniel Wollschlaeger <https://github.com/ramnathv>
+#' The function modified from flightplanning-R package <https://github.com/caiohamamura/flightplanning-R/blob/master/R/utils.R>
+#'
+#' @param xy A matrix of xy values from which to calculate the minimum oriented bounding box.
+#'
+#' @return a list width numeric width and height of the bounding box
+#' @export
+#' @importFrom grDevices chull
+#'
+#' @examples
+#' library(ARCOS)
+#' getMinBBox(cbind(c(0,1,3,2,1), c(0,-1,1,3,2)))
+getMinBBox <- function(xy) {
+  stopifnot(is.matrix(xy), is.numeric(xy))
+
+  if (nrow(xy) > 1 & ncol(xy) > 1) {
+
+    ## rotating calipers algorithm using the convex hull
+    H    <- grDevices::chull(xy)      ## hull indices, vertices ordered clockwise
+    n    <- length(H)      ## number of hull vertices
+    hull <- xy[H, ]        ## hull vertices
+
+    ## unit basis vectors for all subspaces spanned by the hull edges
+    hDir  <- diff(rbind(hull, hull[1, ])) ## hull vertices are circular
+    hLens <- sqrt(rowSums(hDir^2))        ## length of basis vectors
+    huDir <- diag(1/hLens) %*% hDir       ## scaled to unit length
+
+    ## unit basis vectors for the orthogonal subspaces
+    ## rotation by 90 deg -> y' = x, x' = -y
+    ouDir <- cbind(-huDir[ , 2], huDir[ , 1])
+
+    ## project hull vertices on the subspaces spanned by the hull edges, and on
+    ## the subspaces spanned by their orthogonal complements - in subspace coords
+    projMat <- rbind(huDir, ouDir) %*% t(hull)
+
+    ## range of projections and corresponding width/height of bounding rectangle
+    rangeH  <- matrix(numeric(n*2), ncol=2)  ## hull edge
+    rangeO  <- matrix(numeric(n*2), ncol=2)  ## orthogonal subspace
+    widths  <- numeric(n)
+    heights <- numeric(n)
+
+    for(i in seq(along=numeric(n))) {
+      rangeH[i, ] <- range(projMat[  i, ])
+
+      ## the orthogonal subspace is in the 2nd half of the matrix
+      rangeO[i, ] <- range(projMat[n+i, ])
+      widths[i]   <- abs(diff(rangeH[i, ]))
+      heights[i]  <- abs(diff(rangeO[i, ]))
+    }
+
+    ## extreme projections for min-area rect in subspace coordinates
+    ## hull edge leading to minimum-area
+    eMin  <- which.min(widths*heights)
+
+    res = list(h = heights[eMin],
+               w = widths[eMin])
+  } else {
+    res = list(h = 0,
+               w = 0)
+  }
+
+  return(res)
 }

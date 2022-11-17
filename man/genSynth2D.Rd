@@ -13,7 +13,7 @@ genSynth2D(inSeed = NULL)
 an arcosTS object
 }
 \description{
-81 objects in 2D in 8 time frames. X/Y positions have an additional small Gaussian noise.
+Create a single collective event comprising 81 objects in 2D in 8 time frames. X/Y positions have an additional small Gaussian noise.
 }
 \examples{
 library(ARCOS)

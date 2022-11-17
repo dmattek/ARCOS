@@ -13,8 +13,7 @@ shuffBlockVec(x)
 a numeric vector
 }
 \description{
-Randomly shuffle runs of 0s & 1s in a vector but maintain their alternating order,
-i.e. there'll never be joint runs of 0s or 1s from the original sequence.
+Randomly shuffle runs of 0s & 1s in a vector. Do not maintain the alternating order of 0s & 1s.
 We assume that the vector consists of 0s & 1s.
 }
 \examples{

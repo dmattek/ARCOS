@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{keepSignifDig}
 \alias{keepSignifDig}
-\title{Keep significant digits in double numerical columns of a data.table}
+\title{Keep significant digits}
 \usage{
 keepSignifDig(inDT, inDigits)
 }
@@ -15,7 +15,7 @@ keepSignifDig(inDT, inDigits)
 a data.table with numeric columns trimmed to the provided number of significant digits.
 }
 \description{
-Keep significant digits in double numerical columns of a data.table
+Keep significant digits in double numerical columns of a data.table.
 }
 \examples{
 library(ARCOS)

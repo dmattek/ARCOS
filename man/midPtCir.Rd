@@ -17,10 +17,8 @@ midPtCir(x0, y0, r)
 a numeric matrix.
 }
 \description{
-The algorithm taken from https://www.geeksforgeeks.org/mid-point-circle-drawing-algorithm/
-}
-\details{
 A utility function to create X/Y positions on a circle.
+The algorithm taken from <https://www.geeksforgeeks.org/mid-point-circle-drawing-algorithm/>
 }
 \examples{
 library(ARCOS)
