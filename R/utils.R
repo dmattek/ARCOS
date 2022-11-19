@@ -508,7 +508,7 @@ getMinBBox2D <- function(xy, prec=1e-08) { # precision close to .Machine$double.
     bbHeight <- heights[eMin]
   } else {
     bbWidth <- 0
-    bbWidth <- 0
+    bbHeight <- 0
   }
 
   return(list(w = bbWidth,
