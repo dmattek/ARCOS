@@ -444,15 +444,16 @@ shuffBlockVec <- function(x) {
   return(rep(rleres$values[vrand], rleres$lengths[vrand]))
 }
 
-#' Rotating calipers algorithm
+#' Rotating callipers algorithm in 2D
 #'
 #' @description
 #' Calculates the minimum oriented bounding box using the
-#' rotating calipers algorithm.
-#' Credits go to Daniel Wollschlaeger <https://github.com/ramnathv>
-#' The function modified from flightplanning-R package <https://github.com/caiohamamura/flightplanning-R/blob/master/R/utils.R>
+#' rotating callipers algorithm in 2D.
+#' Credits go to Daniel Wollschlaeger.
+#' The function modified from <http://dwoll.de/rexrepos/posts/diagBounding.html>.
 #'
-#' @param xy A matrix of xy values from which to calculate the minimum oriented bounding box.
+#' @param xy a matrix of xy values from which to calculate the minimum oriented bounding box.
+#' @param prec numerical, rounding precision; default 1e-08, lose to .Machine$double.eps^0.5.
 #'
 #' @return a list width numeric width and height of the bounding box
 #' @export
@@ -461,20 +462,24 @@ shuffBlockVec <- function(x) {
 #' @examples
 #' library(ARCOS)
 #' getMinBBox(cbind(c(0,1,3,2,1), c(0,-1,1,3,2)))
-getMinBBox <- function(xy) {
-  stopifnot(is.matrix(xy), is.numeric(xy))
+getMinBBox2D <- function(xy, prec=1e-08) { # precision close to .Machine$double.eps^0.5
+  if(!is.matrix(xy))  { stop("xy must be a matrix") }
+  if(!is.numeric(xy)) { stop("xy must be numeric") }
+  if(ncol(xy) != 2L)  { stop("xy must have two columns") }
 
-  if (nrow(xy) > 1 & ncol(xy) > 1) {
+  if(nrow(xy) < 2L)   { stop("xy must have at least two rows") }
 
+  if (nrow(xy) > 1L) {
     ## rotating calipers algorithm using the convex hull
-    H    <- grDevices::chull(xy)      ## hull indices, vertices ordered clockwise
-    n    <- length(H)      ## number of hull vertices
-    hull <- xy[H, ]        ## hull vertices
+    H    <- chull(xy)                    # hull indices, vertices ordered clockwise
+    hull <- xy[H, ]                      # hull vertices
+
+    n <- length(H)                       # number of hull vertices
 
     ## unit basis vectors for all subspaces spanned by the hull edges
-    hDir  <- diff(rbind(hull, hull[1, ])) ## hull vertices are circular
-    hLens <- sqrt(rowSums(hDir^2))        ## length of basis vectors
-    huDir <- diag(1/hLens) %*% hDir       ## scaled to unit length
+    hDir  <- diff(rbind(hull, hull[1,])) # account for circular hull vertices
+    hLens <- sqrt(rowSums(hDir^2))       # length of basis vectors
+    huDir <- diag(1/hLens) %*% hDir      # scaled to unit length
 
     ## unit basis vectors for the orthogonal subspaces
     ## rotation by 90 deg -> y' = x, x' = -y
@@ -485,30 +490,29 @@ getMinBBox <- function(xy) {
     projMat <- rbind(huDir, ouDir) %*% t(hull)
 
     ## range of projections and corresponding width/height of bounding rectangle
-    rangeH  <- matrix(numeric(n*2), ncol=2)  ## hull edge
-    rangeO  <- matrix(numeric(n*2), ncol=2)  ## orthogonal subspace
+    rangeH  <- matrix(numeric(n*2), ncol=2)   # hull edge
+    rangeO  <- matrix(numeric(n*2), ncol=2)   # orth subspace
     widths  <- numeric(n)
     heights <- numeric(n)
-
-    for(i in seq(along=numeric(n))) {
+    for(i in seq(along=H)) {
       rangeH[i, ] <- range(projMat[  i, ])
-
-      ## the orthogonal subspace is in the 2nd half of the matrix
-      rangeO[i, ] <- range(projMat[n+i, ])
+      rangeO[i, ] <- range(projMat[n+i, ])  # orth subspace is in 2nd half
       widths[i]   <- abs(diff(rangeH[i, ]))
       heights[i]  <- abs(diff(rangeO[i, ]))
     }
 
     ## extreme projections for min-area rect in subspace coordinates
-    ## hull edge leading to minimum-area
-    eMin  <- which.min(widths*heights)
+    areas <- round(widths*heights, digits=prec)
+    eMin  <- which.min(areas)   # hull edge leading to minimum-area
 
-    res = list(h = heights[eMin],
-               w = widths[eMin])
+    ## box size
+    bbWidth  <- widths[eMin]
+    bbHeight <- heights[eMin]
   } else {
-    res = list(h = 0,
-               w = 0)
+    bbWidth <- 0
+    bbWidth <- 0
   }
 
-  return(res)
+  return(list(w = bbWidth,
+              h = bbHeight))
 }
