@@ -467,8 +467,6 @@ getMinBBox2D <- function(xy, prec=1e-08) { # precision close to .Machine$double.
   if(!is.numeric(xy)) { stop("xy must be numeric") }
   if(ncol(xy) != 2L)  { stop("xy must have two columns") }
 
-  if(nrow(xy) < 2L)   { stop("xy must have at least two rows") }
-
   if (nrow(xy) > 1L) {
     ## rotating calipers algorithm using the convex hull
     H    <- chull(xy)                    # hull indices, vertices ordered clockwise
