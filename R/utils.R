@@ -126,12 +126,8 @@ genSynth2D <- function(inSeed = NULL) {
   ARCOS::arcosTS(locdt,
                  colPos = c("x", "y"),
                  colMeas = "m",
-                 col = list(Frame = "t",
-                            IDobj = "id",
-                            RT = NULL,
-                            IDcoll = NULL),
-                 interType = "fixed",
-                 interVal = 1)
+                 colFrame = "t",
+                 colIDobj = "id")
 
   return(locdt)
 }
@@ -245,10 +241,8 @@ genRandSynth2D <- function(nevents = 10L,
 
   ARCOS::arcosTS(dt = ts,
                  colPos = c("x", "y"),
-                 col = list(IDobj = "id",
-                            Frame = "t"),
-                 interVal = 1,
-                 interType = "fixed")
+                 colIDobj = "id",
+                 colFrame = "t")
 
   return(ts)
 }
@@ -257,7 +251,7 @@ genRandSynth2D <- function(nevents = 10L,
 #'
 #' @description
 #' A utility function to create X/Y positions on a circle.
-#' The algorithm taken from <https://www.geeksforgeeks.org/mid-point-circle-drawing-algorithm/>
+#' The algorithm adapted from <https://www.geeksforgeeks.org/mid-point-circle-drawing-algorithm/>
 #'
 #' @param x0 a numeric, defines the x coordinate of the circle's centre.
 #' @param y0 a numeric, defines the y coordinate of the circle's centre.
@@ -513,4 +507,26 @@ getMinBBox2D <- function(xy, prec=1e-08) { # precision close to .Machine$double.
 
   return(list(w = bbWidth,
               h = bbHeight))
+}
+
+checkColsInData <- function(colName, colsInData, flag = TRUE) {
+  if (is.null(colName)) {
+    # Column name is NULL, i.e. not provided
+    if (flag)
+      stop('Inconsistency in data definition: flag set to true but the corresponding column name is NULL.')
+
+  } else {
+    # Column name(s) defined; checking whether exist(s)
+    colExists <- colName %in% colsInData
+
+    if (sum(colExists) == length(colName)) {
+      # Column name exists in data; checking whether consistent with the flag.
+      if (!flag)
+        stop(sprintf('Inconsistency in data definition: column name, %s, provided but the corresponding flag is FALSE.', colName))
+
+    } else {
+      # Column name does not exists in data.
+      stop(sprintf('Inconsistency in data definition: column name, %s, provided but does not exist in the input data.', colName))
+    }
+  }
 }

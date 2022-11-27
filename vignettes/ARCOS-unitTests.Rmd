@@ -8,11 +8,11 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-  
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-collapse = TRUE,
-comment = "#>"
+  collapse = TRUE,
+  comment = "#>"
 )
 ```
 
@@ -59,12 +59,8 @@ A single object that is active at frames 2, [4,5], and [7,9]. There are gaps of 
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", package="ARCOS"), "1central_in.csv"),
                               colPos = "x",
                               colMeas = "m",
-                              col = list(Frame = "time",
-                                         IDobj = "trackID",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "time",
+                              colIDobj = "trackID")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -98,12 +94,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                         "3spreading_in.csv"),
                               colPos = "x",
                               colMeas = "m",
-                              col = list(Frame = "time",
-                                         IDobj = "trackID",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "time",
+                              colIDobj = "trackID")
 
 
 ARCOS::plotTracks(dts[m>0], size = 3)
@@ -137,12 +129,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                         "5overlapping_in.csv"),
                               colPos = "x",
                               colMeas = "m",
-                              col = list(Frame = "time",
-                                         IDobj = "trackID",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "time",
+                              colIDobj = "trackID")
 
 
 ARCOS::plotTracks(dts[m>0], size = 3)
@@ -160,7 +148,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(time, trackID, collid)],
+             .(time, trackID, collid)],
        "5overlapping_res.csv")
 ```
 
@@ -173,12 +161,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                         "6overlapping_in.csv"),
                               colPos = "x",
                               colMeas = "m",
-                              col = list(Frame = "time",
-                                         IDobj = "trackID",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "time",
+                              colIDobj = "trackID")
 
 
 ARCOS::plotTracks(dts[m>0], size = 3)
@@ -196,7 +180,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(time, trackID, collid)],
+             .(time, trackID, collid)],
        "6overlapping_res.csv")
 ```
 
@@ -208,12 +192,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                         "1centralGrowing_in.csv"),
                               colPos = "x",
                               colMeas = "m",
-                              col = list(Frame = "time",
-                                         IDobj = "trackID",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "time",
+                              colIDobj = "trackID")
 
 
 ARCOS::plotTracks(dts[m>0], size = 3)
@@ -231,7 +211,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(time, trackID, collid)],
+             .(time, trackID, collid)],
        "1centralGrowing_res.csv")
 ```
 
@@ -243,12 +223,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                         "2centralGrowing_in.csv"),
                               colPos = "x",
                               colMeas = "m",
-                              col = list(Frame = "time",
-                                         IDobj = "trackID",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "time",
+                              colIDobj = "trackID")
 
 
 ARCOS::plotTracks(dts[m>0], size = 3)
@@ -266,7 +242,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(time, trackID, collid)],
+             .(time, trackID, collid)],
        "2centralGrowing_res.csv")
 ```
 
@@ -281,12 +257,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                         "2with1commonSym_in.csv"),
                               colPos = "x",
                               colMeas = "m",
-                              col = list(Frame = "time",
-                                         IDobj = "trackID",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "time",
+                              colIDobj = "trackID")
 
 
 ARCOS::plotTracks(dts[m>0], size = 3)
@@ -306,7 +278,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(time, trackID, collid)],
+             .(time, trackID, collid)],
        "2with1commonSym_res.csv")
 ```
 
@@ -320,12 +292,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                         "2with1commonAsym_in.csv"),
                               colPos = "x",
                               colMeas = "m",
-                              col = list(Frame = "time",
-                                         IDobj = "trackID",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "time",
+                              colIDobj = "trackID")
 
 
 ARCOS::plotTracks(dts[m>0], size = 3)
@@ -344,7 +312,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(time, trackID, collid)],
+             .(time, trackID, collid)],
        "2with1commonAsym_res.csv")
 ```
 
@@ -358,12 +326,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                                     package="ARCOS"), 
                                         "multipleSimulNewObjects_in.csv"),
                               colPos = "pos",
-                              col = list(Frame = "t",
-                                         IDobj = "id",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "t",
+                              colIDobj = "id")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -380,7 +344,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(t, id, collid)],
+             .(t, id, collid)],
        "multipleSimulNewObjects_out.csv")
 ```
 
@@ -391,12 +355,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                                     package="ARCOS"), 
                                         "multipleSubseq4NewObjectsAfter1_in.csv"),
                               colPos = "pos",
-                              col = list(Frame = "t",
-                                         IDobj = "id",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "t",
+                              colIDobj = "id")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -413,7 +373,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(t, id, collid)],
+             .(t, id, collid)],
        "multipleSubseq4NewObjectsAfter1_out.csv")
 ```
 
@@ -424,12 +384,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                                     package="ARCOS"), 
                                         "multipleSubseq3NewObjectsAfter2_in.csv"),
                               colPos = "pos",
-                              col = list(Frame = "t",
-                                         IDobj = "id",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "t",
+                              colIDobj = "id")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -446,7 +402,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(t, id, collid)],
+             .(t, id, collid)],
        "multipleSubseq3NewObjectsAfter2_out.csv")
 ```
 
@@ -458,12 +414,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                                     package="ARCOS"), 
                                         "multipleSubseq4NewObjectsAfter2_in.csv"),
                               colPos = "pos",
-                              col = list(Frame = "t",
-                                         IDobj = "id",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "t",
+                              colIDobj = "id")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -480,7 +432,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(t, id, collid)],
+             .(t, id, collid)],
        "multipleSubseq4NewObjectsAfter2_out.csv")
 ```
 
@@ -492,12 +444,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                                     package="ARCOS"), 
                                         "multipleSubseqNewObjects_in.csv"),
                               colPos = "pos",
-                              col = list(Frame = "t",
-                                         IDobj = "id",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "t",
+                              colIDobj = "id")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -513,7 +461,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(t, id, collid)],
+             .(t, id, collid)],
        "multipleSubseqNewObjects_out.csv")
 ```
 
@@ -526,12 +474,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                                     package="ARCOS"), 
                                         "1objSplit_in.csv"),
                               colPos = "pos",
-                              col = list(Frame = "t",
-                                         IDobj = "id",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "t",
+                              colIDobj = "id")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -548,7 +492,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(t, id, collid)],
+             .(t, id, collid)],
        "1objSplit_res.csv")
 ```
 
@@ -559,12 +503,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                                     package="ARCOS"), 
                                         "2objSplit_in.csv"),
                               colPos = "pos",
-                              col = list(Frame = "t",
-                                         IDobj = "id",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "t",
+                              colIDobj = "id")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -581,7 +521,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(t, id, collid)],
+             .(t, id, collid)],
        "2objSplit_res.csv")
 ```
 
@@ -592,12 +532,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                                     package="ARCOS"), 
                                         "2objCross_in.csv"),
                               colPos = "pos",
-                              col = list(Frame = "t",
-                                         IDobj = "id",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "t",
+                              colIDobj = "id")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -614,7 +550,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(t, id, collid)],
+             .(t, id, collid)],
        "2objCross_res.csv")
 ```
 
@@ -625,12 +561,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                                     package="ARCOS"), 
                                         "2objCrossCommon_in.csv"),
                               colPos = "pos",
-                              col = list(Frame = "t",
-                                         IDobj = "id",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "t",
+                              colIDobj = "id")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -647,7 +579,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(t, id, collid)],
+             .(t, id, collid)],
        "2objCrossCommon_res.csv")
 ```
 
@@ -658,12 +590,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                                     package="ARCOS"), 
                                         "2objMergeSplitCommon_in.csv"),
                               colPos = "pos",
-                              col = list(Frame = "t",
-                                         IDobj = "id",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "t",
+                              colIDobj = "id")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -680,7 +608,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(t, id, collid)],
+             .(t, id, collid)],
        "2objMergeSplitCommon_res.csv")
 ```
 
@@ -691,12 +619,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                                     package="ARCOS"), 
                                         "2objMergeSplitCross_in.csv"),
                               colPos = "pos",
-                              col = list(Frame = "t",
-                                         IDobj = "id",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "t",
+                              colIDobj = "id")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -713,7 +637,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(t, id, collid)],
+             .(t, id, collid)],
        "2objMergeSplitCross_res.csv")
 ```
 
@@ -724,12 +648,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                                     package="ARCOS"), 
                                         "2objMergeSplitNear_in.csv"),
                               colPos = "pos",
-                              col = list(Frame = "t",
-                                         IDobj = "id",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "t",
+                              colIDobj = "id")
 
 ARCOS::plotTracks(dts, size = 3)
 ```
@@ -746,7 +666,7 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(t, id, collid)],
+             .(t, id, collid)],
        "2objMergeSplitNear_res.csv")
 ```
 
@@ -760,12 +680,8 @@ Spatial clusters are linked 2 frames back, thus a one-frame-gap is allowed in a 
 dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", package="ARCOS"), "1central_in.csv"),
                               colPos = "x",
                               colMeas = "m",
-                              col = list(Frame = "time",
-                                         IDobj = "trackID",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "time",
+                              colIDobj = "trackID")
 
 ARCOS::plotTracks(dts, size = 3)
 
@@ -796,12 +712,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                         "3spreading_in.csv"),
                               colPos = "x",
                               colMeas = "m",
-                              col = list(Frame = "time",
-                                         IDobj = "trackID",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "time",
+                              colIDobj = "trackID")
 
 
 ARCOS::plotTracks(dts[m>0], size = 3)
@@ -831,12 +743,8 @@ dts = ARCOS::loadDataFromFile(file.path(system.file("testdata",
                                         "5overlapping_in.csv"),
                               colPos = "x",
                               colMeas = "m",
-                              col = list(Frame = "time",
-                                         IDobj = "trackID",
-                                         RT = NULL,
-                                         IDcoll = NULL),
-                              interVal = 1L,
-                              interType = "fixed")
+                              colFrame = "time",
+                              colIDobj = "trackID")
 
 
 ARCOS::plotTracks(dts[m>0], size = 3)
@@ -854,6 +762,6 @@ ARCOS::plotTracks(dcoll, size = 3)
 
 ```{r, echo = F, results="asis"}
 myTest(dcoll[,
-              .(time, trackID, collid)],
+             .(time, trackID, collid)],
        "5overlapping2prev_res.csv")
 ```

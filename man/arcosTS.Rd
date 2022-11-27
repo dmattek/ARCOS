@@ -7,24 +7,51 @@
 arcosTS(
   dt,
   colPos = "x",
+  colFrame = "f",
+  colIDobj = "id",
+  colIDcoll = NULL,
   colMeas = NULL,
-  col = list(Frame = "f", IDobj = "id", RT = NULL, IDcoll = NULL),
-  interVal = NULL,
-  interType = c("fixed")
+  colMeasResc = NULL,
+  colMeasBin = NULL,
+  colBootIter = NULL,
+  colRT = NULL,
+  interVal = 1,
+  interType = c("fixed"),
+  fromBin = FALSE,
+  fromColl = FALSE,
+  fromBoot = FALSE
 )
 }
 \arguments{
 \item{dt}{a data.table with time series in the long format.}
 
-\item{colPos}{a vector with names of positional columns; default "x".}
+\item{colPos}{a vector, names of positional columns; default "x".}
 
-\item{colMeas}{a string with the column name of the measurement; default NULL.}
+\item{colFrame}{a string, column name with frame numbers; default "f".}
 
-\item{col}{a list with names of other columns, i.e. list(Frame = , IDobj = , RT = , IDcoll = ), with names of the frame, object id, real time, and collective id columns.}
+\item{colIDobj}{a string, column name with object IDs; default "id".}
 
-\item{interVal}{a numeric with the interval length.}
+\item{colIDcoll}{a string, column name with IDs of collective events; default NULL.}
 
-\item{interType}{a string to designate whether the time series has fixed or variable intervals; possible values fixed or var.}
+\item{colMeas}{a string, column name of the measurement; default NULL.}
+
+\item{colMeasResc}{a string, column name of the rescaled measurement; default NULL.}
+
+\item{colMeasBin}{a string, column name of the binarised measurement; default NULL.}
+
+\item{colBootIter}{a string, column name with bootstrap iterations; default NULL.}
+
+\item{colRT}{a string, column name with real time; default NULL (currently unused).}
+
+\item{interVal}{a numeric with the interval length (currently unused).}
+
+\item{interType}{a string to designate whether the time series has fixed or variable intervals; possible values fixed or var (currently unused).}
+
+\item{fromBin}{logical, whether the output has been passed by binarisation, relevant for plotting of binarised activity; default FALSE.}
+
+\item{fromColl}{logical, whether the output comes from collective event identification, relevant for plotting of collective events; default FALSE.}
+
+\item{fromBoot}{logical, whether the output comes from bootstrapping, relevant for calculating stats of collective events; default FALSE.}
 }
 \value{
 an arcosTS object.
@@ -38,9 +65,7 @@ library(data.table)
 dts = arcosTS(dt = data.table(frame = c(1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5),
                               id = c(1, 2, 1, 2, 3, 1, 2, 3, 4, 1, 2, 4, 1, 4),
                               x = c(1, 3, 1.2, 2.5, 3.5, 0.9, 2.6, 2.9, 3.2, 1.1, 2.8, 3.1, 1, 3)),
-              colPos = "x",
-              col = list(Frame = "frame",
-                         IDobj = "id"),
-              interVal = 1,
-              interType = "fixed")
+              colFrame = "frame",
+              colIDobj = "id",
+              colPos = "x")
 }

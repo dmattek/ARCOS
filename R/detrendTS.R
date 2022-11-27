@@ -170,7 +170,7 @@ binMeas.arcosTS <- function(obj,
                                peakThr = peakThr,
                                polyDeg = polyDeg,
                                biasMet = biasMet),
-        by = c(attr(obj, "colIDobj"))]
+        by = c(colIDobj)]
   } else {
     # if biasMet in c(runmed, lm), smooth (and de-trend) per time series.
     # 1. Short-term smooth
@@ -184,7 +184,7 @@ binMeas.arcosTS <- function(obj,
                                peakThr = peakThr,
                                polyDeg = polyDeg,
                                biasMet = biasMet),
-        by = c(attr(obj, "colIDobj"))]
+        by = c(colIDobj)]
 
   }
 
@@ -195,6 +195,9 @@ binMeas.arcosTS <- function(obj,
       meas.bin := as.integer(meas.resc > binThr)]
 
   data.table::setattr(obj, "colMeasBin", "meas.bin")
+
+  # Set the flag to signify that data was processed by detrending
+  data.table::setattr(obj, "fromBin", TRUE)
 
   invisible(obj)
 }

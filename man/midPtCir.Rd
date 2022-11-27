@@ -18,7 +18,7 @@ a numeric matrix.
 }
 \description{
 A utility function to create X/Y positions on a circle.
-The algorithm taken from <https://www.geeksforgeeks.org/mid-point-circle-drawing-algorithm/>
+The algorithm adapted from <https://www.geeksforgeeks.org/mid-point-circle-drawing-algorithm/>
 }
 \examples{
 library(ARCOS)

@@ -54,9 +54,15 @@ loadDataFromImages <- function(path, ext, thres = 0) {
               colPos = c("y", "x"),
               colFrame = "frame",
               colIDobj = "IDobj",
-              colRT = NULL,
               colIDcoll = NULL,
               colMeas = "m",
+              colMeasResc = NULL,
+              colMeasBin = NULL,
+              colBootIter = NULL,
+              colRT = NULL,
               interVal = 1,
-              interType = "fixed")
+              interType = "fixed",
+              fromBin = FALSE,
+              fromColl = FALSE,
+              fromBoot = FALSE)
 }

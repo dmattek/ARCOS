@@ -61,9 +61,12 @@ trackCollBoot.arcosTS <- function(obj,
   stopifnot(is.arcosTS(obj))
 
   # extract the column with binarised measurement
-  locColSource = attr(obj, 'colMeasBin')
+  locColSource <- attr(obj, 'colMeasBin')
 
-  lbootRes = parallel::mclapply(seq_len(nboot), function(x) {
+  # extract all column names
+  locColAll <- attr(ts, 'names')
+
+  lbootRes <- parallel::mclapply(seq_len(nboot), function(x) {
 
     if (deb) cat(sprintf("Bootstrap iteration %d\n", x))
 
@@ -84,29 +87,37 @@ trackCollBoot.arcosTS <- function(obj,
             stmp = paste0(locColSource, '.shuff')}
     )
 
-    tcollRand = ARCOS::trackColl(tsRand[get(stmp) > 0],
+    tcollRand = ARCOS::trackColl(obj = tsRand[get(stmp) > 0],
                                  eps = eps,
                                  minClSz = minClSz,
                                  nPrev = nPrev,
                                  epsPrev = epsPrev)
 
-    tcollselRand = ARCOS::selColl(tcollRand,
+    tcollselRand = ARCOS::selColl(obj = tcollRand,
                                   colldur = colldurlim,
                                   colltotsz = colltotszlim)
 
-    if (nrow(tcollselRand) > 0)
-      tcollselRandAggr = ARCOS::calcStatsColl(tcollselRand)
-    else
-      tcollselRandAggr = data.table(collid = NA,
-                                    clDur = 0,
-                                    totSz = 0,
-                                    minSz = 0,
-                                    maxSz = 0)
-
-    return(tcollselRandAggr)
+    return(tcollselRand)
   }, mc.cores = ncores)
 
-  locDTbootRes = rbindlist(lbootRes, idcol = 'iter')
+  locBootRes = rbindlist(lbootRes, idcol = 'bootiter')
 
-  return(locDTbootRes)
+  # Inherit attributes from the input object
+  locBootRes = new_arcosTS(dt = locBootRes,
+                      colPos = attr(obj, "colPos"),
+                      colFrame = attr(obj, "colFrame"),
+                      colIDobj = attr(obj, "colIDobj"),
+                      colIDcoll = "collid",
+                      colMeas =  attr(obj, "colMeas"),
+                      colMeasResc =  attr(obj, "colMeasResc"),
+                      colMeasBin =  attr(obj, "colMeasBin"),
+                      colBootIter = 'bootiter',
+                      colRT = attr(obj, "colRT"),
+                      interVal = attr(obj, "interVal"),
+                      interType = attr(obj, "interType"),
+                      fromBin = attr(obj, "fromBin"),
+                      fromColl = TRUE,
+                      fromBoot = TRUE)
+
+  return(locBootRes)
 }

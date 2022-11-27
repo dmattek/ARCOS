@@ -2,23 +2,32 @@
 % Please edit documentation in R/calcStatsCollEvents.R
 \name{calcStatsCollEvents}
 \alias{calcStatsCollEvents}
-\title{Wrapper for calculating stats of collective events}
+\title{Calculate statistics of collective events}
 \usage{
 calcStatsCollEvents(
   inDTcoll,
-  inCols = list(frame = "frame", id = "trackID", collid = "clTrackID")
+  inCols = list(frame = "frame", id = "trackID", collid = "clTrackID", bootiter =
+    "bootiter"),
+  fromBoot = FALSE
 )
 }
 \arguments{
 \item{inDTcoll}{a data.table with collective events in the long format produced by the \code{trackCollEvents} function. Consists of 3 columns: integer frame number, object id, id's of collective events.}
 
-\item{inCols}{a list with column names, \code{list(frame = , id = , collid = )}, that correspond to the integer frame number, position, object id and id of collective events, respectively.}
+\item{inCols}{a list with column names, \code{list(frame = , id = , collid = , bootiter =)}, that correspond to the integer frame number, object id, id of collective events, and bootstrapping iteration, respectively.}
+
+\item{fromBoot}{logical, indicates whether input data comes from bootstrapping; default FALSE.}
 }
 \value{
-a data.table as the \code{inDTcoll} with aggregated stats of collective events.
+a data.table with aggregated stats of collective events.
 }
 \description{
-Stats of collective events calculated by the \code{trackCollEvents} function by size and duration.
+Calculate statistics of collective events identified by the \code{trackCollEvents} function.
+Calculates:
+- event duration in time frames, \code{clDur},
+- the total number of unique objects/cells that participate in an event, \code{totSz},
+- the smallest number of objects/cells that comprise an event, \code{minSz},
+- the largest number of objects/cells that comprise an event, \code{maxSz}.
 }
 \examples{
 cat("no examples")

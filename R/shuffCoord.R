@@ -82,15 +82,21 @@ shuffCoord.arcosTS <- function(obj) {
   locObj = obj[locFirstPos, on = locColIDobj]
 
   # Re-set object attributes
-  locObj = ARCOS:::new_arcosTS(dt = locObj,
-                               colPos = attr(obj, "colPos"),
-                               colMeas =  attr(obj, "colMeas"),
-                               colFrame = attr(obj, "colFrame"),
-                               colRT = attr(obj, "colRT"),
-                               colIDobj = attr(obj, "colIDobj"),
-                               colIDcoll = NULL,
-                               interVal = attr(obj, "interVal"),
-                               interType = attr(obj, "interType"))
+  locObj = new_arcosTS(dt = locObj,
+                       colPos = attr(obj, "colPos"),
+                       colFrame = attr(obj, "colFrame"),
+                       colIDobj = attr(obj, "colIDobj"),
+                       colIDcoll = attr(obj, "colIDcoll"),
+                       colMeas =  attr(obj, "colMeas"),
+                       colMeasResc =  attr(obj, "colMeasResc"),
+                       colMeasBin =  attr(obj, "colMeasBin"),
+                       colBootIter = attr(obj, "colBootIter"),
+                       colRT = attr(obj, "colRT"),
+                       interVal = attr(obj, "interVal"),
+                       interType = attr(obj, "interType"),
+                       fromBin = attr(obj, "fromBin"),
+                       fromColl = attr(obj, "fromColl"),
+                       fromBoot = attr(obj, "fromBoot"))
 
   # Calculate the displacement of every object in consecutive frames;
   # the first element of the diff vector is the new random origin;

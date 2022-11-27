@@ -139,18 +139,14 @@ Initiate an `arcosTS` object. Specify the names of frame, object id, and positio
 
 ```{r, echo = T}
 ARCOS::arcosTS(dt = dts1, 
-               colPos = "x", 
-               col = list(Frame = "frame", 
-                          RT = NULL, 
-                          IDobj = "objid", 
-                          IDcoll = NULL), 
-               interVal = 1, 
-               interType = "f")
+               colFrame = "frame", 
+               colIDobj = "objid", 
+               colPos = "x")
 ```
 
 Plot the time series. Each object has a distinct identifier represented by a different colour in the plot:
 
-```{r, echo = T, fig.width=5, fig.height=5, caption="Visualisation of object traces over time"}
+```{r, echo = T, fig.width=5, fig.height=4, caption="Visualisation of object traces over time"}
 ARCOS::plotTracks(dts1)
 ```
 
@@ -177,12 +173,10 @@ knitr::kable(dcoll1)
 
 ## Visualisation
 
-Plot:
-
 Each trace is assigned an identifier of the collective event, which is represented by the shape of the point in the plot:
 
-```{r, echo = F, fig.width=5, fig.height=5, caption="Visualisation of collective events over time"}
-plotTracks(dcoll1)
+```{r, echo = F, fig.width=5, fig.height=4, caption="Visualisation of collective events over time"}
+ARCOS::plotTracks(dcoll1)
 ```
 
 The algorithm with the default search radius `eps=1.0` has identified two collective events. One is an event with only a single object, the latter is an event that consists of 1 to 3 objects at different points in time.
@@ -196,7 +190,7 @@ The following synthetic dataset contains 81 objects (e.g., biological cells) spa
 # Generate a synthetic dataset with a single event evolving over 8 frames
 dts2 = ARCOS::genSynth2D(inSeed = 7)
 
-knitr::kable(head(ARCOS::keepSignifDig(dts2, 4)))
+knitr::kable(head(dts2), digits = 2)
 ```
 
 In the plot below, grey circles correspond to inactive and black to active states of cells and their collective activation (*wave*) develops over 8 time points.
@@ -226,7 +220,7 @@ The following R code will identify the collective event and store the result in 
 dcoll2 = ARCOS::trackColl(dts2[m > 0], 
                           eps = 2.)
 
-knitr::kable(head(ARCOS::keepSignifDig(dcoll2, 4)))
+knitr::kable(head(dcoll2), digits = 2)
 ```
 
 The `dcoll` table contains the results of spatio-temporal clustering. Column `collid` stores a unique identifier of collective event. The `collid.frame` column stores an identifier of collective event that is unique only within a frame.
@@ -243,7 +237,7 @@ dcollch2 = dcoll2[,
                          collid)]
 ```
 
-In the following plot, objects that participate in a collective event are indicated by red dots. The red polygon indicates a convex hull.
+In the following plot, objects that participate in collective events are indicated by red dots. The red polygon indicates a convex hull.
 
 ```{r, fig.height=5, fig.width=10}
 p2 = ggplot(dts2,
@@ -268,9 +262,46 @@ p2 = ggplot(dts2,
 p2
 ```
 
+## Spaghetti/noodle plot
+
+Spaghetti/noodle plot is another useful visualisation of collective events. A single position of cell tracks is plotted over time, however cells tracks are plotted only when objects/cells participate in the collective event.
+
+```{r, fig.width=6, fig.height=3}
+ARCOS::plotNoodle2D(dcoll2, style = 'both') +
+  xlab("Time [frames]") +
+  ylab("Position X [au]") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+## Extract measurements
+
+### Growth over time
+
+```{r, fig.width=5, fig.height=3}
+dcoll2growth = calcGrowthColl(dcoll2)
+
+ggplot(dcoll2growth,
+       aes(x = tevent,
+           y = diam)) +
+  geom_line() +
+  geom_point() +
+  xlab("Time of the event [frames]") +
+  ylab("Diameter [au]") +
+  theme_bw()
+```
+### Size & duration
+
+Extract duration (`totDur`), total number of unique objects involved in the event (`totSz`), the smallest and largest number of objects in the event (`minSz` & `maxSz`).
+
+```{r results='asis'}
+knitr::kable(calcStatsColl(dcoll2))
+```
+
+
 ## Save frames
 
-The code below saves individual time frames as `png` files in the `frames` folder located in the current working directory.
+The code below saves individual time frames with the field of view as `png` files in the `frames` folder located in the current working directory.
 
 ```{r, eval=F}
 ARCOS::savePlotColl2D(dts2, dcoll2, 

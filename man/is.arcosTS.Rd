@@ -2,15 +2,18 @@
 % Please edit documentation in R/arcosTS.R
 \name{is.arcosTS}
 \alias{is.arcosTS}
-\title{"Test whether an object is an arcosTS object"}
+\title{"Test whether an object is the arcosTS object"}
 \usage{
 is.arcosTS(x)
 }
 \arguments{
 \item{x}{object}
 }
+\value{
+logical
+}
 \description{
-Test whether an object is an arcosTS object
+Test whether an object is the arcosTS object
 }
 \examples{
 cat("no examples")

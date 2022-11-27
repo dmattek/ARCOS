@@ -2,30 +2,57 @@
 % Please edit documentation in R/loadDataFromFile.R
 \name{loadDataFromFile}
 \alias{loadDataFromFile}
-\title{Title}
+\title{Load data from file}
 \usage{
 loadDataFromFile(
   fname,
   colPos = "x",
+  colFrame = "f",
+  colIDobj = "id",
+  colIDcoll = NULL,
   colMeas = NULL,
-  col = list(Frame = "f", IDobj = "id", RT = NULL, IDcoll = NULL),
+  colMeasResc = NULL,
+  colMeasBin = NULL,
+  colBootIter = NULL,
+  colRT = NULL,
   interVal = 1L,
   interType = c("fixed"),
+  fromBin = FALSE,
+  fromColl = FALSE,
+  fromBoot = FALSE,
   ...
 )
 }
 \arguments{
-\item{fname}{a string with the file name path.}
+\item{fname}{a string, file name path.}
 
-\item{colPos}{a vector with names of positional columns; default "x".}
+\item{colPos}{a vector, names of positional columns; default "x".}
 
-\item{colMeas}{a string with the column name of the measurement; default NULL.}
+\item{colFrame}{a string, column name with frame numbers; default "f".}
 
-\item{col}{a list with names of other columns, i.e. list(Frame = , IDobj = , RT = , IDcoll = ), with names of the frame, object id, real time, and collective id columns.}
+\item{colIDobj}{a string, column name with object IDs; default "id".}
 
-\item{interVal}{a numeric with the interval length.}
+\item{colIDcoll}{a string, column name with IDs of collective events; default NULL.}
 
-\item{interType}{a string to designate whether the time series has fixed or variable intervals; possible values fixed or var.}
+\item{colMeas}{a string, column name of the measurement; default NULL.}
+
+\item{colMeasResc}{a string, column name of the rescaled measurement; default NULL.}
+
+\item{colMeasBin}{a string, column name of the binarised measurement; default NULL.}
+
+\item{colBootIter}{a string, column name with bootstrap iterations; default NULL.}
+
+\item{colRT}{a string, column name with real time; default NULL (currently unused).}
+
+\item{interVal}{a numeric with the interval length (currently unused).}
+
+\item{interType}{a string to designate whether the time series has fixed or variable intervals; possible values fixed or var (currently unused).}
+
+\item{fromBin}{logical, whether the output has been passed by binarisation, relevant for plotting of binarised activity; default FALSE.}
+
+\item{fromColl}{logical, whether the output comes from collective event identification, relevant for plotting of collective events; default FALSE.}
+
+\item{fromBoot}{logical, whether the output comes from bootstrapping, relevant for calculating stats of collective events; default FALSE.}
 
 \item{...}{additional parameters passed to data.table::fread.}
 }
@@ -33,7 +60,9 @@ loadDataFromFile(
 an arcosTS object.
 }
 \description{
-Title
+Loads data from a file and creates an arcosTS object based on provided parameters.
+Data is loaded using data.table::fread function, thus all file formats recognised
+by fread are admissible, including gzip and bz2 compressions.
 }
 \examples{
 cat("no examples")

@@ -350,12 +350,12 @@ trackColl.arcosTS <- function(obj, eps = 1., minClSz = 1L, nPrev = 1L, epsPrev =
 
   stopifnot(is.arcosTS(obj))
 
-  if (!is.null(attr(obj, "colIDcoll"))) {
+  if (!is.null(attr(obj, "colIDcoll")) | attr(obj, "fromColl")) {
     stop("The object already has collective events.")
   }
 
   if ("collid" %in% names(obj)) {
-    stop("Check your object. Its colIDcoll attribute is NULL but it contains collid.frame and collid columns.")
+    stop("Check your input object. Its colIDcoll attribute is NULL but it contains collid.frame and collid columns.")
   }
 
   locDT = trackCollEvents(obj,
@@ -379,21 +379,22 @@ trackColl.arcosTS <- function(obj, eps = 1., minClSz = 1L, nPrev = 1L, epsPrev =
                 by = c(attr(obj, "colFrame"),
                        attr(obj, "colIDobj")))
 
+  # Inherit attributes from the input object
   locDT = new_arcosTS(dt = locDT,
                       colPos = attr(obj, "colPos"),
-                      colMeas =  attr(obj, "colMeas"),
                       colFrame = attr(obj, "colFrame"),
-                      colRT = attr(obj, "colRT"),
                       colIDobj = attr(obj, "colIDobj"),
                       colIDcoll = "collid",
+                      colMeas =  attr(obj, "colMeas"),
+                      colMeasResc =  attr(obj, "colMeasResc"),
+                      colMeasBin =  attr(obj, "colMeasBin"),
+                      colBootIter = attr(obj, "colBootIter"),
+                      colRT = attr(obj, "colRT"),
                       interVal = attr(obj, "interVal"),
-                      interType = attr(obj, "interType"))
-
-  locColMeasResc = attr(obj, "colMeasResc")
-  if (!is.null(locColMeasResc)) data.table::setattr(locDT, "colMeasResc", locColMeasResc)
-
-  locColMeasBin = attr(obj, "colMeasBin")
-  if (!is.null(locColMeasBin)) data.table::setattr(locDT, "colMeasBin", locColMeasBin)
+                      interType = attr(obj, "interType"),
+                      fromBin = attr(obj, "fromBin"),
+                      fromColl = TRUE,
+                      fromBoot = attr(obj, "fromBoot"))
 
   return(locDT)
 }

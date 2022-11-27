@@ -46,13 +46,8 @@ library(viridis, quietly = T)
 lPar = list()
 lPar$fIn = system.file('synthetic2D/Gradient20.csv.gz',
                        package = 'ARCOS')
-lPar$fov = as.integer(gsub('Gradient([0-9]+).*', '\\1', lPar$fIn))
 
-# measurement
-lPar$sample.period = 1L
-lPar$pxscale = 1 # length units/px
-
-# params for dbscan
+# Parameters for tracking collective events
 lPar$db.eps = 1.5 # neighbourhood size; units of pixels
 lPar$db.minPts = 3L # minimum number of cells in a cluster
 
@@ -63,78 +58,98 @@ lPar$coll.mintotsz = lPar$db.minPts # minimum total size of collective events
 
 lPar$debug = T
 
-lPar$ncores = 2L
-lPar$nboot = 1000L
+# Parameters for bootstrapping
+lPar$ncores = 2L # number of parallel cores
+lPar$nboot = 1000L # number of bootstrapping iterations
 
+# Dataset limits for plotting
 lPar$limxy = c(-25, 25)
-lPar$limt = c(0, 200)
+lPar$limt = c(0, 220)
 
-lCols = list()
-lCols$frame = "ticks"
-lCols$posx = "xcor"
-lCols$posy = "ycor"
-lCols$trackid = "who"
-lCols$meas = "meas"
-lCols$measbin = "meas.bin"
-lCols$cltrackid = "collid"
+# True size and duration of a single synthetic event
+lPar$sim.cltotsz = 37
+lPar$sim.cldur = 9
+
+# True maximum diameter evolution of a single event in time
+ttrueDiam = data.table(tevent = 0:8,
+                       diam = c(2.236068, 4.472136, rep(6.708204,7)))
+
+# Column names
+lCols = list(frame = 'frame',
+             posx = 'x',
+             posy = 'y',
+             trackid = 'id',
+             meas = 'meas',
+             measresc = 'meas.resc',
+             measbin = 'meas.bin',
+             cltrackid = 'collid',
+             bootiter = 'bootiter')
 ```
 
 ```{r paramsOfAnal, echo = F, results = "asis"}
-cat(sprintf("\nData: acquisition period: %.2f [minutes]\n\n", lPar$sample.period))
-cat(sprintf("\nARCOS: neighbourhood size for dbscan: %.2f [px] \n\n", lPar$db.eps))
-cat(sprintf("ARCOS: minimum cluster size for dbscan: %d [cells] \n\n", lPar$db.minPts))
-cat(sprintf("ARCOS: number of subsequent frames to link: %d [frames] \n\n", lPar$trackLinkFrames))
-cat(sprintf("\nARCOS: minimum duration of collective events: %d [frames] \n\n", lPar$coll.mindur))
-cat(sprintf("ARCOS: minimum total size of collective events: %d [cells] \n\n", lPar$coll.mintotsz))
-cat(sprintf("ARCOS: number of bootstrapping iterations: %d \n\n", lPar$nboot))
+cat(sprintf("\nNeighbourhood size for dbscan: %.2f [px] \n\n", lPar$db.eps))
+cat(sprintf("Minimum cluster size for dbscan: %d [cells] \n\n", lPar$db.minPts))
+cat(sprintf("Number of subsequent frames to link: %d [frames] \n\n", lPar$trackLinkFrames))
+cat(sprintf("\nMinimum duration of collective events: %d [frames] \n\n", lPar$coll.mindur))
+cat(sprintf("Minimum total size of collective events: %d [cells] \n\n", lPar$coll.mintotsz))
+cat(sprintf("Number of bootstrapping iterations: %d \n\n", lPar$nboot))
 ```
 
 # Read data
 
-Reading a CSV file from the NetLogo simulation output.
+Read a compressed CSV file, `Gradient20.csv.gz` from the NetLogo simulation output. The dataset is included with the ARCOS package. The function `loadDataFromFile` is a wrapper for `data.table::fread`. It reads the file and sets the attributes of the ARCOS object according to parameters defined above.
 
 ```{r readPreprocessData, echo = T}
 # read data
-ts = data.table::fread(lPar$fIn)
-setorderv(ts, c(lCols$frame, lCols$trackid))
-
-setnames(ts, c('ERKactivityValue'), c('meas'))
-
-# create an ARCOS ts object
-ts = ARCOS::arcosTS(ts, 
-                    colPos = c(lCols$posx, lCols$posy), 
-                    colMeas = lCols$meas,
-                    col = list(Frame = lCols$frame, 
-                               IDobj = lCols$trackid), 
-                    interVal = 1L, 
-                    interType = "fixed")
+ts = ARCOS::loadDataFromFile(lPar$fIn,
+                             colPos = c(lCols$posx, lCols$posy), 
+                             colMeas = lCols$meas,
+                             colFrame = lCols$frame, 
+                             colIDobj = lCols$trackid)
 ```
+
+The dataset is in long format where each row corresponds to the measurement and position of a single object/cell at a particular point in time:
+
+```{r, echo = F}
+knitr::kable(head(ts), digits = 2)
+```
+
+The columns have the following data:
+
+- `frame`, time frames,
+- `id`, object/cell IDs,
+- `x` and `y`, object coordinates,
+- `startCE`, an indication of when a collective event is initiated in the simulation,
+- `meas`, the measurement.
 
 # Identify activity
 
-Here we identify activity pulses in single cells by using a simple thresholding method.
+Here we identify activity pulses in single cells by using a simple thresholding method, i.e. all measurements above 0 are considered *active*. The function `binMeas` adds two new columns to the dataset, `meas.resc` and `meas.bin` with rescaled and binarised measurements, respectively.
+
+The parameter `smoothK=1` indicates that the smoothing window initially applied to the time series is a single time point, thus no smoothing is performed. The result of thresholding is equivalent to calculating `meas > 0`.
 
 ```{r idActive, echo = T}
 # binarise the measurement
 ARCOS::binMeas(ts,
                biasMet = "none", 
-               binThr = 0.4)
+               smoothK = 1,
+               binThr = 0.)
 ```
 
-```{r idActivePlot, fig.width=7, fig.height=5}
-# Plot the results of activity detection for a sample of long tracks
-vLongTracks = ts[,
-                 .(trackLen = max(get(lCols$frame)) - min(get(lCols$frame))),
-                 by = c(lCols$trackid)][[lCols$trackid]]
+```{r, echo = F}
+knitr::kable(head(ts), digits = 2)
+```
 
-tsPlot = ts[get(lCols$trackid) %in% vLongTracks]
+The results of activity detection for a sample of long tracks:
 
-ARCOS::plotBinMeas(tsPlot, 
+```{r idActivePlot, echo = TRUE, fig.width=7, fig.height=5}
+ARCOS::plotBinMeas(ts, 
                    ntraj = 25, 
                    inSeed = 11,
                    measfac = 1.,
-                   xfac = lPar$sample.period, 
+                   xfac = 1, 
                    plotResc = F) +
+  coord_cartesian(ylim = c(0,2)) +
   theme_few() +
   xlab("Time [frames]") +
   ylab("ERK activity")
@@ -142,7 +157,9 @@ ARCOS::plotBinMeas(tsPlot,
 
 # CEs - non-bootstrapped
 
-Identify collective events in the original data.
+Identify collective events in the original data only for *active* cells, which in our case are cells with the measurement above 0.
+
+The function `trackColl` returns a data table in long format only with objects/cells that participate in collective events. Two additional columns are added, `collid.frame` and `collid`, with IDs of collective events per frame and a globally unique ID, respectively. The latter, `collid` is what we will use in further analysis.
 
 ```{r idColl, echo = T}
 # Perform tracking of collective events.
@@ -155,149 +172,213 @@ tcoll = ARCOS::trackColl(ts[get(lCols$measbin) > 0],
 tcollsel = ARCOS::selColl(tcoll,
                           colldur = c(lPar$coll.mindur, Inf),
                           colltotsz = c(lPar$coll.mintotsz, Inf))
+```
 
-tsWithColl = merge(ts, 
-                   tcollsel[, 
-                            c(lCols$frame, 
-                              lCols$trackid, 
-                              lCols$cltrackid), 
-                            with = F], 
-                   by = c(lCols$frame, 
-                          lCols$trackid), 
-                   all.x = T)
+```{r, echo = F}
+knitr::kable(head(tcollsel), digits = 2)
 ```
 
 ## Cluster properties
 
-We extract two statistics of collective events: event duration and the total event size.
+### CE growth
 
-```{r propColl, echo = T}
+Evolution of CEs' growth quantified by the maximum Feret diameter (longer side of a minimal oriented bounding box). Red dots indicate the true evolution of a single synthetic event. Note horizontal shifts to avoid overplotting!
+
+We observe that the majority of collective events grow as a prototypical synthetic event with only few events that depart this dynamics due to overlaps with other events.
+
+```{r, echo = T}
+# Calculate the minimal bounding box
+tcollselDiam = calcGrowthColl(tcollsel)
+```
+
+The function `calcGrowthColl` adds the width, height and the time of collective events' evolution. The longer of the width and height is taken as the diameter of the event. 
+
+```{r, echo = F}
+knitr::kable(head(tcollselDiam), digits = 2)
+```
+
+
+```{r echo = T, fig.width=5, fig.height=3}
+ggplot(tcollselDiam,
+       aes(x = tevent,
+           y = diam,
+           group = get(lCols$cltrackid))) +
+  geom_line(position = position_dodge(.5), alpha = 0.5) +
+  geom_point(data = ttrueDiam,
+             aes(x = tevent,
+                 y = diam,
+                 group = 1),
+             colour = 'red') +
+  xlab("Time [frames]") +
+  ylab('Diameter [au]') +
+  theme_minimal()
+```
+
+### Duration & total size
+
+We extract two statistics of collective events: event duration and the total number of unique cells involved in an event (~ size). Dashed lines indicate true size & duration of synthetic events. Several bigger and longer-lasting than synthetic events are due to overlap with other events.
+
+```{r propColl, echo = T, fig.width=5, fig.height=4}
 # Calculate duration of collective events in frames
 tcollselAggr = ARCOS::calcStatsColl(tcollsel)
 
 
-pClProp = ggplot(tcollselAggr,
+ggplot(tcollselAggr,
                  aes(x = totSz,
                      y = clDur)) +
   geom_hex() +
   viridis::scale_fill_viridis(discrete = F,
                               trans = "log10") +
-  geom_vline(xintercept = lPar$coll.mintotsz, color = "red", linetype = 2) +
-  geom_hline(yintercept = lPar$coll.mindur, color = "red", linetype = 2) +
+  geom_vline(xintercept = lPar$sim.cltotsz, color = "red", linetype = 2) +
+  geom_hline(yintercept = lPar$sim.cldur, color = "red", linetype = 2) +
   xlab("#cells involved in collective events") +
   ylab("Duration of collective events [#frames]") +
   theme_bw()
-
-pClProp
 ```
 
 ## Noodle plot
 
-X/T projection of individual cells in collective events. Tracks coloured by the id of collective events.
+X/T projection of individual cells that participate in collective events. Tracks are coloured by the IS of collective events. Red dots indicate the beginning of a spontaneous collective event in the simulation.
 
 ```{r, noodleColl, echo=F, fig.width=8, fig.height=4}
-p11 = ARCOS::plotNoodle2D(tcollsel, 
-                          xfac = lPar$sample.period,
-                          yfac = lPar$pxscale,
+ARCOS::plotNoodle2D(tcollsel, 
+                          xfac = 1,
+                          yfac = 1,
                           pos = 1,
                           tfreq = 1, 
                           style = 'line') +
+  geom_point(data = ts[startCE == 1],
+             aes(x = get(lCols$frame),
+                 y = get(lCols$posx),
+                 group = 1),
+             color = 'red',
+             alpha = 0.8,
+             size = 1) +
   xlab("Time [frames]") +
   ylab("Position X [au]") +
   theme_minimal() +
   theme(legend.position = "none")
-
-p11
 ```
+
+```{r echo = F, results = "asis"}
+cat(sprintf("Number of initiated events: %d\n\n", sum(ts$startCE)))
+cat(sprintf("Number of detected events: %d\n\n", nrow(tcollselAggr)))
+cat(sprintf("Average binarised activity level: %.4f\n\n", mean(ts$meas.bin)))
+cat(sprintf("Fraction of activity in (filtered) collective events: %.4f\n\n", calcFracActInColl(ts, tcollsel)))
+```
+
 
 # CEs - bootstraped
 
 Calculate p-values for the two statistics (duration and size) using bootstrapping. Each calculation can take up to several minutes!
 
-## Randomise initial XY
+## Shuffle initial XY
 
 In this approach, the initial position of every track is shuffled between all cells in the system. Since the measurement dynamics remains intact, this approach randomises only the spatial aspect of collective phenomena, i.e. tracks are only rearranged in space while retaining their measurement dynamics. One caveat concerns cases where cells/objects are moving in space. By assigning new starting points, objects' positions may exceed the initial bounds of the field of view. 
 
-```{r randIniXY}
-# Perform bootstrap
-stmp = system.file(sprintf('synthetic2D/output-bootstrap-20/bootRes_randInitXY_N%d.csv.gz', lPar$nboot),
+The `ARCOS::trackCollBoot` function outputs a `data.table` in long format with time points when individual objects participate in collective events. From this output, further statistics can be extracted, such as: duration, size, diameter, number of collective events. The `bootiter` column indexes bootstrapping iterations.
+
+
+```{r randIniXY, echo = T}
+# Perform bootstrap or load data from a file
+stmp = system.file(sprintf('synthetic2D/output-bootstrap-20/bootRes_shuffIniXY_N%d.csv.gz', lPar$nboot),
                    package = 'ARCOS')
 
 if (file.exists(stmp)) {
-  dtBootRes = fread(stmp)
+  
+  tcollselBoot = loadDataFromFile(fname = stmp,
+                                  colPos = c(lCols$posx, lCols$posy),
+                                  colFrame = lCols$frame,
+                                  colIDobj = lCols$trackid,
+                                  colIDcoll = lCols$cltrackid,
+                                  colBootIter = lCols$bootiter,
+                                  fromColl = TRUE,
+                                  fromBoot = TRUE)
 } else {
   set.seed(11)
   
-  dtBootRes = calcBoot(obj = ts, 
-                       nboot = lPar$nboot, 
-                       ncores = lPar$ncores,
-                       method = 'shuffCoord', 
-                       eps = lPar$db.eps, 
-                       epsPrev = lPar$db.eps, 
-                       nPrev = 1L, 
-                       minClSz = lPar$db.minPts,
-                       colldurlim = c(lPar$coll.mindur, 1000), 
-                       colltotszlim = c(lPar$coll.mintotsz, 1000),
-                       deb = F)}
-
-# Aggregate the results of bootstrapping
-dtBootResAggr = dtBootRes[,
-                          lapply(.SD, mean),
-                          by = iter,
-                          .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
-
-dtBootResN = dtBootRes[,
-                       .(N = sum(!is.na(collid))),
-                       by = iter]
-
+  tcollselBoot = ARCOS::trackCollBoot(obj = ts, 
+                                      nboot = lPar$nboot, 
+                                      ncores = lPar$ncores,
+                                      method = 'shuffCoord', 
+                                      eps = lPar$db.eps, 
+                                      epsPrev = lPar$db.eps, 
+                                      nPrev = 1L, 
+                                      minClSz = lPar$db.minPts,
+                                      colldurlim = c(lPar$coll.mindur, 1000), 
+                                      colltotszlim = c(lPar$coll.mintotsz, 1000),
+                                      deb = F)
+}
 ```
 
+```{r, echo = F}
+knitr::kable(head(tcollselBoot), digits = 2)
+```
 
-Sample noodle plot from bootstrapped data:
+Sample noodle plot from a single iteration of bootstrapping:
+
+```{r, echo=F, fig.width=8, fig.height=4}
+ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1], 
+                    xfac = 1,
+                    yfac = 1,
+                    pos = 1,
+                    tfreq = 1, 
+                    style = 'both') +
+  coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
+  xlab("Time [frames]") +
+  ylab("Position X [au]") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+Distribution of the fraction of collective events in bootstrap iterations compared to the observed fraction (red dashed line):
+
+```{r, echo = T, fig.width=5, fig.height=3}
+tFracActInColl = calcFracActInColl(ts, tcollsel)
+tFracActInCollBoot = calcFracActInColl(ts, tcollselBoot)
+
+ggplot(tFracActInCollBoot,
+       aes(x = fracAct,
+           y = after_stat(density))) +
+  geom_histogram(bins = 20,
+                 color="lightblue", fill="lightblue") +
+  geom_vline(xintercept = tFracActInColl$fracAct,
+             color = "red", linetype = 2) +
+  xlab('Fraction of activity in collective events') +
+  ggthemes::theme_clean()
+```
+
+P-value, alternative hypothesis - the fraction of total (binarised) activity in collective events from bootstrapping is lower or greater than the observed fraction:
 
 ```{r}
-tcollselRand = data.table()
-nTry = 0
-
-while (nrow(tcollselRand) == 0 & nTry < 10) {
-  tsRand = ARCOS::shuffCoord(ts)
-  stmp = lCols$measbin
-  
-  tcollRand = ARCOS::trackColl(tsRand[get(stmp) > 0], 
-                               eps = lPar$db.eps, 
-                               minClSz = lPar$db.minPts)
-  tcollselRand = ARCOS::selColl(tcollRand, 
-                                colldur = c(lPar$coll.mindur, 1000), 
-                                colltotsz = c(lPar$coll.mintotsz, 1000))
-  nTry = nTry + 1
-}
-
-if (nrow(tcollselRand) > 0) {
-  
-  p101 = ARCOS::plotNoodle2D(tcollselRand, 
-                             xfac = lPar$sample.period,
-                             yfac = lPar$pxscale,
-                             pos = 1,
-                             tfreq = 1, 
-                             style = 'both') +
-    coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
-    xlab("Time [frames]") +
-    ylab("Position X [au]") +
-    theme_minimal() +
-    theme(legend.position = "none")
-  
-  p101
-} else {
-  cat('No collective events found in 10 randomised bootstrap iterations')
-}
+calcPvalFromBS(tFracActInColl$fracAct, tFracActInCollBoot$fracAct, corrected = T, alternative = 'two.sided')
 ```
 
-Distribution of the number of collective events identified in every bootstrap iteration:
+Aggregate statistics from bootstrapping.
 
-```{r randIniXYbootVSorigNevents}
-ggplot(data = dtBootResN,
+```{r echo = T}
+# Aggregate the results of bootstrapping per collective event
+tcollbootAggrPerColl = calcStatsColl(tcollselBoot)
+
+# Further aggregate size & duration per bootstrap iteration
+tcollbootSzDurPerIter = tcollbootAggrPerColl[,
+                                            lapply(.SD, mean),
+                                            by = c(lCols$bootiter),
+                                            .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
+
+# Further aggregate the number of events per bootstrap iteration
+tcollbootNcollPerIter = tcollbootAggrPerColl[,
+                                             .(N = sum(!is.na(collid))),
+                                             by = c(lCols$bootiter)]
+
+```
+
+Distribution of the number of collective events identified in every bootstrap iteration compared to the observed statistics (red dashed line):
+
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(data = tcollbootNcollPerIter,
        aes(x = N,
-           y = ..density..)) +
+           y = after_stat(density))) +
   geom_histogram(binwidth = 1,
                  color="lightblue", fill="lightblue") +
   geom_vline(xintercept = nrow(tcollselAggr),
@@ -306,46 +387,46 @@ ggplot(data = dtBootResN,
   ggthemes::theme_clean()
 ```
 
-P-value, alternative hypothesis - the number of clusters from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - the number of clusters from bootstrapping is lower or greater than the observed number:
 
 ```{r}
-calcPvalFromBS(nrow(tcollselAggr), dtBootResN$N, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'two.sided')
 ```
 
-Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data:
+Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data (red dashed line):
 
-```{r}
-ggplot(dtBootResAggr,
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(tcollbootSzDurPerIter,
        aes(x = clDur,
            y = after_stat(density))) +
-  geom_freqpoly(color = 'black') +
+  geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$clDur), color = 'red', linetype = 'dashed') +
   xlab("Duration of collective events [#frames]") +
   theme_minimal()
 ```
 
-P-value, alternative hypothesis - mean cluster duration from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - mean cluster duration from bootstrapping is lower or greater than the observed statistic:
 
 ```{r}
-calcPvalFromBS(mean(tcollselAggr$clDur), dtBootResAggr$clDur, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'two.sided')
 ```
 
-Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data:
+Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data (red dashed line):
 
-```{r}
-ggplot(dtBootResAggr,
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(tcollbootSzDurPerIter,
        aes(x = totSz,
            y = after_stat(density))) +
-  geom_freqpoly(color = 'black') +
+  geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$totSz), color = 'red', linetype = 'dashed') +
   xlab("#cells involved in collective events") +
   theme_minimal()
 ```
 
-P-value, alternative hypothesis - mean total cluster size from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - mean total cluster size from the bootstrap is lower or greater than the observed statistic:
 
 ```{r}
-calcPvalFromBS(mean(tcollselAggr$totSz), dtBootResAggr$totSz, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'two.sided')
 ```
 
 ## Randomly shift the measurement
@@ -357,81 +438,100 @@ stmp = system.file(sprintf('synthetic2D/output-bootstrap-20/bootRes_randShiftMea
                    package = 'ARCOS')
 
 if (file.exists(stmp)) {
-  dtBootRes = fread(stmp)
+  tcollselBoot = loadDataFromFile(fname = stmp,
+                                  colPos = c(lCols$posx, lCols$posy),
+                                  colFrame = lCols$frame,
+                                  colIDobj = lCols$trackid,
+                                  colIDcoll = lCols$cltrackid,
+                                  colMeas = lCols$meas,
+                                  colBootIter = lCols$bootiter,
+                                  fromColl = TRUE,
+                                  fromBoot = TRUE)
 } else {
   set.seed(11)
   
-  dtBootRes = calcBoot(obj = ts, 
-                       nboot = lPar$nboot, 
-                       ncores = lPar$ncores,
-                       method = 'randShiftMeas', 
-                       eps = lPar$db.eps, 
-                       epsPrev = lPar$db.eps, 
-                       nPrev = 1L, 
-                       minClSz = lPar$db.minPts,
-                       colldurlim = c(lPar$coll.mindur, 1000), 
-                       colltotszlim = c(lPar$coll.mintotsz, 1000),
-                       deb = F)
+  tcollselBoot = ARCOS::trackCollBoot(obj = ts, 
+                                      nboot = lPar$nboot, 
+                                      ncores = lPar$ncores,
+                                      method = 'randShiftMeas', 
+                                      eps = lPar$db.eps, 
+                                      epsPrev = lPar$db.eps, 
+                                      nPrev = 1L, 
+                                      minClSz = lPar$db.minPts,
+                                      colldurlim = c(lPar$coll.mindur, 1000), 
+                                      colltotszlim = c(lPar$coll.mintotsz, 1000),
+                                      deb = F)
 }
-
-# Aggregate the results of bootstrapping
-dtBootResAggr = dtBootRes[,
-                          lapply(.SD, mean),
-                          by = iter,
-                          .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
-
-dtBootResN = dtBootRes[,
-                       .(N = sum(!is.na(collid))),
-                       by = iter]
-
 ```
 
-Sample noodle plot from bootstrapped data:
+```{r, echo = F}
+knitr::kable(head(tcollselBoot), digits = 2)
+```
+
+Sample noodle plot from a single iteration of bootstrapping:
+
+```{r, echo=F, fig.width=8, fig.height=4}
+ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1], 
+                    xfac = 1,
+                    yfac = 1,
+                    pos = 1,
+                    tfreq = 1, 
+                    style = 'both') +
+  coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
+  xlab("Time [frames]") +
+  ylab("Position X [au]") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+Distribution of the fraction of collective events in bootstrap iterations compared to the observed fraction (red dashed line):
+
+```{r, echo = T, fig.width=5, fig.height=3}
+tFracActInColl = calcFracActInColl(ts, tcollsel)
+tFracActInCollBoot = calcFracActInColl(ts, tcollselBoot)
+
+ggplot(tFracActInCollBoot,
+       aes(x = fracAct,
+           y = after_stat(density))) +
+  geom_histogram(bins = 20,
+                 color="lightblue", fill="lightblue") +
+  geom_vline(xintercept = tFracActInColl$fracAct,
+             color = "red", linetype = 2) +
+  xlab('Fraction of activity in collective events') +
+  ggthemes::theme_clean()
+```
+
+P-value, alternative hypothesis - the fraction of total (binarised) activity in collective events from bootstrapping is lower or greater than the observed fraction:
 
 ```{r}
-tcollselRand = data.table()
-nTry = 0
-
-while (nrow(tcollselRand) == 0 & nTry < 10) {
-  tsRand = randShiftMeas(ts)
-  stmp = paste0(lCols$measbin, '.shuff')
-  
-  tcollRand = ARCOS::trackColl(tsRand[get(stmp) > 0], 
-                               eps = lPar$db.eps, 
-                               minClSz = lPar$db.minPts)
-  tcollselRand = ARCOS::selColl(tcollRand, 
-                                colldur = c(lPar$coll.mindur, 1000), 
-                                colltotsz = c(lPar$coll.mintotsz, 1000))
-  nTry = nTry + 1
-}
-
-if (nrow(tcollselRand) > 0) {
-  
-  p201 = ARCOS::plotNoodle2D(tcollselRand, 
-                             xfac = lPar$sample.period,
-                             yfac = lPar$pxscale,
-                             pos = 1,
-                             tfreq = 1, 
-                             style = 'both') +
-    coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
-    xlab("Time [frames]") +
-    ylab("Position X [au]") +
-    theme_minimal() +
-    theme(legend.position = "none")
-  
-  p201
-} else {
-  cat('No collective events found in 10 randomised bootstrap iterations')
-}
+calcPvalFromBS(tFracActInColl$fracAct, tFracActInCollBoot$fracAct, corrected = T, alternative = 'two.sided')
 ```
 
+Aggregate statistics from bootstrapping.
 
-Distribution of the number of collective events identified in every bootstrap iteration:
+```{r echo = T}
+# Aggregate the results of bootstrapping per collective event
+tcollbootAggrPerColl = calcStatsColl(tcollselBoot)
 
-```{r randShiftMeasBootVSorigNevents}
-ggplot(data = dtBootResN,
+# Further aggregate size & duration per bootstrap iteration
+tcollbootSzDurPerIter = tcollbootAggrPerColl[,
+                                            lapply(.SD, mean),
+                                            by = c(lCols$bootiter),
+                                            .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
+
+# Further aggregate the number of events per bootstrap iteration
+tcollbootNcollPerIter = tcollbootAggrPerColl[,
+                                             .(N = sum(!is.na(collid))),
+                                             by = c(lCols$bootiter)]
+
+```
+
+Distribution of the number of collective events identified in every bootstrap iteration compared to the observed statistics (red dashed line):
+
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(data = tcollbootNcollPerIter,
        aes(x = N,
-           y = ..density..)) +
+           y = after_stat(density))) +
   geom_histogram(binwidth = 1,
                  color="lightblue", fill="lightblue") +
   geom_vline(xintercept = nrow(tcollselAggr),
@@ -440,48 +540,47 @@ ggplot(data = dtBootResN,
   ggthemes::theme_clean()
 ```
 
-P-value, alternative hypothesis - the number of clusters from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - the number of clusters from bootstrapping is lower or greater than the observed number:
 
 ```{r}
-calcPvalFromBS(nrow(tcollselAggr), dtBootResN$N, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'two.sided')
 ```
 
-Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data:
+Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data (red dashed line):
 
-```{r}
-ggplot(dtBootResAggr,
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(tcollbootSzDurPerIter,
        aes(x = clDur,
            y = after_stat(density))) +
-  geom_freqpoly(color = 'black') +
+  geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$clDur), color = 'red', linetype = 'dashed') +
   xlab("Duration of collective events [#frames]") +
   theme_minimal()
 ```
 
-P-value, alternative hypothesis - mean cluster duration from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - mean cluster duration from bootstrapping is lower or greater than the observed statistic:
 
 ```{r}
-calcPvalFromBS(mean(tcollselAggr$clDur), dtBootResAggr$clDur, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'two.sided')
 ```
 
-Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data:
+Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data (red dashed line):
 
-```{r}
-ggplot(dtBootResAggr,
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(tcollbootSzDurPerIter,
        aes(x = totSz,
            y = after_stat(density))) +
-  geom_freqpoly(color = 'black') +
+  geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$totSz), color = 'red', linetype = 'dashed') +
   xlab("#cells involved in collective events") +
   theme_minimal()
 ```
 
-P-value, alternative hypothesis - mean total cluster size from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - mean total cluster size from the bootstrap is lower or greater than the observed statistic:
 
 ```{r}
-calcPvalFromBS(mean(tcollselAggr$totSz), dtBootResAggr$totSz, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'two.sided')
 ```
-
 
 ## Shuffle time points per track
 
@@ -493,87 +592,100 @@ stmp = system.file(sprintf('synthetic2D/output-bootstrap-20/bootRes_shuffMeasTra
 
 
 if (file.exists(stmp)) {
-  dtBootRes = fread(stmp)
+  tcollselBoot = loadDataFromFile(fname = stmp,
+                                  colPos = c(lCols$posx, lCols$posy),
+                                  colFrame = lCols$frame,
+                                  colIDobj = lCols$trackid,
+                                  colIDcoll = lCols$cltrackid,
+                                  colMeas = lCols$meas,
+                                  colBootIter = lCols$bootiter,
+                                  fromColl = TRUE,
+                                  fromBoot = TRUE)
 } else {
   set.seed(11)
   
-  dtBootRes = calcBoot(obj = ts, 
-                       nboot = lPar$nboot, 
-                       ncores = lPar$ncores,
-                       method = 'shuffMeasTrack', 
-                       eps = lPar$db.eps, 
-                       epsPrev = lPar$db.eps, 
-                       nPrev = 1L, 
-                       minClSz = lPar$db.minPts,
-                       colldurlim = c(lPar$coll.mindur, 1000), 
-                       colltotszlim = c(lPar$coll.mintotsz, 1000),
-                       deb = F)
+  tcollselBoot = ARCOS::trackCollBoot(obj = ts, 
+                                      nboot = lPar$nboot, 
+                                      ncores = lPar$ncores,
+                                      method = 'shuffMeasTrack', 
+                                      eps = lPar$db.eps, 
+                                      epsPrev = lPar$db.eps, 
+                                      nPrev = 1L, 
+                                      minClSz = lPar$db.minPts,
+                                      colldurlim = c(lPar$coll.mindur, 1000), 
+                                      colltotszlim = c(lPar$coll.mintotsz, 1000),
+                                      deb = F)
 }
-
-# Aggregate the results of bootstrapping
-dtBootResAggr = dtBootRes[,
-                          lapply(.SD, mean),
-                          by = iter,
-                          .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
-
-dtBootResN = dtBootRes[,
-                       .(N = sum(!is.na(collid))),
-                       by = iter]
-
 ```
 
+```{r, echo = F}
+knitr::kable(head(tcollselBoot), digits = 2)
+```
 
-Sample noodle plot from bootstrapped data:
+Sample noodle plot from a single iteration of bootstrapping:
+
+```{r, echo=F, fig.width=8, fig.height=4}
+ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1], 
+                    xfac = 1,
+                    yfac = 1,
+                    pos = 1,
+                    tfreq = 1, 
+                    style = 'both') +
+  coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
+  xlab("Time [frames]") +
+  ylab("Position X [au]") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+Distribution of the fraction of collective events in bootstrap iterations compared to the observed fraction (red dashed line):
+
+```{r, echo = T, fig.width=5, fig.height=3}
+tFracActInColl = calcFracActInColl(ts, tcollsel)
+tFracActInCollBoot = calcFracActInColl(ts, tcollselBoot)
+
+ggplot(tFracActInCollBoot,
+       aes(x = fracAct,
+           y = after_stat(density))) +
+  geom_histogram(bins = 20,
+                 color="lightblue", fill="lightblue") +
+  geom_vline(xintercept = tFracActInColl$fracAct,
+             color = "red", linetype = 2) +
+  xlab('Fraction of activity in collective events') +
+  ggthemes::theme_clean()
+```
+
+P-value, alternative hypothesis - the fraction of total (binarised) activity in collective events from bootstrapping is lower or greater than the observed fraction:
 
 ```{r}
-tcollselRand = data.table()
-nTry = 0
-
-while (nrow(tcollselRand) == 0 & nTry < 100) {
-  tsRand = shuffMeasTrack(ts)
-  stmp = paste0(lCols$measbin, '.shuff')
-  
-  tcollRand = ARCOS::trackColl(tsRand[get(stmp) > 0], 
-                               eps = lPar$db.eps, 
-                               minClSz = lPar$db.minPts)
-  tcollselRand = ARCOS::selColl(tcollRand, 
-                                colldur = c(lPar$coll.mindur, 1000), 
-                                colltotsz = c(lPar$coll.mintotsz, 1000))
-  nTry = nTry + 1
-}
-
-if (nrow(tcollselRand) > 0) {
-  
-  p301 = ARCOS::plotNoodle2D(tcollselRand, 
-                             xfac = lPar$sample.period,
-                             yfac = lPar$pxscale,
-                             pos = 1,
-                             tfreq = 1, 
-                             style = 'both') +
-    coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
-    xlab("Time [frames]") +
-    ylab("Position X [au]") +
-    theme_minimal() +
-    theme(legend.position = "none")
-  
-  p301
-} else {
-  cat('No collective events found in 10 randomised bootstrap iterations')
-}
+calcPvalFromBS(tFracActInColl$fracAct, tFracActInCollBoot$fracAct, corrected = T, alternative = 'two.sided')
 ```
 
-P-value, alternative hypothesis - the number of clusters from the bootstrap is lower or greater than the original:
+Aggregate statistics from bootstrapping.
 
-```{r}
-calcPvalFromBS(nrow(tcollselAggr), dtBootResN$N, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+# Aggregate the results of bootstrapping per collective event
+tcollbootAggrPerColl = calcStatsColl(tcollselBoot)
+
+# Further aggregate size & duration per bootstrap iteration
+tcollbootSzDurPerIter = tcollbootAggrPerColl[,
+                                            lapply(.SD, mean),
+                                            by = c(lCols$bootiter),
+                                            .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
+
+# Further aggregate the number of events per bootstrap iteration
+tcollbootNcollPerIter = tcollbootAggrPerColl[,
+                                             .(N = sum(!is.na(collid))),
+                                             by = c(lCols$bootiter)]
+
 ```
 
-Distribution of the number of collective events identified in every bootstrap iteration:
+Distribution of the number of collective events identified in every bootstrap iteration compared to the observed statistics (red dashed line):
 
-```{r shuffMeasTrackBootVSorigNevents}
-ggplot(data = dtBootResN,
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(data = tcollbootNcollPerIter,
        aes(x = N,
-           y = ..density..)) +
+           y = after_stat(density))) +
   geom_histogram(binwidth = 1,
                  color="lightblue", fill="lightblue") +
   geom_vline(xintercept = nrow(tcollselAggr),
@@ -582,42 +694,47 @@ ggplot(data = dtBootResN,
   ggthemes::theme_clean()
 ```
 
-Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data:
+P-value, alternative hypothesis - the number of clusters from bootstrapping is lower or greater than the observed number:
 
 ```{r}
-ggplot(dtBootResAggr,
+calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'two.sided')
+```
+
+Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data (red dashed line):
+
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(tcollbootSzDurPerIter,
        aes(x = clDur,
            y = after_stat(density))) +
-  geom_freqpoly(color = 'black') +
+  geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$clDur), color = 'red', linetype = 'dashed') +
   xlab("Duration of collective events [#frames]") +
   theme_minimal()
 ```
 
-P-value, alternative hypothesis - mean cluster duration from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - mean cluster duration from bootstrapping is lower or greater than the observed statistic:
 
 ```{r}
-calcPvalFromBS(mean(tcollselAggr$clDur), dtBootResAggr$clDur, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'two.sided')
 ```
 
-Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data:
+Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data (red dashed line):
 
-```{r}
-ggplot(dtBootResAggr,
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(tcollbootSzDurPerIter,
        aes(x = totSz,
            y = after_stat(density))) +
-  geom_freqpoly(color = 'black') +
+  geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$totSz), color = 'red', linetype = 'dashed') +
   xlab("#cells involved in collective events") +
   theme_minimal()
 ```
 
-P-value, alternative hypothesis - mean total cluster size from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - mean total cluster size from the bootstrap is lower or greater than the observed statistic:
 
 ```{r}
-calcPvalFromBS(mean(tcollselAggr$totSz), dtBootResAggr$totSz, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'two.sided')
 ```
-
 
 ## Shuffle measurement per frame
 
@@ -629,79 +746,100 @@ stmp = system.file(sprintf('synthetic2D/output-bootstrap-20/bootRes_shuffMeasFra
 
 
 if (file.exists(stmp)) {
-  dtBootRes = fread(stmp)
+  tcollselBoot = loadDataFromFile(fname = stmp,
+                                  colPos = c(lCols$posx, lCols$posy),
+                                  colFrame = lCols$frame,
+                                  colIDobj = lCols$trackid,
+                                  colIDcoll = lCols$cltrackid,
+                                  colMeas = lCols$meas,
+                                  colBootIter = lCols$bootiter,
+                                  fromColl = TRUE,
+                                  fromBoot = TRUE)
 } else {
   set.seed(11)
   
-  dtBootRes = calcBoot(obj = ts, 
-                       nboot = lPar$nboot, 
-                       ncores = lPar$ncores,
-                       method = 'shuffMeasFrame', 
-                       eps = lPar$db.eps, 
-                       epsPrev = lPar$db.eps, 
-                       nPrev = 1L, 
-                       minClSz = lPar$db.minPts,
-                       colldurlim = c(lPar$coll.mindur, 1000), 
-                       colltotszlim = c(lPar$coll.mintotsz, 1000),
-                       deb = F)
+  tcollselBoot = ARCOS::trackCollBoot(obj = ts, 
+                                      nboot = lPar$nboot, 
+                                      ncores = lPar$ncores,
+                                      method = 'shuffMeasFrame', 
+                                      eps = lPar$db.eps, 
+                                      epsPrev = lPar$db.eps, 
+                                      nPrev = 1L, 
+                                      minClSz = lPar$db.minPts,
+                                      colldurlim = c(lPar$coll.mindur, 1000), 
+                                      colltotszlim = c(lPar$coll.mintotsz, 1000),
+                                      deb = F)
 }
-
-dtBootResAggr = dtBootRes[,
-                          lapply(.SD, mean),
-                          by = iter,
-                          .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
-
-dtBootResN = dtBootRes[,
-                       .(N = sum(!is.na(collid))),
-                       by = iter]
-
 ```
 
-Sample noodle plot from bootstrapped data:
+```{r, echo = F}
+knitr::kable(head(tcollselBoot), digits = 2)
+```
+
+Sample noodle plot from a single iteration of bootstrapping:
+
+```{r, echo=F, fig.width=8, fig.height=4}
+ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1], 
+                    xfac = 1,
+                    yfac = 1,
+                    pos = 1,
+                    tfreq = 1, 
+                    style = 'both') +
+  coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
+  xlab("Time [frames]") +
+  ylab("Position X [au]") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+Distribution of the fraction of collective events in bootstrap iterations compared to the observed fraction (red dashed line):
+
+```{r, echo = T, fig.width=5, fig.height=3}
+tFracActInColl = calcFracActInColl(ts, tcollsel)
+tFracActInCollBoot = calcFracActInColl(ts, tcollselBoot)
+
+ggplot(tFracActInCollBoot,
+       aes(x = fracAct,
+           y = after_stat(density))) +
+  geom_histogram(bins = 20,
+                 color="lightblue", fill="lightblue") +
+  geom_vline(xintercept = tFracActInColl$fracAct,
+             color = "red", linetype = 2) +
+  xlab('Fraction of activity in collective events') +
+  ggthemes::theme_clean()
+```
+
+P-value, alternative hypothesis - the fraction of total (binarised) activity in collective events from bootstrapping is lower or greater than the observed fraction:
 
 ```{r}
-tcollselRand = data.table()
-nTry = 0
-
-while (nrow(tcollselRand) == 0 & nTry < 100) {
-  tsRand = shuffMeasFrame(ts)
-  stmp = paste0(lCols$measbin, '.shuff')
-  
-  tcollRand = ARCOS::trackColl(tsRand[get(stmp) > 0], 
-                               eps = lPar$db.eps, 
-                               minClSz = lPar$db.minPts)
-  tcollselRand = ARCOS::selColl(tcollRand, 
-                                colldur = c(lPar$coll.mindur, 1000), 
-                                colltotsz = c(lPar$coll.mintotsz, 1000))
-  nTry = nTry + 1
-}
-
-if (nrow(tcollselRand) > 0) {
-  
-  p401 = ARCOS::plotNoodle2D(tcollselRand, 
-                             xfac = lPar$sample.period,
-                             yfac = lPar$pxscale,
-                             pos = 1,
-                             tfreq = 1, 
-                             style = 'both') +
-    coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
-    xlab("Time [frames]") +
-    ylab("Position X [au]") +
-    theme_minimal() +
-    theme(legend.position = "none")
-  
-  p401
-} else {
-  cat('No collective events found in 10 randomised bootstrap iterations')
-}
+calcPvalFromBS(tFracActInColl$fracAct, tFracActInCollBoot$fracAct, corrected = T, alternative = 'two.sided')
 ```
 
-Distribution of the number of collective events identified in every bootstrap iteration:
+Aggregate statistics from bootstrapping.
 
-```{r shuffMeasFrameBootVSorigNevents}
-ggplot(data = dtBootResN,
+```{r echo = T}
+# Aggregate the results of bootstrapping per collective event
+tcollbootAggrPerColl = calcStatsColl(tcollselBoot)
+
+# Further aggregate size & duration per bootstrap iteration
+tcollbootSzDurPerIter = tcollbootAggrPerColl[,
+                                            lapply(.SD, mean),
+                                            by = c(lCols$bootiter),
+                                            .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
+
+# Further aggregate the number of events per bootstrap iteration
+tcollbootNcollPerIter = tcollbootAggrPerColl[,
+                                             .(N = sum(!is.na(collid))),
+                                             by = c(lCols$bootiter)]
+
+```
+
+Distribution of the number of collective events identified in every bootstrap iteration compared to the observed statistics (red dashed line):
+
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(data = tcollbootNcollPerIter,
        aes(x = N,
-           y = ..density..)) +
+           y = after_stat(density))) +
   geom_histogram(binwidth = 1,
                  color="lightblue", fill="lightblue") +
   geom_vline(xintercept = nrow(tcollselAggr),
@@ -710,46 +848,46 @@ ggplot(data = dtBootResN,
   ggthemes::theme_clean()
 ```
 
-P-value, alternative hypothesis - the number of clusters from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - the number of clusters from bootstrapping is lower or greater than the observed number:
 
 ```{r}
-calcPvalFromBS(nrow(tcollselAggr), dtBootResN$N, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'two.sided')
 ```
 
-Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data:
+Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data (red dashed line):
 
-```{r}
-ggplot(dtBootResAggr,
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(tcollbootSzDurPerIter,
        aes(x = clDur,
            y = after_stat(density))) +
-  geom_freqpoly(color = 'black') +
+  geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$clDur), color = 'red', linetype = 'dashed') +
   xlab("Duration of collective events [#frames]") +
   theme_minimal()
 ```
 
-P-value, alternative hypothesis - mean cluster duration from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - mean cluster duration from bootstrapping is lower or greater than the observed statistic:
 
 ```{r}
-calcPvalFromBS(mean(tcollselAggr$clDur), dtBootResAggr$clDur, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'two.sided')
 ```
 
-Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data:
+Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data (red dashed line):
 
-```{r}
-ggplot(dtBootResAggr,
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(tcollbootSzDurPerIter,
        aes(x = totSz,
            y = after_stat(density))) +
-  geom_freqpoly(color = 'black') +
+  geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$totSz), color = 'red', linetype = 'dashed') +
   xlab("#cells involved in collective events") +
   theme_minimal()
 ```
 
-P-value, alternative hypothesis - mean total cluster size from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - mean total cluster size from the bootstrap is lower or greater than the observed statistic:
 
 ```{r}
-calcPvalFromBS(mean(tcollselAggr$totSz), dtBootResAggr$totSz, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'two.sided')
 ```
 
 ## Shuffle blocks per track
@@ -757,92 +895,106 @@ calcPvalFromBS(mean(tcollselAggr$totSz), dtBootResAggr$totSz, corrected = T, alt
 In this approach, blocks of activity in binarised time series are shuffled independently in every track. 
 
 ```{r shuffBlockTrack}
+lPar$nboot = 100
 stmp = system.file(sprintf('synthetic2D/output-bootstrap-20/bootRes_shuffBlockTrack_N%d.csv.gz', lPar$nboot),
                    package = 'ARCOS')
 
 
 if (file.exists(stmp)) {
-  dtBootRes = fread(stmp)
+  tcollselBoot = loadDataFromFile(fname = stmp,
+                                  colPos = c(lCols$posx, lCols$posy),
+                                  colFrame = lCols$frame,
+                                  colIDobj = lCols$trackid,
+                                  colIDcoll = lCols$cltrackid,
+                                  colMeas = lCols$meas,
+                                  colBootIter = lCols$bootiter,
+                                  fromColl = TRUE,
+                                  fromBoot = TRUE)
 } else {
   set.seed(11)
   
-  dtBootRes = calcBoot(obj = ts, 
-                       nboot = lPar$nboot, 
-                       ncores = lPar$ncores, 
-                       method = 'shuffBlockTrack', 
-                       eps = lPar$db.eps, 
-                       epsPrev = lPar$db.eps, 
-                       nPrev = 1L, 
-                       minClSz = lPar$db.minPts,
-                       colldurlim = c(lPar$coll.mindur, 1000), 
-                       colltotszlim = c(lPar$coll.mintotsz, 1000),
-                       deb = F)
+  tcollselBoot = ARCOS::trackCollBoot(obj = ts, 
+                                      nboot = lPar$nboot, 
+                                      ncores = lPar$ncores, 
+                                      method = 'shuffBlockTrack', 
+                                      eps = lPar$db.eps, 
+                                      epsPrev = lPar$db.eps, 
+                                      nPrev = 1L, 
+                                      minClSz = lPar$db.minPts,
+                                      colldurlim = c(lPar$coll.mindur, 1000), 
+                                      colltotszlim = c(lPar$coll.mintotsz, 1000),
+                                      deb = F)
 }
-
-# Aggregate the results of bootstrapping
-dtBootResAggr = dtBootRes[,
-                          lapply(.SD, mean),
-                          by = iter,
-                          .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
-
-dtBootResN = dtBootRes[,
-                       .(N = sum(!is.na(collid))),
-                       by = iter]
-
 ```
 
+```{r, echo = F}
+knitr::kable(head(tcollselBoot), digits = 2)
+```
 
-Sample noodle plot from bootstrapped data:
+Sample noodle plot from a single iteration of bootstrapping:
+
+```{r, echo=F, fig.width=8, fig.height=4}
+ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1], 
+                    xfac = 1,
+                    yfac = 1,
+                    pos = 1,
+                    tfreq = 1, 
+                    style = 'both') +
+  coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
+  xlab("Time [frames]") +
+  ylab("Position X [au]") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+Distribution of the fraction of collective events in bootstrap iterations compared to the observed fraction (red dashed line):
+
+```{r, echo = T, fig.width=5, fig.height=3}
+tFracActInColl = calcFracActInColl(ts, tcollsel)
+tFracActInCollBoot = calcFracActInColl(ts, tcollselBoot)
+
+ggplot(tFracActInCollBoot,
+       aes(x = fracAct,
+           y = after_stat(density))) +
+  geom_histogram(bins = 20,
+                 color="lightblue", fill="lightblue") +
+  geom_vline(xintercept = tFracActInColl$fracAct,
+             color = "red", linetype = 2) +
+  xlab('Fraction of activity in collective events') +
+  ggthemes::theme_clean()
+```
+
+P-value, alternative hypothesis - the fraction of total (binarised) activity in collective events from bootstrapping is lower or greater than the observed fraction:
 
 ```{r}
-tcollselRand = data.table()
-nTry = 0
-
-while (nrow(tcollselRand) == 0 & nTry < 10) {
-  tsRand = shuffBlockTrack(ts)
-  stmp = paste0(lCols$measbin, '.shuff')
-  
-  tcollRand = ARCOS::trackColl(tsRand[get(stmp) > 0], 
-                               eps = lPar$db.eps, 
-                               minClSz = lPar$db.minPts)
-  tcollselRand = ARCOS::selColl(tcollRand, 
-                                colldur = c(lPar$coll.mindur, 1000), 
-                                colltotsz = c(lPar$coll.mintotsz, 1000))
-  nTry = nTry + 1
-}
-
-if (nrow(tcollselRand) > 0) {
-  
-  p501 = ARCOS::plotNoodle2D(tcollselRand, 
-                             xfac = lPar$sample.period,
-                             yfac = lPar$pxscale,
-                             pos = 1,
-                             tfreq = 1, 
-                             style = 'both') +
-    coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
-    xlab("Time [frames]") +
-    ylab("Position X [au]") +
-    theme_minimal() +
-    theme(legend.position = "none")
-  
-  p501
-} else {
-  cat('No collective events found in 10 randomised bootstrap iterations')
-}
+calcPvalFromBS(tFracActInColl$fracAct, tFracActInCollBoot$fracAct, corrected = T, alternative = 'two.sided')
 ```
 
-P-value, alternative hypothesis - the number of clusters from the bootstrap is lower or greater than the original:
+Aggregate statistics from bootstrapping.
 
-```{r}
-calcPvalFromBS(nrow(tcollselAggr), dtBootResN$N, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+# Aggregate the results of bootstrapping per collective event
+tcollbootAggrPerColl = calcStatsColl(tcollselBoot)
+
+# Further aggregate size & duration per bootstrap iteration
+tcollbootSzDurPerIter = tcollbootAggrPerColl[,
+                                            lapply(.SD, mean),
+                                            by = c(lCols$bootiter),
+                                            .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
+
+# Further aggregate the number of events per bootstrap iteration
+tcollbootNcollPerIter = tcollbootAggrPerColl[,
+                                             .(N = sum(!is.na(collid))),
+                                             by = c(lCols$bootiter)]
+
 ```
 
-Distribution of the number of collective events identified in every bootstrap iteration:
+Distribution of the number of collective events identified in every bootstrap iteration compared to the observed statistics (red dashed line):
 
-```{r shuffBlockTrackBootVSorigNevents}
-ggplot(data = dtBootResN,
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(data = tcollbootNcollPerIter,
        aes(x = N,
-           y = ..density..)) +
+           y = after_stat(density))) +
   geom_histogram(binwidth = 1,
                  color="lightblue", fill="lightblue") +
   geom_vline(xintercept = nrow(tcollselAggr),
@@ -851,39 +1003,44 @@ ggplot(data = dtBootResN,
   ggthemes::theme_clean()
 ```
 
-Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data:
+P-value, alternative hypothesis - the number of clusters from bootstrapping is lower or greater than the observed number:
 
 ```{r}
-ggplot(dtBootResAggr,
+calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'two.sided')
+```
+
+Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data (red dashed line):
+
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(tcollbootSzDurPerIter,
        aes(x = clDur,
            y = after_stat(density))) +
-  geom_freqpoly(color = 'black') +
+  geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$clDur), color = 'red', linetype = 'dashed') +
   xlab("Duration of collective events [#frames]") +
   theme_minimal()
 ```
 
-P-value, alternative hypothesis - mean cluster duration from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - mean cluster duration from bootstrapping is lower or greater than the observed statistic:
 
 ```{r}
-calcPvalFromBS(mean(tcollselAggr$clDur), dtBootResAggr$clDur, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'two.sided')
 ```
 
-Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data:
+Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data (red dashed line):
 
-```{r}
-ggplot(dtBootResAggr,
+```{r, echo = T, fig.width=5, fig.height=3}
+ggplot(tcollbootSzDurPerIter,
        aes(x = totSz,
            y = after_stat(density))) +
-  geom_freqpoly(color = 'black') +
+  geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$totSz), color = 'red', linetype = 'dashed') +
   xlab("#cells involved in collective events") +
   theme_minimal()
 ```
 
-P-value, alternative hypothesis - mean total cluster size from the bootstrap is lower or greater than the original:
+P-value, alternative hypothesis - mean total cluster size from the bootstrap is lower or greater than the observed statistic:
 
 ```{r}
-calcPvalFromBS(mean(tcollselAggr$totSz), dtBootResAggr$totSz, corrected = T, alternative = 'two.sided')
+calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'two.sided')
 ```
-

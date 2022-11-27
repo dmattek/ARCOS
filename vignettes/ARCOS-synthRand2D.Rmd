@@ -72,9 +72,9 @@ myPlotBinTS <- function(objTS,
     theme_void() +
     theme(text = element_text(size = 20),
           legend.position = legendPos, 
-          panel.border=element_rect(colour="black", 
-                                    fill = NA,
-                                    size=1))
+          panel.border = element_rect(colour="black", 
+                                      fill = NA,
+                                      linewidth = 1))
   
   return(locP)
 }
@@ -120,10 +120,8 @@ ts = ts[setkey(ts[,
 # reapply attributes
 ARCOS::arcosTS(dt = ts,
                colPos = c("x", "y"), 
-               col = list(IDobj = "id",
-                          Frame = "t"),
-               interVal = 1,
-               interType = "fixed")
+               colIDobj = "id",
+               colFrame = "t")
 
 vEventID = unique(ts$eventid)[!is.na(unique(ts$eventid))]
 names(myColPal) = vEventID
@@ -165,11 +163,10 @@ tcoll = tcoll[setkey(tcoll[,
 # reapply attributes
 ARCOS::arcosTS(dt = tcoll,
                colPos = c("x", "y"), 
-               col = list(IDobj = "id",
-                          Frame = "t", 
-                          IDcoll = "collid"),
-               interVal = 1,
-               interType = "fixed")
+               colIDobj = "id",
+               colFrame = "t", 
+               colIDcoll = "collid",
+               fromColl = TRUE)
 
 vCollID = unique(tcoll$eventid)[!is.na(unique(tcoll$eventid))]
 names(myColPal) = vCollID
@@ -209,9 +206,9 @@ if (lPar$saveFrames) {
       theme_void() +
       theme(text = element_text(size = 20),
             legend.position = "none", 
-            panel.border=element_rect(colour="black", 
-                                      fill = NA,
-                                      size=1),
+            panel.border = element_rect(colour="black", 
+                                        fill = NA,
+                                        linewidth = 1),
             panel.background = element_rect(fill = "grey90")) +
       geom_text(x=0, y=0, 
                 label=sprintf("%d", ii))

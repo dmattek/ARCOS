@@ -133,13 +133,19 @@ interpolMeas.arcosTS <- function(obj) {
   # Add attributes to the data.table
   new_arcosTS(dt = locDT,
               colPos = attr(obj, "colPos"),
-              colMeas = attr(obj, "colMeas"),
               colFrame = attr(obj, "colFrame"),
-              colRT = attr(obj, "colRT"),
               colIDobj = attr(obj, "colIDobj"),
               colIDcoll = attr(obj, "colIDcoll"),
+              colMeas = attr(obj, "colMeas"),
+              colMeasResc = attr(obj, "colMeasResc"),
+              colMeasBin = attr(obj, "colMeasBin"),
+              colBootIter = attr(obj, "colBootIter"),
+              colRT = attr(obj, "colRT"),
               interVal = attr(obj, "interVal"),
-              interType = attr(obj, "interType"))
+              interType = attr(obj, "interType"),
+              fromBin = attr(obj, "fromBin"),
+              fromColl = attr(obj, "fromColl"),
+              fromBoot = attr(obj, "fromBoot"))
 
   return(locDT)
 }

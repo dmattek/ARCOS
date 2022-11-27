@@ -16,10 +16,15 @@ calcStatsColl(obj)
 an arcosTS object
 }
 \description{
-Stats of collective events
+Calculate statistics of collective events
 }
 \details{
-Wrapper for the \code{calcStatsCollEvents} function.
+Wrapper for the \code{calcStatsCollEvents} function to calculate statistics of collective events identified by the \code{trackCollEvents} function.
+Calculates:
+- event duration in time frames, \code{clDur},
+- the total number of unique objects/cells that participate in an event, \code{totSz},
+- the smallest number of objects/cells that comprise an event, \code{minSz},
+- the largest number of objects/cells that comprise an event, \code{maxSz}.
 }
 \examples{
 cat("no examples")
