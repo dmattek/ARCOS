@@ -38,12 +38,12 @@ arbitrary spatial dimension.
 This repository covers the R implementation. For other implementations
 check:
 
--   [arcos4py](https://github.com/bgraedel/arcos4py), a Python
-    implementation written by Benjamin Grädel.
--   [arcos-gui](https://github.com/bgraedel/arcos-gui), a plugin with
-    GUI for [napari](https://napari.org) image viewer; written by
-    Benjamin Grädel. See a YouTube
-    [demo](https://www.youtube.com/watch?v=hG_z_BFcAiQ).
+- [arcos4py](https://github.com/bgraedel/arcos4py), a Python
+  implementation written by Benjamin Grädel.
+- [arcos-gui](https://github.com/bgraedel/arcos-gui), a plugin with GUI
+  for [napari](https://napari.org) image viewer; written by Benjamin
+  Grädel. See a YouTube
+  [demo](https://www.youtube.com/watch?v=hG_z_BFcAiQ).
 
 Documentation for the entire ARCOS project can be found on
 [gitbook](https://arcos.gitbook.io/home/).

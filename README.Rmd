@@ -125,7 +125,7 @@ p2 = ggplot(dts,
   geom_polygon(data = dcollch,
                aes(color = as.factor(collid)),
                fill = NA, 
-               size = 1) +
+               linewidth = 1) +
   facet_wrap(~ t, ncol = 4) +
   coord_fixed(ratio=1) +
   theme_void() +
