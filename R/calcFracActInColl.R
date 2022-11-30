@@ -86,6 +86,4 @@ calcFracActInColl.default <- function(objFull, objColl) {
     locTotActColl = sum(objColl[[locColMeasBin]])
     return(locTotActColl / locTotActFull)
   }
-
-  return(locDTtotActColl)
 }
