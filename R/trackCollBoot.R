@@ -62,6 +62,7 @@ trackCollBoot.arcosTS <- function(obj,
 
   # extract the column with binarised measurement
   locColSource <- attr(obj, 'colMeasBin')
+  stmp = paste0(locColSource, '.shuff')
 
   # extract all column names
   locColAll <- attr(ts, 'names')
@@ -71,36 +72,43 @@ trackCollBoot.arcosTS <- function(obj,
     if (deb) cat(sprintf("Bootstrap iteration %d\n", x))
 
     switch (method,
-            shuffCoord = {tsRand = ARCOS::shuffCoord(obj)
-            stmp = locColSource},
-
-            randShiftMeas = {tsRand = ARCOS::randShiftMeas(obj)
-            stmp = paste0(locColSource, '.shuff')},
-
-            shuffMeasTrack = {tsRand = ARCOS::shuffMeasTrack(obj)
-            stmp = paste0(locColSource, '.shuff')},
-
-            shuffMeasFrame = {tsRand = ARCOS::shuffMeasFrame(obj)
-            stmp = paste0(locColSource, '.shuff')},
-
-            shuffBlockTrack = {tsRand = ARCOS::shuffBlockTrack(obj)
-            stmp = paste0(locColSource, '.shuff')}
+            shuffCoord      = {tsRand = ARCOS::shuffCoord(obj)},
+            randShiftMeas   = {tsRand = ARCOS::randShiftMeas(obj)},
+            shuffMeasTrack  = {tsRand = ARCOS::shuffMeasTrack(obj)},
+            shuffMeasFrame  = {tsRand = ARCOS::shuffMeasFrame(obj)},
+            shuffBlockTrack = {tsRand = ARCOS::shuffBlockTrack(obj)}
     )
 
+    # TODO: deal with cases when trackColl does not identify any objects!
     tcollRand = ARCOS::trackColl(obj = tsRand[get(stmp) > 0],
                                  eps = eps,
                                  minClSz = minClSz,
                                  nPrev = nPrev,
                                  epsPrev = epsPrev)
 
-    tcollselRand = ARCOS::selColl(obj = tcollRand,
-                                  colldur = colldurlim,
-                                  colltotsz = colltotszlim)
+    if (is.null(tcollRand)) {
+      warning(sprintf("No collective events identified in bootstrap iteration %d\n", x))
+      tcollselRand = NULL
+    } else {
+      tcollselRand = ARCOS::selColl(obj = tcollRand,
+                                    colldur = colldurlim,
+                                    colltotsz = colltotszlim)
+
+      if (nrow(tcollselRand) == 0)
+        warning(sprintf("No selected collective events in bootstrap iteration %d\n", x))
+    }
 
     return(tcollselRand)
   }, mc.cores = ncores)
 
-  locBootRes = rbindlist(lbootRes, idcol = 'bootiter')
+  locBootRes = rbindlist(lbootRes, fill = TRUE, idcol = 'bootiter')
+
+  # Stretch the resulting table to include the result for all bootstrap iterations,
+  # even if an iteration did not produce any results
+  setkeyv(locBootRes, 'bootiter')
+  dtmp = locBootRes[, .(seq(1, nboot, 1))]
+  setkey(dtmp, V1)
+  locBootRes = locBootRes[dtmp]
 
   # Inherit attributes from the input object
   locBootRes = new_arcosTS(dt = locBootRes,

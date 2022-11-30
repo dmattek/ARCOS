@@ -26,22 +26,22 @@ calcPvalFromBS <- function(testStat, bsStat, corrected = FALSE, alternative = c(
 
   if (corrected) {
     if (alternative == "two.sided") {
-      locPval = 2 * min((1 + sum(bsStat <= testStat)) / (locN + 1),
-                        (1 + sum(bsStat >= testStat))  / (locN + 1))
+      locPval = 2 * min((1 + sum(bsStat <= testStat, na.rm = T)) / (locN + 1),
+                        (1 + sum(bsStat >= testStat, na.rm = T))  / (locN + 1))
     } else if (alternative == "less") {
-      locPval = (1 + sum(bsStat <= testStat)) / (locN + 1)
+      locPval = (1 + sum(bsStat <= testStat, na.rm = T)) / (locN + 1)
     } else {
-      locPval = (1 + sum(bsStat >= testStat)) / (locN + 1)
+      locPval = (1 + sum(bsStat >= testStat, na.rm = T)) / (locN + 1)
     }
 
   } else {
     if (alternative == "two.sided") {
-      locPval = 2 * min(mean(bsStat <= testStat),
-                        mean(bsStat >= testStat))
+      locPval = 2 * min(mean(bsStat <= testStat, na.rm = T),
+                        mean(bsStat >= testStat, na.rm = T))
     } else if (alternative == "less") {
-      locPval = mean(bsStat <= testStat)
+      locPval = mean(bsStat <= testStat, na.rm = T)
     } else {
-      locPval = mean(bsStat >= testStat)
+      locPval = mean(bsStat >= testStat, na.rm = T)
     }
   }
 

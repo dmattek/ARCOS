@@ -37,10 +37,12 @@ calcFracActInColl.default <- function(objFull, objColl) {
 
   # If objColl comes from bootstrapping, check for the bootiter column
   if (locFromBoot) {
-    if ("bootiter" %in% attr(objColl, "names"))
-      locColBy = "bootiter"
+    locColBootIter = attr(objColl, "colBootIter")
+
+    if (locColBootIter %in% attr(objColl, "names"))
+      locColBy = locColBootIter
     else
-      stop("Even though objColl comes from bootstrapping, it does not have the bootiter column.")
+      stop(sprintf("Even though objColl comes from bootstrapping, it does not have the %s column.", locColBootIter))
   } else {
     locColBy = ""
   }
@@ -57,7 +59,33 @@ calcFracActInColl.default <- function(objFull, objColl) {
   # Total activity fraction in collective events.
   # If objColl comes from bootstrapping, calculate the fraction per bootstrapping iteration.
   # Otherwise, calculate the fraction for all collective events in the data.
-  locDTtotAcColl = objColl[, .(fracAct = .N / locTotActFull), by = c(locColBy)]
 
-  return(locDTtotAcColl)
+
+  # If the fraction is calculated for bootstrapped data,
+  # return a dt with fractions for every iteration.
+  # Return a scalar, otherwise.
+  if (locFromBoot) {
+    # Caveat:
+    # It's quite likely that a bootstrap iteration doesn't find any collective events
+    # because of randomisation and small total activity. The row in the dt from bootstrapping
+    # consists then of NA's in all measurement columns (dt is "stretched" in trackCollBoot).
+
+    locColMeasBinShuff = paste0(locColMeasBin, '.shuff')
+    locTotActFull = objColl[,
+                            .(fracAct = sum(get(locColMeasBinShuff)) / locTotActFull),
+                            by = c(locColBootIter)]
+
+    # NAs due to inability to identify clusters in bootstrapping iterations
+    # are converted to 0s.
+    # Maybe they should b eleft as NA's?
+    locTotActFull[is.na(fracAct),
+                  fracAct := 0.]
+
+    return(locTotActFull)
+  } else {
+    locTotActColl = sum(objColl[[locColMeasBin]])
+    return(locTotActColl / locTotActFull)
+  }
+
+  return(locDTtotActColl)
 }

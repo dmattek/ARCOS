@@ -37,6 +37,17 @@ calcStatsCollEvents = function(inDTcoll,
                                       by = c(inCols$frame)][["N"]])),
                     by = c(sByCols)]
 
+  # Bootstrap iterations that don't identify any collective events
+  # produce a dt with all columns NAs.
+  # The above aggregation will generate NAs in the collid column.
+  # Here we set the stats to 0.
+  locDT[is.na(get(inCols$collid)),
+        `:=`(clDur = 0L,
+             totSz = 0L,
+             minSz = 0L,
+             maxSz = 0L)]
+
+
   return(locDT)
 }
 

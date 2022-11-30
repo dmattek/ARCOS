@@ -91,7 +91,7 @@ trackCollEvents <- function(dt,
   }
 
   if (nrow(dt) < 1L) {
-    warning("Input data has no records! Returning NULL")
+    warning("Input data has no records! Returning NULL\n")
     return(NULL)
   }
 
@@ -369,32 +369,34 @@ trackColl.arcosTS <- function(obj, eps = 1., minClSz = 1L, nPrev = 1L, epsPrev =
                             clid = "collid"
                           ),
                           posCols = attr(obj, "colPos"),
-                          deb = FALSE)
+                          deb = deb)
 
   if (deb)
     cat("Finished detecting and tracking collective events.\n")
 
-  locDT = merge(locDT,
-                obj,
-                by = c(attr(obj, "colFrame"),
-                       attr(obj, "colIDobj")))
+  if (!is.null(locDT)) {
+    locDT = merge(locDT,
+                  obj,
+                  by = c(attr(obj, "colFrame"),
+                         attr(obj, "colIDobj")))
 
-  # Inherit attributes from the input object
-  locDT = new_arcosTS(dt = locDT,
-                      colPos = attr(obj, "colPos"),
-                      colFrame = attr(obj, "colFrame"),
-                      colIDobj = attr(obj, "colIDobj"),
-                      colIDcoll = "collid",
-                      colMeas =  attr(obj, "colMeas"),
-                      colMeasResc =  attr(obj, "colMeasResc"),
-                      colMeasBin =  attr(obj, "colMeasBin"),
-                      colBootIter = attr(obj, "colBootIter"),
-                      colRT = attr(obj, "colRT"),
-                      interVal = attr(obj, "interVal"),
-                      interType = attr(obj, "interType"),
-                      fromBin = attr(obj, "fromBin"),
-                      fromColl = TRUE,
-                      fromBoot = attr(obj, "fromBoot"))
+    # Inherit attributes from the input object
+    locDT = new_arcosTS(dt = locDT,
+                        colPos = attr(obj, "colPos"),
+                        colFrame = attr(obj, "colFrame"),
+                        colIDobj = attr(obj, "colIDobj"),
+                        colIDcoll = "collid",
+                        colMeas =  attr(obj, "colMeas"),
+                        colMeasResc =  attr(obj, "colMeasResc"),
+                        colMeasBin =  attr(obj, "colMeasBin"),
+                        colBootIter = attr(obj, "colBootIter"),
+                        colRT = attr(obj, "colRT"),
+                        interVal = attr(obj, "interVal"),
+                        interType = attr(obj, "interType"),
+                        fromBin = attr(obj, "fromBin"),
+                        fromColl = TRUE,
+                        fromBoot = attr(obj, "fromBoot"))
+  }
 
   return(locDT)
 }
