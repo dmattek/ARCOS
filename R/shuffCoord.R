@@ -119,7 +119,13 @@ shuffCoord.arcosTS <- function(obj) {
   locColKeep = setdiff(names(locObj),
                        c(locColPos0, locColPosDiff))
 
-  return(locObj[,
-                c(locColKeep),
-                with = F])
+  locObj = locObj[,
+                  c(locColKeep),
+                  with = F]
+
+  # Add meas.bin.shuff column for compatibility with other randomisation methods
+  locObj[,
+         (paste0(attr(obj, "colMeasBin"), '.shuff')) := get(attr(obj, "colMeasBin"))]
+
+  return(locObj)
 }
