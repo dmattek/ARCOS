@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ARCOS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -50,7 +50,13 @@
       <a href="../articles/ARCOS-unitTests.html">ARCOS demo of unit tests</a>
     </li>
   </ul></li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/dmattek/ARCOS/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -60,7 +66,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Create an arcosTS class</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/dmattek/ARCOS/blob/HEAD/R/arcosTS.R" class="external-link"><code>R/arcosTS.R</code></a></small>
     <div class="hidden name"><code>arcosTS.Rd</code></div>
     </div>
 
@@ -72,10 +78,19 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">arcosTS</span><span class="op">(</span></span>
 <span>  <span class="va">dt</span>,</span>
 <span>  colPos <span class="op">=</span> <span class="st">"x"</span>,</span>
+<span>  colFrame <span class="op">=</span> <span class="st">"f"</span>,</span>
+<span>  colIDobj <span class="op">=</span> <span class="st">"id"</span>,</span>
+<span>  colIDcoll <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  colMeas <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Frame <span class="op">=</span> <span class="st">"f"</span>, IDobj <span class="op">=</span> <span class="st">"id"</span>, RT <span class="op">=</span> <span class="cn">NULL</span>, IDcoll <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>,</span>
-<span>  interVal <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  interType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fixed"</span><span class="op">)</span></span>
+<span>  colMeasResc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  colMeasBin <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  colBootIter <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  colRT <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  interVal <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  interType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fixed"</span><span class="op">)</span>,</span>
+<span>  fromBin <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fromColl <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fromBoot <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -86,23 +101,59 @@
 
 
 <dt>colPos</dt>
-<dd><p>a vector with names of positional columns; default "x".</p></dd>
+<dd><p>a vector, names of positional columns; default "x".</p></dd>
+
+
+<dt>colFrame</dt>
+<dd><p>a string, column name with frame numbers; default "f".</p></dd>
+
+
+<dt>colIDobj</dt>
+<dd><p>a string, column name with object IDs; default "id".</p></dd>
+
+
+<dt>colIDcoll</dt>
+<dd><p>a string, column name with IDs of collective events; default NULL.</p></dd>
 
 
 <dt>colMeas</dt>
-<dd><p>a string with the column name of the measurement; default NULL.</p></dd>
+<dd><p>a string, column name of the measurement; default NULL.</p></dd>
 
 
-<dt>col</dt>
-<dd><p>a list with names of other columns, i.e. list(Frame = , IDobj = , RT = , IDcoll = ), with names of the frame, object id, real time, and collective id columns.</p></dd>
+<dt>colMeasResc</dt>
+<dd><p>a string, column name of the rescaled measurement; default NULL.</p></dd>
+
+
+<dt>colMeasBin</dt>
+<dd><p>a string, column name of the binarised measurement; default NULL.</p></dd>
+
+
+<dt>colBootIter</dt>
+<dd><p>a string, column name with bootstrap iterations; default NULL.</p></dd>
+
+
+<dt>colRT</dt>
+<dd><p>a string, column name with real time; default NULL (currently unused).</p></dd>
 
 
 <dt>interVal</dt>
-<dd><p>a numeric with the interval length.</p></dd>
+<dd><p>a numeric with the interval length (currently unused).</p></dd>
 
 
 <dt>interType</dt>
-<dd><p>a string to designate whether the time series has fixed or variable intervals; possible values fixed or var.</p></dd>
+<dd><p>a string to designate whether the time series has fixed or variable intervals; possible values fixed or var (currently unused).</p></dd>
+
+
+<dt>fromBin</dt>
+<dd><p>logical, whether the output has been passed by binarisation, relevant for plotting of binarised activity; default FALSE.</p></dd>
+
+
+<dt>fromColl</dt>
+<dd><p>logical, whether the output comes from collective event identification, relevant for plotting of collective events; default FALSE.</p></dd>
+
+
+<dt>fromBoot</dt>
+<dd><p>logical, whether the output comes from bootstrapping, relevant for calculating stats of collective events; default FALSE.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -114,16 +165,14 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dmattek/ARCOS" class="external-link">ARCOS</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dts</span> <span class="op">=</span> <span class="fu">arcosTS</span><span class="op">(</span>dt <span class="op">=</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>frame <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                              id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                              x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">1.2</span>, <span class="fl">2.5</span>, <span class="fl">3.5</span>, <span class="fl">0.9</span>, <span class="fl">2.6</span>, <span class="fl">2.9</span>, <span class="fl">3.2</span>, <span class="fl">1.1</span>, <span class="fl">2.8</span>, <span class="fl">3.1</span>, <span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>              colPos <span class="op">=</span> <span class="st">"x"</span>,</span></span>
-<span class="r-in"><span>              col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Frame <span class="op">=</span> <span class="st">"frame"</span>,</span></span>
-<span class="r-in"><span>                         IDobj <span class="op">=</span> <span class="st">"id"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>              interVal <span class="op">=</span> <span class="fl">1</span>,</span></span>
-<span class="r-in"><span>              interType <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>              colFrame <span class="op">=</span> <span class="st">"frame"</span>,</span></span>
+<span class="r-in"><span>              colIDobj <span class="op">=</span> <span class="st">"id"</span>,</span></span>
+<span class="r-in"><span>              colPos <span class="op">=</span> <span class="st">"x"</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>

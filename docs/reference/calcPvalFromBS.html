@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ARCOS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -50,7 +50,13 @@
       <a href="../articles/ARCOS-unitTests.html">ARCOS demo of unit tests</a>
     </li>
   </ul></li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/dmattek/ARCOS/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -60,7 +66,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Calculate p-value from bootstrapping</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/dmattek/ARCOS/blob/HEAD/R/calcPvalFromBS.R" class="external-link"><code>R/calcPvalFromBS.R</code></a></small>
     <div class="hidden name"><code>calcPvalFromBS.Rd</code></div>
     </div>
 
@@ -104,9 +110,9 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dmattek/ARCOS" class="external-link">ARCOS</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">ARCOS</span><span class="fu">::</span><span class="fu">calcPvalFromBS</span><span class="op">(</span><span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.044</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.034</span>
 </code></pre></div>
     </div>
   </div>

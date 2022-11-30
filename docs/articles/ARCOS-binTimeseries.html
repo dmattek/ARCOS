@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ARCOS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -70,7 +70,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/dmattek/ARCOS/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -86,7 +93,7 @@
       <h1 data-toc-skip>Pre-processing time-series for ARCOS</h1>
             
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/dmattek/ARCOS/blob/HEAD/vignettes/ARCOS-binTimeseries.Rmd" class="external-link"><code>vignettes/ARCOS-binTimeseries.Rmd</code></a></small>
       <div class="hidden name"><code>ARCOS-binTimeseries.Rmd</code></div>
 
     </div>
@@ -95,7 +102,7 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dmattek/ARCOS" class="external-link">ARCOS</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jrnold/ggthemes" class="external-link">ggthemes</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://eliocamp.github.io/ggnewscale/" class="external-link">ggnewscale</a></span><span class="op">)</span></span></code></pre></div>
@@ -138,12 +145,10 @@ ARCOS.</p>
 <span><span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/arcosTS.html">arcosTS</a></span><span class="op">(</span><span class="va">dts</span>, </span>
 <span>               colPos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lCols</span><span class="op">$</span><span class="va">posx</span>, <span class="va">lCols</span><span class="op">$</span><span class="va">posy</span><span class="op">)</span>, </span>
 <span>               colMeas <span class="op">=</span> <span class="va">lCols</span><span class="op">$</span><span class="va">meas</span>,</span>
-<span>               col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Frame <span class="op">=</span> <span class="va">lCols</span><span class="op">$</span><span class="va">frame</span>, </span>
-<span>                          IDobj <span class="op">=</span> <span class="va">lCols</span><span class="op">$</span><span class="va">trackid</span><span class="op">)</span>, </span>
-<span>               interVal <span class="op">=</span> <span class="fl">1L</span>, </span>
-<span>               interType <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span></span>
+<span>               colFrame <span class="op">=</span> <span class="va">lCols</span><span class="op">$</span><span class="va">frame</span>, </span>
+<span>               colIDobj <span class="op">=</span> <span class="va">lCols</span><span class="op">$</span><span class="va">trackid</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/keepSignifDig.html">keepSignifDig</a></span><span class="op">(</span><span class="va">dts</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dts</span>, <span class="fl">4</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="right">frame</th>
@@ -156,44 +161,30 @@ ARCOS.</p>
 <tr class="odd">
 <td align="right">0</td>
 <td align="right">16</td>
-<td align="right">682.2</td>
-<td align="right">148.1</td>
-<td align="right">0.4861</td>
+<td align="right">682.21</td>
+<td align="right">148.14</td>
+<td align="right">0.49</td>
 </tr>
 <tr class="even">
 <td align="right">1</td>
 <td align="right">16</td>
-<td align="right">679.8</td>
-<td align="right">149.0</td>
-<td align="right">0.4849</td>
+<td align="right">679.79</td>
+<td align="right">149.04</td>
+<td align="right">0.48</td>
 </tr>
 <tr class="odd">
 <td align="right">2</td>
 <td align="right">16</td>
-<td align="right">678.7</td>
-<td align="right">149.9</td>
-<td align="right">0.4820</td>
+<td align="right">678.68</td>
+<td align="right">149.87</td>
+<td align="right">0.48</td>
 </tr>
 <tr class="even">
 <td align="right">3</td>
 <td align="right">16</td>
-<td align="right">680.2</td>
-<td align="right">148.5</td>
-<td align="right">0.4801</td>
-</tr>
-<tr class="odd">
-<td align="right">4</td>
-<td align="right">16</td>
-<td align="right">679.3</td>
-<td align="right">149.1</td>
-<td align="right">0.4748</td>
-</tr>
-<tr class="even">
-<td align="right">5</td>
-<td align="right">16</td>
-<td align="right">678.6</td>
-<td align="right">148.0</td>
-<td align="right">0.4717</td>
+<td align="right">680.24</td>
+<td align="right">148.45</td>
+<td align="right">0.48</td>
 </tr>
 </tbody>
 </table>
@@ -325,7 +316,7 @@ filter the rows such that only <em>active</em> cells are used to detect
 collective events, i.e.,
 <code>ARCOS::trackColl(dts[meas.bin &gt; 0])</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/keepSignifDig.html">keepSignifDig</a></span><span class="op">(</span><span class="va">dts</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dts</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="right">frame</th>
@@ -340,54 +331,54 @@ collective events, i.e.,
 <tr class="odd">
 <td align="right">0</td>
 <td align="right">16</td>
-<td align="right">682.208</td>
-<td align="right">148.138</td>
-<td align="right">0.486129</td>
+<td align="right">682.21</td>
+<td align="right">148.14</td>
+<td align="right">0.49</td>
 <td align="right">0</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="right">1</td>
 <td align="right">16</td>
-<td align="right">679.786</td>
-<td align="right">149.037</td>
-<td align="right">0.484901</td>
+<td align="right">679.79</td>
+<td align="right">149.04</td>
+<td align="right">0.48</td>
 <td align="right">0</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="right">2</td>
 <td align="right">16</td>
-<td align="right">678.685</td>
-<td align="right">149.868</td>
-<td align="right">0.481986</td>
+<td align="right">678.68</td>
+<td align="right">149.87</td>
+<td align="right">0.48</td>
 <td align="right">0</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="right">3</td>
 <td align="right">16</td>
-<td align="right">680.237</td>
-<td align="right">148.452</td>
-<td align="right">0.480081</td>
+<td align="right">680.24</td>
+<td align="right">148.45</td>
+<td align="right">0.48</td>
 <td align="right">0</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="right">4</td>
 <td align="right">16</td>
-<td align="right">679.303</td>
-<td align="right">149.139</td>
-<td align="right">0.474813</td>
+<td align="right">679.30</td>
+<td align="right">149.14</td>
+<td align="right">0.47</td>
 <td align="right">0</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="right">5</td>
 <td align="right">16</td>
-<td align="right">678.611</td>
-<td align="right">148.031</td>
-<td align="right">0.471713</td>
+<td align="right">678.61</td>
+<td align="right">148.03</td>
+<td align="right">0.47</td>
 <td align="right">0</td>
 <td align="right">0</td>
 </tr>

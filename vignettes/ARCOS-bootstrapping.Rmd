@@ -588,12 +588,11 @@ calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected 
 
 ## Shuffle time points per track
 
-Here, individual time points are shuffled independetly in each track. While the spatial arrangement is intact, the measurement dynamics is completely randomised. 
+Here, individual time points are shuffled independently in each track. While the spatial arrangement is intact, the measurement dynamics is completely randomised. 
 
 ```{r shuffMeasTrack}
 stmp = system.file(sprintf('synthetic2D/output-bootstrap-20/bootRes_shuffMeasTrack_N%d.csv.gz', lPar$nboot),
                    package = 'ARCOS')
-
 
 if (file.exists(stmp)) {
   tcollselBoot = loadDataFromFile(fname = stmp,

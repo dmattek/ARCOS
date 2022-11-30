@@ -46,6 +46,12 @@
     <loc>/reference/binMeas.html</loc>
   </url>
   <url>
+    <loc>/reference/calcFracActInColl.html</loc>
+  </url>
+  <url>
+    <loc>/reference/calcGrowthColl.html</loc>
+  </url>
+  <url>
     <loc>/reference/calcMoran.html</loc>
   </url>
   <url>
@@ -79,6 +85,9 @@
     <loc>/reference/genSynth2D.html</loc>
   </url>
   <url>
+    <loc>/reference/getMinBBox2D.html</loc>
+  </url>
+  <url>
     <loc>/reference/histMeas.html</loc>
   </url>
   <url>
@@ -92,6 +101,15 @@
   </url>
   <url>
     <loc>/reference/interpolateTS.html</loc>
+  </url>
+  <url>
+    <loc>/reference/is.arcosTS.fromBin.html</loc>
+  </url>
+  <url>
+    <loc>/reference/is.arcosTS.fromBoot.html</loc>
+  </url>
+  <url>
+    <loc>/reference/is.arcosTS.fromColl.html</loc>
   </url>
   <url>
     <loc>/reference/is.arcosTS.html</loc>
@@ -149,6 +167,9 @@
   </url>
   <url>
     <loc>/reference/shuffBlockVec.html</loc>
+  </url>
+  <url>
+    <loc>/reference/shuffBlockVecAlt.html</loc>
   </url>
   <url>
     <loc>/reference/shuffCoord.html</loc>

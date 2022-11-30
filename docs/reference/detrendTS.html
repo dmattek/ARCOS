@@ -19,7 +19,7 @@ or by fitting a polynomial of degree polyDeg (biasMet = "lm").'><!-- mathjax -->
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ARCOS</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -52,7 +52,13 @@ or by fitting a polynomial of degree polyDeg (biasMet = "lm").'><!-- mathjax -->
       <a href="../articles/ARCOS-unitTests.html">ARCOS demo of unit tests</a>
     </li>
   </ul></li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/dmattek/ARCOS/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -62,7 +68,7 @@ or by fitting a polynomial of degree polyDeg (biasMet = "lm").'><!-- mathjax -->
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Smooth and de-trend time series</h1>
-    
+    <small class="dont-index">Source: <a href="https://github.com/dmattek/ARCOS/blob/HEAD/R/detrendTS.R" class="external-link"><code>R/detrendTS.R</code></a></small>
     <div class="hidden name"><code>detrendTS.Rd</code></div>
     </div>
 
@@ -118,7 +124,7 @@ or by fitting a polynomial of degree <code>polyDeg</code> (<code>biasMet = "lm"<
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ARCOS</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dmattek/ARCOS" class="external-link">ARCOS</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">vT</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0.001</span><span class="op">)</span> <span class="op">*</span> <span class="fl">10</span> <span class="op">*</span> <span class="va">pi</span></span></span>
 <span class="r-in"><span><span class="va">vY</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">vT</span><span class="op">)</span><span class="op">+</span><span class="va">vT</span><span class="op">/</span><span class="fl">10</span> <span class="op">+</span> <span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">vT</span><span class="op">)</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span></span></span>
 <span class="r-in"><span><span class="va">vYs</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">:::</span><span class="fu">detrendTS</span><span class="op">(</span><span class="va">vY</span>, smoothK <span class="op">=</span> <span class="fl">21</span>, biasMet <span class="op">=</span> <span class="st">"lm"</span><span class="op">)</span></span></span>
