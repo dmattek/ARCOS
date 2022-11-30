@@ -3,7 +3,7 @@
 #' Wrapper for the \code{getMinBBox2D} function that implements the rotating callipers algorithm. Calculates the minimal directed bounding box for every event at every time frame.
 #' The longer side is taken as the "diamater". Currently works only with 2D data!
 #'
-#' @title "Calculate NN distances"
+#' @title "Calculate collective events' growth"
 #' @param obj an arcosTS object.
 #'
 #' @return a data.table with the width and height of the minimal directed bounding box.
