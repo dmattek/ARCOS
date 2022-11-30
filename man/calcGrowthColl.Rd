@@ -3,7 +3,7 @@
 \name{calcGrowthColl}
 \alias{calcGrowthColl}
 \alias{calcGrowthColl.arcosTS}
-\title{"Calculate NN distances"}
+\title{"Calculate collective events' growth"}
 \usage{
 calcGrowthColl(obj)
 
