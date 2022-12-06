@@ -479,3 +479,28 @@ testthat::test_that("4 objects in 2 events", {
                             .(frame, id, collId)],
                locDTtrueRes)
 })
+
+testthat::test_that("synthetic2D_Gradient20", {
+
+  locTS <- ARCOS::loadDataFromFile(fname = file.path(system.file('synthetic2D', package = 'ARCOS'), 'Gradient20.csv.gz'),
+                                   colFrame = 'frame',
+                                   colIDobj = 'id',
+                                   colPos = c('x', 'y'),
+                                   colMeas = 'meas')
+
+  ARCOS::binMeas(locTS,
+                 biasMet = 'none',
+                 smoothK = 1,
+                 binThr = 0.)
+
+  locCollCalc <- ARCOS::trackColl(locTS[meas > 0],
+                              eps = 1.5,
+                              minClSz = 3L)
+
+  locCollTrue <- fread(input = file.path(system.file('synthetic2D', package = 'ARCOS'), 'Gradient20_coll.csv.gz'))
+
+  expect_equal(locCollCalc,
+               locCollTrue,
+               ignore_attr = TRUE)
+
+})
