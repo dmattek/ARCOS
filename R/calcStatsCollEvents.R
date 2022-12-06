@@ -26,29 +26,39 @@ calcStatsCollEvents = function(inDTcoll,
 
   if (fromBoot) sByCols = c(inCols$bootiter, inCols$collid) else sByCols = inCols$collid
 
-  locDT = inDTcoll[,
-                    .(clDur = max(get(inCols$frame)) - min(get(inCols$frame)) + 1,
-                      totSz = length(unique(get(inCols$id))),
-                      minSz = min(.SD[,
-                                      .N,
-                                      by = c(inCols$frame)][["N"]]),
-                      maxSz = max(.SD[,
-                                      .N,
-                                      by = c(inCols$frame)][["N"]])),
-                    by = c(sByCols)]
+  # The size = the number of unique cells in a collective event
+  # First aggregate per frame; used for min & max size per CE
+  locAggrSzPerFrame = inDTcoll[,
+                             .(totSz = length(unique(get(inCols$id)))),
+                             by = c(sByCols, inCols$frame)]
+
+
+  locAggrPerColl = locAggrSzPerFrame[,
+                                     .(clDur = max(get(inCols$frame)) - min(get(inCols$frame)) + 1,
+                                       minSz = min(totSz),
+                                       maxSz = max(totSz)),
+                                     by = c(sByCols)]
+
+  # Aggregate per CE to calculate the total size
+  locAggrSzPerColl = inDTcoll[,
+                              .(totSz = length(unique(get(inCols$id)))),
+                              by = c(sByCols)]
+
+  locOut = merge(locAggrPerColl,
+                 locAggrSzPerColl,
+                 by = sByCols)
 
   # Bootstrap iterations that don't identify any collective events
   # produce a dt with all columns NAs.
   # The above aggregation will generate NAs in the collid column.
   # Here we set the stats to 0.
-  locDT[is.na(get(inCols$collid)),
+  locOut[is.na(get(inCols$collid)),
         `:=`(clDur = 0L,
              totSz = 0L,
              minSz = 0L,
              maxSz = 0L)]
 
-
-  return(locDT)
+  return(locOut)
 }
 
 
