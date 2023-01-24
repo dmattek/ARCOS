@@ -123,7 +123,8 @@ new_arcosTS <- function(dt,
   data.table::setattr(dt, "fromColl",   fromColl)
   data.table::setattr(dt, "fromBoot",   fromBoot)
 
-  data.table::setattr(dt, "class", union("arcosTS", class(dt)))
+  data.table::setattr(dt, "class",
+                      append(c("arcosTS"), class(dt)))
 
   invisible(dt)
 }
@@ -201,7 +202,7 @@ arcosTS <- function(dt,
                     colMeasBin = NULL,
                     colBootIter = NULL,
                     colRT = NULL,
-                    interVal = 1,
+                    interVal = 1L,
                     interType = c("fixed"),
                     fromBin = FALSE,
                     fromColl = FALSE,
