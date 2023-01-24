@@ -36,7 +36,7 @@ histTrackLen.arcosTS <- function(obj, binwidth = NULL) {
 
   locP = ggplot2::ggplot(dtTrackLength,
                          ggplot2::aes(x = trackLen,
-                                      y = stat(density * width))) +
+                                      y = after_stat(density))) +
     ggplot2::geom_histogram(binwidth = binwidth,
                             boundary = 0,
                             closed = "left",
