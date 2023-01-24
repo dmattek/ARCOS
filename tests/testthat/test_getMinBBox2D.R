@@ -9,7 +9,7 @@ testthat::test_that("bounding box: rectangle vertical", {
 
   lCalc = getMinBBox2D(mIn)
 
-  lTrue = list(w = 2, h = 3)
+  lTrue = list(w = 2, h = 3, n = 5)
 
   expect_equal(lCalc, lTrue)
 })
@@ -22,7 +22,7 @@ testthat::test_that("bounding box: rectangle horizontal", {
 
   lCalc = getMinBBox2D(mIn)
 
-  lTrue = list(w = 3, h = 2)
+  lTrue = list(w = 3, h = 2, n = 5)
 
   expect_equal(lCalc, lTrue)
 })
@@ -34,7 +34,7 @@ testthat::test_that("bounding box: square", {
 
   lCalc = getMinBBox2D(mIn)
 
-  lTrue = list(w = 2, h = 2)
+  lTrue = list(w = 2, h = 2, n = 5)
 
   expect_equal(lCalc, lTrue)
 })
