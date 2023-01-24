@@ -449,7 +449,7 @@ shuffBlockVec <- function(x) {
 #' @param xy a matrix of xy values from which to calculate the minimum oriented bounding box.
 #' @param prec numerical, rounding precision; default 1e-08, lose to .Machine$double.eps^0.5.
 #'
-#' @return a list width numeric width and height of the bounding box
+#' @return a list with numeric width & height of the bounding box, and the number of points used for the calculation.
 #' @export
 #' @importFrom grDevices chull
 #'
@@ -506,7 +506,8 @@ getMinBBox2D <- function(xy, prec=1e-08) { # precision close to .Machine$double.
   }
 
   return(list(w = bbWidth,
-              h = bbHeight))
+              h = bbHeight,
+              n = nrow(xy)))
 }
 
 checkColsInData <- function(colName, colsInData, flag = TRUE) {
