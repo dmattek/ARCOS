@@ -35,8 +35,8 @@ myColPal = ggthemes::tableau_color_pal(palette = "Tableau 20")(20)
 myPlotBinTS <- function(objTS,
                         colorVar,
                         colorPal = c("grey80",
-                                     "grey20"),
-                        legendPos = "none",
+                                             "grey20"),
+                                             legendPos = "none",
                         xlim = c(0,65), 
                         ylim = c(65,0),
                         ncol = 4,
@@ -96,12 +96,12 @@ maxx = 20L
 maxy = 20L
 maxdur = 5L
 
-ts = ARCOS::genRandSynth2D(nevents = nevents,
-                           maxt = maxt,
-                           maxx = maxx,
-                           maxy = maxy,
-                           maxdur = maxdur,
-                           inSeed = 1)
+ts = ARCOS::genSynthMultiple2D(nevents = nevents,
+                               maxt = maxt,
+                               maxx = maxx,
+                               maxy = maxy,
+                               maxdur = maxdur,
+                               inSeed = 1)
 ```
 
 ```{r collPrint, echo=F, results="asis"}

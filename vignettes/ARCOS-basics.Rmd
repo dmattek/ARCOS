@@ -68,7 +68,7 @@ The `RANN::nn2` [function](https://www.rdocumentation.org/packages/RANN/versions
 
 The flowchart of the algorithm: 
 
-![ARCOS algorithm flowchart](resources/ARCOS-algoFlow.drawio.png)
+![ARCOS algorithm flowchart](resources/README-algFlow.png)
 
 ## Functions
 
@@ -188,7 +188,7 @@ The following synthetic dataset contains 81 objects (e.g., biological cells) spa
 
 ```{r}
 # Generate a synthetic dataset with a single event evolving over 8 frames
-dts2 = ARCOS::genSynth2D(inSeed = 7)
+dts2 = ARCOS::genSynthSingle2D(inSeed = 7)
 
 knitr::kable(head(dts2), digits = 2)
 ```
