@@ -185,6 +185,50 @@ testthat::test_that("2 with 1 common asymmetric", {
                locDTtrueRes)
 })
 
+testthat::test_that("2 merging", {
+
+  locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2clustersMerging_in.csv"))
+  locDTtrueRes <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2clustersMerging_out.csv"))
+  locDTcalcRes <- trackCollEvents(locDTin[m > 0],
+                                  eps = 1.5,
+                                  minClSz = 1L,
+                                  nPrev = 1L,
+                                  cols = list(
+                                    frame = "time",
+                                    id = "trackID",
+                                    clid = "collid"
+                                  ),
+                                  posCols = c("x"),
+                                  deb = F)
+
+  attr(locDTcalcRes, "sorted") = NULL
+  expect_equal(locDTcalcRes[,
+                            .(time, trackID, collid)],
+               locDTtrueRes)
+})
+
+testthat::test_that("2 crossing", {
+
+  locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2clustersCrossing_in.csv"))
+  locDTtrueRes <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2clustersCrossing_out.csv"))
+  locDTcalcRes <- trackCollEvents(locDTin[m > 0],
+                                  eps = 1.5,
+                                  minClSz = 1L,
+                                  nPrev = 1L,
+                                  cols = list(
+                                    frame = "time",
+                                    id = "trackID",
+                                    clid = "collid"
+                                  ),
+                                  posCols = c("x"),
+                                  deb = F)
+
+  attr(locDTcalcRes, "sorted") = NULL
+  expect_equal(locDTcalcRes[,
+                            .(time, trackID, collid)],
+               locDTtrueRes)
+})
+
 testthat::test_that("3 spreading 1 prev", {
 
   locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "3spreading_in.csv"))
@@ -226,6 +270,28 @@ testthat::test_that("3 spreading 2 prev", {
   attr(locDTcalcRes, "sorted") = NULL
   expect_equal(locDTcalcRes[,
                             .(time, trackID, clTrackID)],
+               locDTtrueRes)
+})
+
+testthat::test_that("2 clusters, 1 delayed", {
+
+  locDTin <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2clusters1delayed_in.csv"))
+  locDTtrueRes <- data.table::fread(file = file.path(system.file("testdata", package="ARCOS"), "2clusters1delayed_out.csv"))
+  locDTcalcRes <- trackCollEvents(locDTin[m > 0],
+                                  eps = 1.5,
+                                  minClSz = 1L,
+                                  nPrev = 1L,
+                                  cols = list(
+                                    frame = "time",
+                                    id = "trackID",
+                                    clid = "collid"
+                                  ),
+                                  posCols = c("x"),
+                                  deb = F)
+
+  attr(locDTcalcRes, "sorted") = NULL
+  expect_equal(locDTcalcRes[,
+                            .(time, trackID, collid)],
                locDTtrueRes)
 })
 

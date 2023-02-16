@@ -670,6 +670,115 @@ myTest(dcoll[,
        "2objMergeSplitNear_res.csv")
 ```
 
+
+## Test 8 - 2 clusters, 1 delayed
+
+This test illustrates an important feature of the algorithm. At time 5, object #2 is within the eps radius 1.5 of object #1. This triggers the inheritance of cluster IDs of the nearest neighbours from time 4. However, the nearest neighbour of object #3 is object #4 (1.9 distance vs. 2 to object #1). Consequently, collective IDs of the new cluster are "split" between ID #1 and #2.
+
+```{r, echo = F, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "2clusters1delayed_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              colFrame = "time",
+                              colIDobj = "trackID")
+
+ARCOS::plotTracks(dts, size = 3) +
+  scale_x_continuous(breaks = 1:7) +
+  theme(panel.grid.minor = element_blank())
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = 1.5, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
+                         deb = F)
+
+ARCOS::plotTracks(dcoll, size = 3) +
+  scale_x_continuous(breaks = 1:7) +
+  theme(panel.grid.minor = element_blank())
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+             .(time, trackID, collid)],
+       "2clusters1delayed_out.csv")
+```
+
+## Test 9 - 2 clusters merging
+
+This test illustrates another important feature of the algorithm. 
+
+```{r, echo = F, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "2clustersMerging_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              colFrame = "time",
+                              colIDobj = "trackID")
+
+ARCOS::plotTracks(dts, size = 3) +
+  scale_x_continuous(breaks = 1:10) +
+  theme(panel.grid.minor = element_blank())
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = 1.5, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
+                         deb = F)
+
+ARCOS::plotTracks(dcoll, size = 3) +
+  scale_x_continuous(breaks = 1:10) +
+  theme(panel.grid.minor = element_blank())
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+             .(time, trackID, collid)],
+       "2clustersMerging_out.csv")
+```
+
+## Test 10 - 2 big clusters crossing
+
+This test illustrates another important feature of the algorithm. 
+
+```{r, echo = F, fig.width=6, fig.height=5}
+dts = ARCOS::loadDataFromFile(file.path(system.file("testdata", 
+                                                    package="ARCOS"), 
+                                        "2clustersCrossing_in.csv"),
+                              colPos = "x",
+                              colMeas = "m",
+                              colFrame = "time",
+                              colIDobj = "trackID")
+
+ARCOS::plotTracks(dts, size = 3) +
+  scale_x_continuous(breaks = 1:10) +
+  theme(panel.grid.minor = element_blank())
+```
+
+```{r, echo = T, fig.width=6, fig.height=5}
+dcoll = ARCOS::trackColl(obj = dts, 
+                         eps = 1.5, 
+                         minClSz = 1L, 
+                         nPrev = 1L,
+                         deb = F)
+
+ARCOS::plotTracks(dcoll, size = 3) +
+  scale_x_continuous(breaks = 1:10) +
+  theme(panel.grid.minor = element_blank())
+```
+
+```{r, echo = F, results="asis"}
+myTest(dcoll[,
+             .(time, trackID, collid)],
+       "2clustersCrossing_out.csv")
+```
+
 # Link 2 frames
 
 Spatial clusters are linked 2 frames back, thus a one-frame-gap is allowed in a collective event.
