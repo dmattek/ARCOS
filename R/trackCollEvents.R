@@ -259,16 +259,21 @@ trackCollEvents <- function(dt,
                               locDTposCurr,
                               k = 1)
 
-        # Get cluster numbers of all neighbours in previous frame(s)
+        # Vector locResNN2$nn.idx contains indices of elements
+        # in the previous frame that are the closest to elements
+        # in the current cluster in the current frame.
+        # With this vector, we get cluster IDs of all neighbours in previous frame(s).
         locVclPrevNNall = locVclPrev[locResNN2$nn.idx]
 
         # Get cluster numbers of neighbours within eps in previous frame(s)
-        locVclPrevNNeps = locVclPrev[locResNN2$nn.idx[locResNN2$nn.dists <= epsPrev]]
+        #locVclPrevNNeps = locVclPrev[locResNN2$nn.idx[locResNN2$nn.dists <= epsPrev]]
+        #if (length(locVclPrevNNeps) > 0) {
 
-        # Proceed if there are neighbour clusters in previous frame(s)
-        if (length(locVclPrevNNeps) > 0) {
-          # Reassign cluster numbers of the current frame
-          # to cluster numbers of neighbours in previous frame(s)
+        # Proceed with cluster ID reassignment only if there are neighbours
+        # within epsPrev in previous frame(s)
+        if (sum(locResNN2$nn.dists <= epsPrev) > 0) {
+          # Reassign cluster IDs of the current frame
+          # to cluster IDs of 1st NN cells in previous frame(s)
 
           locDT[get(cols$frame) == iFrame &
                   get(cols$clid) == iCl,
