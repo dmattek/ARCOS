@@ -59,8 +59,8 @@ keepSignifDig <- function(inDT, inDigits) {
 #'
 #' @examples
 #' library(ARCOS)
-#' dts = genSynth2D()
-genSynth2D <- function(inSeed = NULL) {
+#' dts = genSynthSingle2D()
+genSynthSingle2D <- function(inSeed = NULL) {
 
   if (!is.null(inSeed)) set.seed((inSeed))
 
@@ -153,8 +153,8 @@ genSynth2D <- function(inSeed = NULL) {
 #'
 #' @examples
 #' library(ARCOS)
-#' dts = genRandSynth2D()
-genRandSynth2D <- function(nevents = 10L,
+#' dts = genSynthMultiple2D()
+genSynthMultiple2D <- function(nevents = 10L,
                            maxt = 25L,
                            maxx = 20L,
                            maxy = 20L,
