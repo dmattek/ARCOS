@@ -8,7 +8,7 @@ calcPvalFromBS(
   testStat,
   bsStat,
   corrected = FALSE,
-  alternative = c("two.sided", "less", "greater")
+  alternative = c("greater", "less")
 )
 }
 \arguments{
@@ -16,15 +16,15 @@ calcPvalFromBS(
 
 \item{bsStat}{a numeric vector with statistic from bootstrapping.}
 
-\item{corrected}{a logical; if TRUE, calculates a corrected p-value; default FALSE.}
+\item{corrected}{a logical; if TRUE, calculates a p-value that accounts for the finite sample size; default FALSE.}
 
-\item{alternative}{either of "two.sided", "less", "greater".}
+\item{alternative}{either of "less" or "greater"; default "greater"}
 }
 \value{
 a scalar with the p-value
 }
 \description{
-The corrected p-value calculate uses the formula from Davison and Hinkley (1997), Bootstrap Methods and their Application, p. 141.
+The calculation of the p-value that accounts for the finite sample size uses a formula from Davison and Hinkley (1997), Bootstrap Methods and their Application, chapter 4, p. 161.
 }
 \examples{
 library(ARCOS)
