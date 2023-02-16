@@ -13,14 +13,14 @@ calcGrowthColl(obj)
 \item{obj}{an arcosTS object.}
 }
 \value{
-a data.table with the width and height of the minimal directed bounding box.
+a data.table with the width and height of the minimal directed bounding box, and the number of points used for the calculation.
 }
 \description{
 Calculate the growth of collective events over time
 }
 \details{
 Wrapper for the \code{getMinBBox2D} function that implements the rotating callipers algorithm. Calculates the minimal directed bounding box for every event at every time frame.
-The longer side is taken as the "diamater". Currently works only with 2D data!
+The longer side is taken as the "diameter". Currently works only with 2D data!
 }
 \examples{
 cat("no examples")

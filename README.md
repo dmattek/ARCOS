@@ -86,7 +86,7 @@ library(ARCOS)
 library(ggplot2)
 
 # Generate a synthetic dataset with a single event evolving over 8 frames
-dts = ARCOS::genSynth2D(inSeed = 7)
+dts = ARCOS::genSynthSingle2D(inSeed = 7)
 ```
 
 |   t |      x |        y |   m |  id |
@@ -185,3 +185,8 @@ library(RColorBrewer)
 
 ARCOS::runCollVis(dts, dcoll)
 ```
+
+## The algorithm
+
+![arcos-gui plugin for napari image
+viewer](man/figures/README-algFlow.png)

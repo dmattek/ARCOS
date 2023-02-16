@@ -12,7 +12,7 @@ getMinBBox2D(xy, prec = 1e-08)
 \item{prec}{numerical, rounding precision; default 1e-08, lose to .Machine$double.eps^0.5.}
 }
 \value{
-a list width numeric width and height of the bounding box
+a list with numeric width & height of the bounding box, and the number of points used for the calculation.
 }
 \description{
 Calculates the minimum oriented bounding box using the

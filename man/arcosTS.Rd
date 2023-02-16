@@ -15,7 +15,7 @@ arcosTS(
   colMeasBin = NULL,
   colBootIter = NULL,
   colRT = NULL,
-  interVal = 1,
+  interVal = 1L,
   interType = c("fixed"),
   fromBin = FALSE,
   fromColl = FALSE,
