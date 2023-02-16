@@ -1,10 +1,10 @@
 ---
-title: "Collective events in synthetic data with bootstrapping"
+title: "Testing significance of collective events with randomisation"
 output: 
   rmarkdown::html_vignette:
     toc: true 
 vignette: >
-  %\VignetteIndexEntry{"Collective events in synthetic data with bootstrapping}
+  %\VignetteIndexEntry{Testing significance of collective events with randomisation"}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,11 +18,12 @@ knitr::opts_chunk$set(
 
 # Intro
 
-This notebook demonstrates how to calculate p-values of collective events statistics using bootstrapping.
+This notebook demonstrates how to test the hypothesis that the statistics of collective events (CEs) differ from the statistics calculated in a random dataset.
+
 The dataset used in this example was generated with [NetLogo](http://www.netlogoweb.org) agent-based simulation that models collective activation events in a 2D epithelium.
 In the model, 2500 cells were placed on a 50x50 hexagonal grid. Collective events appear sparsely in the epithelium, they propagate radially from a source cell up to 3 cell rows. There is a 15% failure for a cell to propagate the wave, therefore the events are not always perfectly symmetrical. The simulation lasts 200 iterations.
 
-Collective events are identified with ARCOS. To calculate the p-value, 5 different bootstrapping methods are applied:
+Collective events are identified with ARCOS. To calculate the p value of a sample statistic, 5 different randomisationping methods are applied:
 
 - shuffling entire single-cell tracks in space,
 - randomly shifting entire single-cell tracks back or forth in time,
@@ -58,9 +59,9 @@ lPar$coll.mintotsz = lPar$db.minPts # minimum total size of collective events
 
 lPar$debug = T
 
-# Parameters for bootstrapping
+# Parameters for randomisationping
 lPar$ncores = 2L # number of parallel cores
-lPar$nboot = 100L # number of bootstrapping iterations
+lPar$nboot = 100L # number of randomisationping iterations
 
 # Dataset limits for plotting
 lPar$limxy = c(-25, 25)
@@ -92,7 +93,7 @@ cat(sprintf("Minimum cluster size for dbscan: %d [cells] \n\n", lPar$db.minPts))
 cat(sprintf("Number of subsequent frames to link: %d [frames] \n\n", lPar$trackLinkFrames))
 cat(sprintf("\nMinimum duration of collective events: %d [frames] \n\n", lPar$coll.mindur))
 cat(sprintf("Minimum total size of collective events: %d [cells] \n\n", lPar$coll.mintotsz))
-cat(sprintf("Number of bootstrapping iterations: %d \n\n", lPar$nboot))
+cat(sprintf("Number of randomisationping iterations: %d \n\n", lPar$nboot))
 ```
 
 # Read data
@@ -155,7 +156,7 @@ ARCOS::plotBinMeas(ts,
   ylab("ERK activity")
 ```
 
-# CEs - non-bootstrapped
+# CEs - non-randomisationped
 
 Identify collective events in the original data only for *active* cells, which in our case are cells with the measurement above 0.
 
@@ -268,20 +269,20 @@ cat(sprintf("Fraction of activity in (filtered) collective events: %.4f\n\n", ca
 ```
 
 
-# CEs - bootstraped
+# CEs - randomisationed
 
-Calculate p-values for the two statistics (duration and size) using bootstrapping. Each calculation can take up to several minutes!
+Calculate p-values for the two statistics (duration and size) using randomisationping. Each calculation can take up to several minutes!
 
 ## Shuffle initial XY
 
 In this approach, the initial position of every track is shuffled between all cells in the system. Since the measurement dynamics remains intact, this approach randomises only the spatial aspect of collective phenomena, i.e. tracks are only rearranged in space while retaining their measurement dynamics. One caveat concerns cases where cells/objects are moving in space. By assigning new starting points, objects' positions may exceed the initial bounds of the field of view. 
 
-The `ARCOS::trackCollBoot` function outputs a `data.table` in long format with time points when individual objects participate in collective events. From this output, further statistics can be extracted, such as: duration, size, diameter, number of collective events. The `bootiter` column indexes bootstrapping iterations.
+The `ARCOS::trackCollBoot` function outputs a `data.table` in long format with time points when individual objects participate in collective events. From this output, further statistics can be extracted, such as: duration, size, diameter, number of collective events. The `bootiter` column indexes randomisationping iterations.
 
 
 ```{r randIniXY, echo = T}
-# Perform bootstrap or load data from a file
-stmp = system.file(sprintf('synthetic2D/output-bootstrap-20/bootRes_shuffIniXY_N%d.csv.gz', lPar$nboot),
+# Perform randomisation or load data from a file
+stmp = system.file(sprintf('synthetic2D/output-randomisation-20/randRes_shuffIniXY_N%d.csv.gz', lPar$nboot),
                    package = 'ARCOS')
 
 if (file.exists(stmp)) {
@@ -309,7 +310,7 @@ if (file.exists(stmp)) {
                                       colltotszlim = c(lPar$coll.mintotsz, 1000),
                                       deb = F)
   
-  #fwrite(tcollselBoot, file = sprintf('../inst/synthetic2D/output-bootstrap-20/bootRes_shuffIniXY_N%d.csv.gz', lPar$nboot))
+  #fwrite(tcollselBoot, file = sprintf('../inst/synthetic2D/output-randomisation-20/bootRes_shuffIniXY_N%d.csv.gz', lPar$nboot))
 }
 ```
 
@@ -317,7 +318,7 @@ if (file.exists(stmp)) {
 knitr::kable(head(tcollselBoot), digits = 2)
 ```
 
-Sample noodle plot from a single iteration of bootstrapping:
+Sample noodle plot from a single randomisation iteration:
 
 ```{r, echo=F, fig.width=8, fig.height=4}
 ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1], 
@@ -325,110 +326,118 @@ ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1],
                     yfac = 1,
                     pos = 1,
                     tfreq = 1, 
-                    style = 'both') +
+                    style = 'point') +
   coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
   xlab("Time [frames]") +
   ylab("Position X [au]") +
-  theme_minimal() +
+  ggthemes::theme_few() +
   theme(legend.position = "none")
 ```
 
-Distribution of the fraction of collective events in bootstrap iterations compared to the observed fraction (red dashed line):
+Distribution of the fraction of collective events in randomisation iterations compared to the observed fraction (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r echo = T}
 tFracActInColl = calcFracActInColl(ts, tcollsel)
 tFracActInCollBoot = calcFracActInColl(ts, tcollselBoot)
+```
 
+
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tFracActInCollBoot,
        aes(x = fracAct,
            y = after_stat(density))) +
-  geom_histogram(bins = 20,
-                 color="lightblue", fill="lightblue") +
+  geom_freqpoly(bins = 30) +
   geom_vline(xintercept = tFracActInColl,
              color = "red", linetype = 2) +
   xlab('Fraction of activity in collective events') +
-  ggthemes::theme_clean()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - the fraction of total (binarised) activity involved in **observed** collective events is **greater** than the fraction in randomised events:
+P-value, alternative hypothesis - the fraction of total (binarised) activity involved in **observed** collective events is **greater** than the mean fraction in randomised events:
 
-```{r}
+```{r echo = T}
 calcPvalFromBS(tFracActInColl, tFracActInCollBoot$fracAct, corrected = T, alternative = 'greater')
 ```
 
-Aggregate statistics from bootstrapping.
+Aggregate statistics from iterations:
 
 ```{r echo = T}
-# Aggregate the results of bootstrapping per collective event
+# Aggregate the results of randomisationping per collective event
 tcollbootAggrPerColl = calcStatsColl(tcollselBoot)
 
-# Further aggregate size & duration per bootstrap iteration
+# Further aggregate size & duration per randomisation iteration
 tcollbootSzDurPerIter = tcollbootAggrPerColl[,
                                              lapply(.SD, mean),
                                              by = c(lCols$bootiter),
                                              .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
 
-# Further aggregate the number of events per bootstrap iteration
+# Further aggregate the number of events per randomisation iteration
 tcollbootNcollPerIter = tcollbootAggrPerColl[,
                                              .(N = sum(!is.na(get(lCols$cltrackid)))),
                                              by = c(lCols$bootiter)]
 
 ```
 
-Distribution of the number of collective events identified in every bootstrap iteration compared to the observed statistics (red dashed line):
+Distribution of the number of collective events identified in every randomisation iteration compared to the observed statistics (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(data = tcollbootNcollPerIter,
        aes(x = N,
            y = after_stat(density))) +
-  geom_histogram(binwidth = 1,
+  geom_histogram(binwidth = 2,
                  color="lightblue", fill="lightblue") +
   geom_vline(xintercept = nrow(tcollselAggr),
              color = "red", linetype = 2) +
   xlab('Number of collective events') +
-  ggthemes::theme_clean()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - the number of **observed** clusters is **lower or greater** than the number of clusters in randomised data:
+P-value, alternative hypothesis - the number of **observed** CEs is **less** than the mean number of clusters in randomised data:
 
-```{r}
-calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'less')
 ```
 
-Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data (red dashed line):
+P-value, alternative hypothesis - the number of **observed** CEs is **greater** than the mean number of clusters in randomised data:
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r echo = T}
+calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'greater')
+```
+
+Distribution of the **mean** cluster duration from randomisation iterations (solid black line) vs. the **mean** cluster duration from the non-randomised data (red dashed line):
+
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tcollbootSzDurPerIter,
        aes(x = clDur,
            y = after_stat(density))) +
   geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$clDur), color = 'red', linetype = 'dashed') +
   xlab("Duration of collective events [#frames]") +
-  theme_minimal()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - mean **observed** cluster duration is **lower or greater** than the cluster duration in randomised data:
+P-value, alternative hypothesis - the mean **observed** cluster duration is **greater** than the mean cluster duration in randomised data:
 
-```{r}
-calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'greater')
 ```
 
-Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data (red dashed line):
+Distribution of the **mean** total cluster size from randomisation iterations (solid black line) vs. the **mean** total cluster size from the non-randomised data (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tcollbootSzDurPerIter,
        aes(x = totSz,
            y = after_stat(density))) +
   geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$totSz), color = 'red', linetype = 'dashed') +
   xlab("#cells involved in collective events") +
-  theme_minimal()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - mean **observed** total cluster size is **lower or greater** than the cluster size in randomised data:
+P-value, alternative hypothesis - the mean **observed** total cluster size is **greater** than the cluster size in randomised data:
 
-```{r}
-calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'greater')
 ```
 
 ## Randomly shift the measurement
@@ -436,7 +445,7 @@ calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected 
 Here, entire single-cell tracks are shifted forward or backward in time. The spatial arrangement of cells and the measurement dynamics are intact, except activation events occur at different times than originally. 
 
 ```{r randShiftMeas}
-stmp = system.file(sprintf('synthetic2D/output-bootstrap-20/bootRes_randShiftMeas_N%d.csv.gz', lPar$nboot),
+stmp = system.file(sprintf('synthetic2D/output-randomisation-20/randRes_randShiftMeas_N%d.csv.gz', lPar$nboot),
                    package = 'ARCOS')
 
 if (file.exists(stmp)) {
@@ -464,7 +473,7 @@ if (file.exists(stmp)) {
                                       colltotszlim = c(lPar$coll.mintotsz, 1000),
                                       deb = F)
   
-  #fwrite(tcollselBoot, file = sprintf('../inst/synthetic2D/output-bootstrap-20/bootRes_randShiftMeas_N%d.csv.gz', lPar$nboot))
+  #fwrite(tcollselBoot, file = sprintf('../inst/synthetic2D/output-randomisation-20/bootRes_randShiftMeas_N%d.csv.gz', lPar$nboot))
 }
 ```
 
@@ -472,7 +481,7 @@ if (file.exists(stmp)) {
 knitr::kable(head(tcollselBoot), digits = 2)
 ```
 
-Sample noodle plot from a single iteration of bootstrapping:
+Sample noodle plot from a single randomisation iteration:
 
 ```{r, echo=F, fig.width=8, fig.height=4}
 ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1], 
@@ -480,110 +489,112 @@ ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1],
                     yfac = 1,
                     pos = 1,
                     tfreq = 1, 
-                    style = 'both') +
+                    style = 'point') +
   coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
   xlab("Time [frames]") +
   ylab("Position X [au]") +
-  theme_minimal() +
+  ggthemes::theme_few() +
   theme(legend.position = "none")
 ```
 
-Distribution of the fraction of collective events in bootstrap iterations compared to the observed fraction (red dashed line):
+Distribution of the fraction of collective events in randomisation iterations compared to the observed fraction (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r echo = T}
 tFracActInColl = calcFracActInColl(ts, tcollsel)
 tFracActInCollBoot = calcFracActInColl(ts, tcollselBoot)
+```
 
+
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tFracActInCollBoot,
        aes(x = fracAct,
            y = after_stat(density))) +
-  geom_histogram(bins = 20,
-                 color="lightblue", fill="lightblue") +
+  geom_freqpoly(bins = 30) +
   geom_vline(xintercept = tFracActInColl,
              color = "red", linetype = 2) +
   xlab('Fraction of activity in collective events') +
-  ggthemes::theme_clean()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - the fraction of total (binarised) activity involved in **observed** collective events is **greater** than the fraction in randomised events:
+P-value, alternative hypothesis - the fraction of total (binarised) activity involved in **observed** collective events is **greater** than the mean fraction in randomised events:
 
-```{r}
+```{r echo = T}
 calcPvalFromBS(tFracActInColl, tFracActInCollBoot$fracAct, corrected = T, alternative = 'greater')
 ```
 
-Aggregate statistics from bootstrapping.
+Aggregate statistics from iterations:
 
 ```{r echo = T}
-# Aggregate the results of bootstrapping per collective event
+# Aggregate the results of randomisationping per collective event
 tcollbootAggrPerColl = calcStatsColl(tcollselBoot)
 
-# Further aggregate size & duration per bootstrap iteration
+# Further aggregate size & duration per randomisation iteration
 tcollbootSzDurPerIter = tcollbootAggrPerColl[,
                                              lapply(.SD, mean),
                                              by = c(lCols$bootiter),
                                              .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
 
-# Further aggregate the number of events per bootstrap iteration
+# Further aggregate the number of events per randomisation iteration
 tcollbootNcollPerIter = tcollbootAggrPerColl[,
                                              .(N = sum(!is.na(get(lCols$cltrackid)))),
                                              by = c(lCols$bootiter)]
 
 ```
 
-Distribution of the number of collective events identified in every bootstrap iteration compared to the observed statistics (red dashed line):
+Distribution of the number of collective events identified in every randomisation iteration compared to the observed statistics (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(data = tcollbootNcollPerIter,
        aes(x = N,
            y = after_stat(density))) +
-  geom_histogram(binwidth = 1,
+  geom_histogram(binwidth = 2,
                  color="lightblue", fill="lightblue") +
   geom_vline(xintercept = nrow(tcollselAggr),
              color = "red", linetype = 2) +
   xlab('Number of collective events') +
-  ggthemes::theme_clean()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - the number of **observed** clusters is **lower or greater** than the number of clusters in randomised data:
+P-value, alternative hypothesis - the number of **observed** CEs is **less** than the mean number of clusters in randomised data:
 
-```{r}
-calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'less')
 ```
 
-Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data (red dashed line):
+Distribution of the **mean** cluster duration from randomisation iterations (solid black line) vs. the **mean** cluster duration from the non-randomised data (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tcollbootSzDurPerIter,
        aes(x = clDur,
            y = after_stat(density))) +
   geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$clDur), color = 'red', linetype = 'dashed') +
   xlab("Duration of collective events [#frames]") +
-  theme_minimal()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - mean **observed** cluster duration is **lower or greater** than the cluster duration in randomised data:
+P-value, alternative hypothesis - the mean **observed** cluster duration is **greater** than the mean cluster duration in randomised data:
 
-```{r}
-calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'greater')
 ```
 
-Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data (red dashed line):
+Distribution of the **mean** total cluster size from randomisation iterations (solid black line) vs. the **mean** total cluster size from the non-randomised data (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tcollbootSzDurPerIter,
        aes(x = totSz,
            y = after_stat(density))) +
   geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$totSz), color = 'red', linetype = 'dashed') +
   xlab("#cells involved in collective events") +
-  theme_minimal()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - mean **observed** total cluster size is **lower or greater** than the cluster size in randomised data:
+P-value, alternative hypothesis - the mean **observed** total cluster size is **greater** than the cluster size in randomised data:
 
-```{r}
-calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'greater')
 ```
 
 ## Shuffle time points per track
@@ -591,7 +602,7 @@ calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected 
 Here, individual time points are shuffled independently in each track. While the spatial arrangement is intact, the measurement dynamics is completely randomised. 
 
 ```{r shuffMeasTrack}
-stmp = system.file(sprintf('synthetic2D/output-bootstrap-20/bootRes_shuffMeasTrack_N%d.csv.gz', lPar$nboot),
+stmp = system.file(sprintf('synthetic2D/output-randomisation-20/randRes_shuffMeasTrack_N%d.csv.gz', lPar$nboot),
                    package = 'ARCOS')
 
 if (file.exists(stmp)) {
@@ -619,7 +630,7 @@ if (file.exists(stmp)) {
                                       colltotszlim = c(lPar$coll.mintotsz, 1000),
                                       deb = F)
   
-  #fwrite(tcollselBoot, file = sprintf('../inst/synthetic2D/output-bootstrap-20/bootRes_shuffMeasTrack_N%d.csv.gz', lPar$nboot))
+  #fwrite(tcollselBoot, file = sprintf('../inst/synthetic2D/output-randomisation-20/bootRes_shuffMeasTrack_N%d.csv.gz', lPar$nboot))
 }
 ```
 
@@ -627,7 +638,7 @@ if (file.exists(stmp)) {
 knitr::kable(head(tcollselBoot), digits = 2)
 ```
 
-Sample noodle plot from a single iteration of bootstrapping:
+Sample noodle plot from a single randomisation iteration:
 
 ```{r, echo=F, fig.width=8, fig.height=4}
 ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1], 
@@ -635,118 +646,120 @@ ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1],
                     yfac = 1,
                     pos = 1,
                     tfreq = 1, 
-                    style = 'both') +
+                    style = 'point') +
   coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
   xlab("Time [frames]") +
   ylab("Position X [au]") +
-  theme_minimal() +
+  ggthemes::theme_few() +
   theme(legend.position = "none")
 ```
 
-Distribution of the fraction of collective events in bootstrap iterations compared to the observed fraction (red dashed line):
+Distribution of the fraction of collective events in randomisation iterations compared to the observed fraction (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r echo = T}
 tFracActInColl = calcFracActInColl(ts, tcollsel)
 tFracActInCollBoot = calcFracActInColl(ts, tcollselBoot)
+```
 
+
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tFracActInCollBoot,
        aes(x = fracAct,
            y = after_stat(density))) +
-  geom_histogram(bins = 20,
-                 color="lightblue", fill="lightblue") +
+  geom_freqpoly(bins = 30) +
   geom_vline(xintercept = tFracActInColl,
              color = "red", linetype = 2) +
   xlab('Fraction of activity in collective events') +
-  ggthemes::theme_clean()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - the fraction of total (binarised) activity involved in **observed** collective events is **greater** than the fraction in randomised events:
+P-value, alternative hypothesis - the fraction of total (binarised) activity involved in **observed** collective events is **greater** than the mean fraction in randomised events:
 
-```{r}
+```{r echo = T}
 calcPvalFromBS(tFracActInColl, tFracActInCollBoot$fracAct, corrected = T, alternative = 'greater')
 ```
 
-Aggregate statistics from bootstrapping.
+Aggregate statistics from iterations:
 
 ```{r echo = T}
-# Aggregate the results of bootstrapping per collective event
+# Aggregate the results of randomisationping per collective event
 tcollbootAggrPerColl = calcStatsColl(tcollselBoot)
 
-# Further aggregate size & duration per bootstrap iteration
+# Further aggregate size & duration per randomisation iteration
 tcollbootSzDurPerIter = tcollbootAggrPerColl[,
                                              lapply(.SD, mean),
                                              by = c(lCols$bootiter),
                                              .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
 
-# Further aggregate the number of events per bootstrap iteration
+# Further aggregate the number of events per randomisation iteration
 tcollbootNcollPerIter = tcollbootAggrPerColl[,
                                              .(N = sum(!is.na(get(lCols$cltrackid)))),
                                              by = c(lCols$bootiter)]
 
 ```
 
-Distribution of the number of collective events identified in every bootstrap iteration compared to the observed statistics (red dashed line):
+Distribution of the number of collective events identified in every randomisation iteration compared to the observed statistics (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(data = tcollbootNcollPerIter,
        aes(x = N,
            y = after_stat(density))) +
-  geom_histogram(binwidth = 1,
+  geom_histogram(binwidth = 2,
                  color="lightblue", fill="lightblue") +
   geom_vline(xintercept = nrow(tcollselAggr),
              color = "red", linetype = 2) +
   xlab('Number of collective events') +
-  ggthemes::theme_clean()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - the number of **observed** clusters is **lower or greater** than the number of clusters in randomised data:
+P-value, alternative hypothesis - the number of **observed** CEs is **greater** than the mean number of clusters in randomised data:
 
-```{r}
-calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'greater')
 ```
 
-Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data (red dashed line):
+Distribution of the **mean** cluster duration from randomisation iterations (solid black line) vs. the **mean** cluster duration from the non-randomised data (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tcollbootSzDurPerIter,
        aes(x = clDur,
            y = after_stat(density))) +
   geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$clDur), color = 'red', linetype = 'dashed') +
   xlab("Duration of collective events [#frames]") +
-  theme_minimal()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - mean **observed** cluster duration is **lower or greater** than the cluster duration in randomised data:
+P-value, alternative hypothesis - the mean **observed** cluster duration is **greater** than the mean cluster duration in randomised data:
 
-```{r}
-calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'greater')
 ```
 
-Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data (red dashed line):
+Distribution of the **mean** total cluster size from randomisation iterations (solid black line) vs. the **mean** total cluster size from the non-randomised data (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tcollbootSzDurPerIter,
        aes(x = totSz,
            y = after_stat(density))) +
   geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$totSz), color = 'red', linetype = 'dashed') +
   xlab("#cells involved in collective events") +
-  theme_minimal()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - mean **observed** total cluster size is **lower or greater** than the cluster size in randomised data:
+P-value, alternative hypothesis - the mean **observed** total cluster size is **greater** than the cluster size in randomised data:
 
-```{r}
-calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'greater')
 ```
 
 ## Shuffle measurement per frame
 
-Here, binarised measurements are shuffled between cells independently in every time frame. 
+Here, binarised measurements are shuffled between cells independently in every time frame. Positions remain intact; the total activity per track is affected.
 
 ```{r shuffMeasFrame}
-stmp = system.file(sprintf('synthetic2D/output-bootstrap-20/bootRes_shuffMeasFrame_N%d.csv.gz', lPar$nboot),
+stmp = system.file(sprintf('synthetic2D/output-randomisation-20/randRes_shuffMeasFrame_N%d.csv.gz', lPar$nboot),
                    package = 'ARCOS')
 
 
@@ -775,7 +788,7 @@ if (file.exists(stmp)) {
                                       colltotszlim = c(lPar$coll.mintotsz, 1000),
                                       deb = F)
   
-  #fwrite(tcollselBoot, file = sprintf('../inst/synthetic2D/output-bootstrap-20/bootRes_shuffMeasFrame_N%d.csv.gz', lPar$nboot))
+  #fwrite(tcollselBoot, file = sprintf('../inst/synthetic2D/output-randomisation-20/bootRes_shuffMeasFrame_N%d.csv.gz', lPar$nboot))
 }
 ```
 
@@ -783,7 +796,7 @@ if (file.exists(stmp)) {
 knitr::kable(head(tcollselBoot), digits = 2)
 ```
 
-Sample noodle plot from a single iteration of bootstrapping:
+Sample noodle plot from a single randomisation iteration:
 
 ```{r, echo=F, fig.width=8, fig.height=4}
 ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1], 
@@ -791,119 +804,121 @@ ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1],
                     yfac = 1,
                     pos = 1,
                     tfreq = 1, 
-                    style = 'both') +
+                    style = 'point') +
   coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
   xlab("Time [frames]") +
   ylab("Position X [au]") +
-  theme_minimal() +
+  ggthemes::theme_few() +
   theme(legend.position = "none")
 ```
 
-Distribution of the fraction of collective events in bootstrap iterations compared to the observed fraction (red dashed line):
+Distribution of the fraction of collective events in randomisation iterations compared to the observed fraction (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r echo = T}
 tFracActInColl = calcFracActInColl(ts, tcollsel)
 tFracActInCollBoot = calcFracActInColl(ts, tcollselBoot)
+```
 
+
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tFracActInCollBoot,
        aes(x = fracAct,
            y = after_stat(density))) +
-  geom_histogram(bins = 20,
-                 color="lightblue", fill="lightblue") +
+  geom_freqpoly(bins = 30) +
   geom_vline(xintercept = tFracActInColl,
              color = "red", linetype = 2) +
   xlab('Fraction of activity in collective events') +
-  ggthemes::theme_clean()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - the fraction of total (binarised) activity involved in **observed** collective events is **greater** than the fraction in randomised events:
+P-value, alternative hypothesis - the fraction of total (binarised) activity involved in **observed** collective events is **greater** than the mean fraction in randomised events:
 
-```{r}
+```{r echo = T}
 calcPvalFromBS(tFracActInColl, tFracActInCollBoot$fracAct, corrected = T, alternative = 'greater')
 ```
 
-Aggregate statistics from bootstrapping.
+Aggregate statistics from iterations:
 
 ```{r echo = T}
-# Aggregate the results of bootstrapping per collective event
+# Aggregate the results of randomisationping per collective event
 tcollbootAggrPerColl = calcStatsColl(tcollselBoot)
 
-# Further aggregate size & duration per bootstrap iteration
+# Further aggregate size & duration per randomisation iteration
 tcollbootSzDurPerIter = tcollbootAggrPerColl[,
                                              lapply(.SD, mean),
                                              by = c(lCols$bootiter),
                                              .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
 
-# Further aggregate the number of events per bootstrap iteration
+# Further aggregate the number of events per randomisation iteration
 tcollbootNcollPerIter = tcollbootAggrPerColl[,
                                              .(N = sum(!is.na(get(lCols$cltrackid)))),
                                              by = c(lCols$bootiter)]
 
 ```
 
-Distribution of the number of collective events identified in every bootstrap iteration compared to the observed statistics (red dashed line):
+Distribution of the number of collective events identified in every randomisation iteration compared to the observed statistics (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(data = tcollbootNcollPerIter,
        aes(x = N,
            y = after_stat(density))) +
-  geom_histogram(binwidth = 1,
+  geom_histogram(binwidth = 2,
                  color="lightblue", fill="lightblue") +
   geom_vline(xintercept = nrow(tcollselAggr),
              color = "red", linetype = 2) +
   xlab('Number of collective events') +
-  ggthemes::theme_clean()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - the number of **observed** clusters is **lower or greater** than the number of clusters in randomised data:
+P-value, alternative hypothesis - the number of **observed** CEs is **greater** than the mean number of clusters in randomised data:
 
-```{r}
-calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'greater')
 ```
 
-Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data (red dashed line):
+Distribution of the **mean** cluster duration from randomisation iterations (solid black line) vs. the **mean** cluster duration from the non-randomised data (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tcollbootSzDurPerIter,
        aes(x = clDur,
            y = after_stat(density))) +
   geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$clDur), color = 'red', linetype = 'dashed') +
   xlab("Duration of collective events [#frames]") +
-  theme_minimal()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - mean **observed** cluster duration is **lower or greater** than the cluster duration in randomised data:
+P-value, alternative hypothesis - the mean **observed** cluster duration is **greater** than the mean cluster duration in randomised data:
 
-```{r}
-calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'greater')
 ```
 
-Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data (red dashed line):
+Distribution of the **mean** total cluster size from randomisation iterations (solid black line) vs. the **mean** total cluster size from the non-randomised data (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tcollbootSzDurPerIter,
        aes(x = totSz,
            y = after_stat(density))) +
   geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$totSz), color = 'red', linetype = 'dashed') +
   xlab("#cells involved in collective events") +
-  theme_minimal()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - mean **observed** total cluster size is **lower or greater** than the cluster size in randomised data:
+P-value, alternative hypothesis - the mean **observed** total cluster size is **greater** than the cluster size in randomised data:
 
-```{r}
-calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'greater')
 ```
 
 ## Shuffle blocks per track
 
-In this approach, blocks of activity in binarised time series are shuffled independently in every track. 
+In this approach, blocks of activity in binarised time series are shuffled independently in every track. Positions remain intact.
 
 ```{r shuffBlockTrack}
 lPar$nboot = 100
-stmp = system.file(sprintf('synthetic2D/output-bootstrap-20/bootRes_shuffBlockTrack_N%d.csv.gz', lPar$nboot),
+stmp = system.file(sprintf('synthetic2D/output-randomisation-20/randRes_shuffBlockTrack_N%d.csv.gz', lPar$nboot),
                    package = 'ARCOS')
 
 
@@ -932,7 +947,7 @@ if (file.exists(stmp)) {
                                       colltotszlim = c(lPar$coll.mintotsz, 1000),
                                       deb = F)
   
-  #fwrite(tcollselBoot, file = sprintf('../inst/synthetic2D/output-bootstrap-20/bootRes_shuffBlockTrack_N$d.csv.gz', lPar$nboot))
+  #fwrite(tcollselBoot, file = sprintf('../inst/synthetic2D/output-randomisation-20/bootRes_shuffBlockTrack_N$d.csv.gz', lPar$nboot))
   
 }
 ```
@@ -941,7 +956,7 @@ if (file.exists(stmp)) {
 knitr::kable(head(tcollselBoot), digits = 2)
 ```
 
-Sample noodle plot from a single iteration of bootstrapping:
+Sample noodle plot from a single randomisation iteration:
 
 ```{r, echo=F, fig.width=8, fig.height=4}
 ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1], 
@@ -949,108 +964,110 @@ ARCOS::plotNoodle2D(tcollselBoot[get(lCols$bootiter) == 1],
                     yfac = 1,
                     pos = 1,
                     tfreq = 1, 
-                    style = 'both') +
+                    style = 'point') +
   coord_cartesian(xlim = lPar$limt, ylim = lPar$limxy) +
   xlab("Time [frames]") +
   ylab("Position X [au]") +
-  theme_minimal() +
+  ggthemes::theme_few() +
   theme(legend.position = "none")
 ```
 
-Distribution of the fraction of collective events in bootstrap iterations compared to the observed fraction (red dashed line):
+Distribution of the fraction of collective events in randomisation iterations compared to the observed fraction (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r echo = T}
 tFracActInColl = calcFracActInColl(ts, tcollsel)
 tFracActInCollBoot = calcFracActInColl(ts, tcollselBoot)
+```
 
+
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tFracActInCollBoot,
        aes(x = fracAct,
            y = after_stat(density))) +
-  geom_histogram(bins = 20,
-                 color="lightblue", fill="lightblue") +
+  geom_freqpoly(bins = 30) +
   geom_vline(xintercept = tFracActInColl,
              color = "red", linetype = 2) +
   xlab('Fraction of activity in collective events') +
-  ggthemes::theme_clean()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - the fraction of total (binarised) activity involved in **observed** collective events is **greater** than the fraction in randomised events:
+P-value, alternative hypothesis - the fraction of total (binarised) activity involved in **observed** collective events is **greater** than the mean fraction in randomised events:
 
-```{r}
+```{r echo = T}
 calcPvalFromBS(tFracActInColl, tFracActInCollBoot$fracAct, corrected = T, alternative = 'greater')
 ```
 
-Aggregate statistics from bootstrapping.
+Aggregate statistics from iterations:
 
 ```{r echo = T}
-# Aggregate the results of bootstrapping per collective event
+# Aggregate the results of randomisationping per collective event
 tcollbootAggrPerColl = calcStatsColl(tcollselBoot)
 
-# Further aggregate size & duration per bootstrap iteration
+# Further aggregate size & duration per randomisation iteration
 tcollbootSzDurPerIter = tcollbootAggrPerColl[,
                                              lapply(.SD, mean),
                                              by = c(lCols$bootiter),
                                              .SDcols = c('clDur', 'totSz', 'minSz', 'maxSz')]
 
-# Further aggregate the number of events per bootstrap iteration
+# Further aggregate the number of events per randomisation iteration
 tcollbootNcollPerIter = tcollbootAggrPerColl[,
                                              .(N = sum(!is.na(get(lCols$cltrackid)))),
                                              by = c(lCols$bootiter)]
 
 ```
 
-Distribution of the number of collective events identified in every bootstrap iteration compared to the observed statistics (red dashed line):
+Distribution of the number of collective events identified in every randomisation iteration compared to the observed statistics (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(data = tcollbootNcollPerIter,
        aes(x = N,
            y = after_stat(density))) +
-  geom_histogram(binwidth = 1,
+  geom_histogram(binwidth = 2,
                  color="lightblue", fill="lightblue") +
   geom_vline(xintercept = nrow(tcollselAggr),
              color = "red", linetype = 2) +
   xlab('Number of collective events') +
-  ggthemes::theme_clean()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - the number of **observed** clusters is **lower or greater** than the number of clusters in randomised data:
+P-value, alternative hypothesis - the number of **observed** CEs is **less** than the mean number of clusters in randomised data:
 
-```{r}
-calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(nrow(tcollselAggr), tcollbootNcollPerIter$N, corrected = T, alternative = 'less')
 ```
 
-Distribution of the **mean** cluster duration from bootstrap iterations (solid black line) vs. the **mean** cluster duration from the non-bootstrapped data (red dashed line):
+Distribution of the **mean** cluster duration from randomisation iterations (solid black line) vs. the **mean** cluster duration from the non-randomised data (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tcollbootSzDurPerIter,
        aes(x = clDur,
            y = after_stat(density))) +
   geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$clDur), color = 'red', linetype = 'dashed') +
   xlab("Duration of collective events [#frames]") +
-  theme_minimal()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - mean **observed** cluster duration is **lower or greater** than the cluster duration in randomised data:
+P-value, alternative hypothesis - the mean **observed** cluster duration is **greater** than the mean cluster duration in randomised data:
 
-```{r}
-calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(mean(tcollselAggr$clDur), tcollbootSzDurPerIter$clDur, corrected = T, alternative = 'greater')
 ```
 
-Distribution of the **mean** total cluster size from bootstrap iterations (solid black line) vs. the **mean** total cluster size from the non-bootstrapped data (red dashed line):
+Distribution of the **mean** total cluster size from randomisation iterations (solid black line) vs. the **mean** total cluster size from the non-randomised data (red dashed line):
 
-```{r, echo = T, fig.width=5, fig.height=3}
+```{r, echo = F, fig.width=5, fig.height=3}
 ggplot(tcollbootSzDurPerIter,
        aes(x = totSz,
            y = after_stat(density))) +
   geom_freqpoly(color = 'black', bins = 20) +
   geom_vline(xintercept = mean(tcollselAggr$totSz), color = 'red', linetype = 'dashed') +
   xlab("#cells involved in collective events") +
-  theme_minimal()
+  ggthemes::theme_few()
 ```
 
-P-value, alternative hypothesis - mean **observed** total cluster size is **lower or greater** than the cluster size in randomised data:
+P-value, alternative hypothesis - the mean **observed** total cluster size is **greater** than the cluster size in randomised data:
 
-```{r}
-calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'two.sided')
+```{r echo = T}
+calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected = T, alternative = 'greater')
 ```
