@@ -10,7 +10,7 @@ calcGrowthColl(obj)
 \method{calcGrowthColl}{arcosTS}(obj)
 }
 \arguments{
-\item{obj}{an arcosTS object.}
+\item{obj}{an arcosTS object with collective events as obtained from the trackColl function.}
 }
 \value{
 a data.table with the width and height of the minimal directed bounding box, and the number of points used for the calculation.
