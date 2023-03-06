@@ -62,3 +62,13 @@ testthat::test_that("block shuffle vector: random blocks", {
 
   expect_equal(vCalc, vTrue)
 })
+
+testthat::test_that("block shuffle vector: periodic", {
+
+  set.seed(7)
+  vIn = rep(c(0,0,1,1),5)
+  vCalc = shuffBlockVec(vIn)
+  vTrue = c(1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0)
+
+  expect_equal(vCalc, vTrue)
+})
