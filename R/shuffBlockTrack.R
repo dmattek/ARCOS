@@ -5,6 +5,7 @@
 #'
 #' @title "Shuffle blocks of the measurement per track"
 #' @param obj an arcosTS object without collective events.
+#' @param alt logical, whether to maintain the alternating order of 0s & 1s; default FALSE.
 #'
 #' @return an arcosTS object
 #'
@@ -14,18 +15,18 @@
 #' @examples
 #' cat("no examples")
 #'
-shuffBlockTrack <- function(obj) {
+shuffBlockTrack <- function(obj, alt = FALSE) {
   UseMethod("shuffBlockTrack")
 }
 
-shuffBlockTrack.default <- function(obj) {
+shuffBlockTrack.default <- function(obj, alt = FALSE) {
   cat("This is a generic function\n")
 }
 
 #' @rdname shuffBlockTrack
 #' @export shuffBlockTrack.arcosTS
 #' @export
-shuffBlockTrack.arcosTS <- function(obj) {
+shuffBlockTrack.arcosTS <- function(obj, alt = FALSE) {
   stopifnot(is.arcosTS(obj))
 
   if (!is.null(attr(obj, "colIDcoll"))) {
@@ -47,9 +48,12 @@ shuffBlockTrack.arcosTS <- function(obj) {
 
 
   ## Add a column with binarised measurement shuffled per track
-  obj[,
-      c(locColShuff) := shuffBlockVec(get(locColSource)),
-      by = c(locColIDobj)]
+  if (alt) obj[,
+               c(locColShuff) := shuffBlockVecAlt(get(locColSource)),
+               by = c(locColIDobj)]
+  else obj[,
+           c(locColShuff) := shuffBlockVec(get(locColSource)),
+           by = c(locColIDobj)]
 
   return(obj)
 }
