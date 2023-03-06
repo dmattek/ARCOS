@@ -6,7 +6,7 @@
 #' @param obj an arcosTS object.
 #' @param nboot an integer, number of bootstrap iterations; default 100.
 #' @param ncores an integer, number of parallel cores; default 2.
-#' @param method either of the five bootstrapping methods: shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack'.
+#' @param method either of the five bootstrapping methods: shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack', 'shuffBlockTrackAlt'.
 #' @param eps a numeric, sets the search radius for spatial clustering with dbscan; default 1.
 #' @param minClSz an integer, minimum cluster size for dbscan; default 1L.
 #' @param nPrev an integer, number of previous frames to link; default 1L.
@@ -28,7 +28,7 @@
 trackCollBoot <- function(obj,
                           nboot = 100L,
                           ncores = 2L,
-                          method = c('shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack'),
+                          method = c('shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack', 'shuffBlockTrackAlt'),
                           eps = 1., minClSz = 1L, nPrev = 1L, epsPrev = NULL,
                           colldurlim = c(1, Inf), colltotszlim = c(1, Inf),
                           deb = FALSE) {
@@ -38,7 +38,7 @@ trackCollBoot <- function(obj,
 trackCollBoot.default <- function(obj,
                                   nboot = 100L,
                                   ncores = 2L,
-                                  method = c('shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack'),
+                                  method = c('shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack', 'shuffBlockTrackAlt'),
                                   eps = 1., minClSz = 1L, nPrev = 1L, epsPrev = NULL,
                                   colldurlim = c(1, Inf), colltotszlim = c(1, Inf),
                                   deb = FALSE) {
@@ -51,7 +51,7 @@ trackCollBoot.default <- function(obj,
 trackCollBoot.arcosTS <- function(obj,
                                   nboot = 100L,
                                   ncores = 2L,
-                                  method = c('shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack'),
+                                  method = c('shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack', 'shuffBlockTrackAlt'),
                                   eps = 1., minClSz = 1L, nPrev = 1L, epsPrev = NULL,
                                   colldurlim = c(1, Inf), colltotszlim = c(1, Inf),
                                   deb = FALSE) {
@@ -72,11 +72,12 @@ trackCollBoot.arcosTS <- function(obj,
     if (deb) cat(sprintf("Bootstrap iteration %d\n", x))
 
     switch (method,
-            shuffCoord      = {tsRand = ARCOS::shuffCoord(obj)},
-            randShiftMeas   = {tsRand = ARCOS::randShiftMeas(obj)},
-            shuffMeasTrack  = {tsRand = ARCOS::shuffMeasTrack(obj)},
-            shuffMeasFrame  = {tsRand = ARCOS::shuffMeasFrame(obj)},
-            shuffBlockTrack = {tsRand = ARCOS::shuffBlockTrack(obj)}
+            shuffCoord         = {tsRand = ARCOS::shuffCoord(obj)},
+            randShiftMeas      = {tsRand = ARCOS::randShiftMeas(obj)},
+            shuffMeasTrack     = {tsRand = ARCOS::shuffMeasTrack(obj)},
+            shuffMeasFrame     = {tsRand = ARCOS::shuffMeasFrame(obj)},
+            shuffBlockTrack    = {tsRand = ARCOS::shuffBlockTrack(obj, alt = FALSE)},
+            shuffBlockTrackAlt = {tsRand = ARCOS::shuffBlockTrack(obj, alt = TRUE)}
     )
 
     # TODO: deal with cases when trackColl does not identify any objects!
