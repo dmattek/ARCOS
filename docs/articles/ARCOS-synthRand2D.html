@@ -56,7 +56,7 @@
       <a href="../articles/ARCOS-binTimeseries.html">Pre-processing time-series for ARCOS</a>
     </li>
     <li>
-      <a href="../articles/ARCOS-bootstrapping.html">Collective events in synthetic data with bootstrapping</a>
+      <a href="../articles/ARCOS-randomisation.html">Testing significance of collective events with randomisation</a>
     </li>
     <li>
       <a href="../articles/ARCOS-synthRand2D.html">Detect synthetic random collective events</a>
@@ -120,12 +120,12 @@ column is the ID of an object.</p>
 <span><span class="va">maxy</span> <span class="op">=</span> <span class="fl">20L</span></span>
 <span><span class="va">maxdur</span> <span class="op">=</span> <span class="fl">5L</span></span>
 <span></span>
-<span><span class="va">ts</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/genRandSynth2D.html">genRandSynth2D</a></span><span class="op">(</span>nevents <span class="op">=</span> <span class="va">nevents</span>,</span>
-<span>                           maxt <span class="op">=</span> <span class="va">maxt</span>,</span>
-<span>                           maxx <span class="op">=</span> <span class="va">maxx</span>,</span>
-<span>                           maxy <span class="op">=</span> <span class="va">maxy</span>,</span>
-<span>                           maxdur <span class="op">=</span> <span class="va">maxdur</span>,</span>
-<span>                           inSeed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">ts</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/genSynthMultiple2D.html">genSynthMultiple2D</a></span><span class="op">(</span>nevents <span class="op">=</span> <span class="va">nevents</span>,</span>
+<span>                               maxt <span class="op">=</span> <span class="va">maxt</span>,</span>
+<span>                               maxx <span class="op">=</span> <span class="va">maxx</span>,</span>
+<span>                               maxy <span class="op">=</span> <span class="va">maxy</span>,</span>
+<span>                               maxdur <span class="op">=</span> <span class="va">maxdur</span>,</span>
+<span>                               inSeed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="right">t</th>
@@ -369,7 +369,7 @@ ImageMagick’s <code>convert</code> and/or into an MP4 movie using
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

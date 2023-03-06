@@ -59,7 +59,7 @@
       <a href="articles/ARCOS-binTimeseries.html">Pre-processing time-series for ARCOS</a>
     </li>
     <li>
-      <a href="articles/ARCOS-bootstrapping.html">Collective events in synthetic data with bootstrapping</a>
+      <a href="articles/ARCOS-randomisation.html">Testing significance of collective events with randomisation</a>
     </li>
     <li>
       <a href="articles/ARCOS-synthRand2D.html">Detect synthetic random collective events</a>
@@ -139,7 +139,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Generate a synthetic dataset with a single event evolving over 8 frames</span></span>
-<span><span class="va">dts</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/genSynth2D.html">genSynth2D</a></span><span class="op">(</span>inSeed <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">dts</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/genSynthSingle2D.html">genSynthSingle2D</a></span><span class="op">(</span>inSeed <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="right">t</th>
@@ -304,6 +304,13 @@
 <span><span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="reference/runCollVis.html">runCollVis</a></span><span class="op">(</span><span class="va">dts</span>, <span class="va">dcoll</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
+<div class="section level2">
+<h2 id="the-algorithm">The algorithm<a class="anchor" aria-label="anchor" href="#the-algorithm"></a>
+</h2>
+<div class="figure">
+<img src="reference/figures/README-algFlow.png" alt=""><p class="caption">arcos-gui plugin for napari image viewer</p>
+</div>
+</div>
 </div>
   </div>
 
@@ -352,7 +359,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
