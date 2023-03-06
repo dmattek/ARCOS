@@ -4,7 +4,7 @@
 #' The longer side is taken as the "diameter". Currently works only with 2D data!
 #'
 #' @title "Calculate collective events' growth"
-#' @param obj an arcosTS object.
+#' @param obj an arcosTS object with collective events as obtained from the trackColl function.
 #'
 #' @return a data.table with the width and height of the minimal directed bounding box, and the number of points used for the calculation.
 #'
