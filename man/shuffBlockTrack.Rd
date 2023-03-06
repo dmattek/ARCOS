@@ -5,12 +5,14 @@
 \alias{shuffBlockTrack.arcosTS}
 \title{"Shuffle blocks of the measurement per track"}
 \usage{
-shuffBlockTrack(obj)
+shuffBlockTrack(obj, alt = FALSE)
 
-\method{shuffBlockTrack}{arcosTS}(obj)
+\method{shuffBlockTrack}{arcosTS}(obj, alt = FALSE)
 }
 \arguments{
 \item{obj}{an arcosTS object without collective events.}
+
+\item{alt}{logical, whether to maintain the alternating order of 0s & 1s; default FALSE.}
 }
 \value{
 an arcosTS object

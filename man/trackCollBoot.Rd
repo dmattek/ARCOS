@@ -10,7 +10,7 @@ trackCollBoot(
   nboot = 100L,
   ncores = 2L,
   method = c("shuffCoord", "randShiftMeas", "shuffMeasTrack", "shuffMeasFrame",
-    "shuffBlockTrack"),
+    "shuffBlockTrack", "shuffBlockTrackAlt"),
   eps = 1,
   minClSz = 1L,
   nPrev = 1L,
@@ -25,7 +25,7 @@ trackCollBoot(
   nboot = 100L,
   ncores = 2L,
   method = c("shuffCoord", "randShiftMeas", "shuffMeasTrack", "shuffMeasFrame",
-    "shuffBlockTrack"),
+    "shuffBlockTrack", "shuffBlockTrackAlt"),
   eps = 1,
   minClSz = 1L,
   nPrev = 1L,
@@ -42,7 +42,7 @@ trackCollBoot(
 
 \item{ncores}{an integer, number of parallel cores; default 2.}
 
-\item{method}{either of the five bootstrapping methods: shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack'.}
+\item{method}{either of the five bootstrapping methods: shuffCoord', 'randShiftMeas', 'shuffMeasTrack', 'shuffMeasFrame', 'shuffBlockTrack', 'shuffBlockTrackAlt'.}
 
 \item{eps}{a numeric, sets the search radius for spatial clustering with dbscan; default 1.}
 
