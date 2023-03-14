@@ -1549,10 +1549,11 @@ randomised data:</p>
 <h3 id="shuffle-blocks-per-track">Shuffle blocks per track<a class="anchor" aria-label="anchor" href="#shuffle-blocks-per-track"></a>
 </h3>
 <p>In this approach, blocks of activity in binarised time series are
-shuffled independently in every track. Positions remain intact.</p>
+shuffled independently in every track. Positions remain intact and the
+alternating order of 0 and 1 blocks is maintained.</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lPar</span><span class="op">$</span><span class="va">nboot</span> <span class="op">=</span> <span class="fl">100</span></span>
-<span><span class="va">stmp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">'synthetic2D/output-randomisation-20/randRes_shuffBlockTrack_N%d.csv.gz'</span>, <span class="va">lPar</span><span class="op">$</span><span class="va">nboot</span><span class="op">)</span>,</span>
+<span><span class="va">stmp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">'synthetic2D/output-randomisation-20/randRes_shuffBlockTrackAlt_N%d.csv.gz'</span>, <span class="va">lPar</span><span class="op">$</span><span class="va">nboot</span><span class="op">)</span>,</span>
 <span>                   package <span class="op">=</span> <span class="st">'ARCOS'</span><span class="op">)</span></span>
 <span></span>
 <span></span>
@@ -1572,7 +1573,7 @@ shuffled independently in every track. Positions remain intact.</p>
 <span>  <span class="va">tcollselBoot</span> <span class="op">=</span> <span class="fu">ARCOS</span><span class="fu">::</span><span class="fu"><a href="../reference/trackCollBoot.html">trackCollBoot</a></span><span class="op">(</span>obj <span class="op">=</span> <span class="va">ts</span>, </span>
 <span>                                      nboot <span class="op">=</span> <span class="va">lPar</span><span class="op">$</span><span class="va">nboot</span>, </span>
 <span>                                      ncores <span class="op">=</span> <span class="va">lPar</span><span class="op">$</span><span class="va">ncores</span>, </span>
-<span>                                      method <span class="op">=</span> <span class="st">'shuffBlockTrack'</span>, </span>
+<span>                                      method <span class="op">=</span> <span class="st">'shuffBlockTrackAlt'</span>, </span>
 <span>                                      eps <span class="op">=</span> <span class="va">lPar</span><span class="op">$</span><span class="va">db.eps</span>, </span>
 <span>                                      epsPrev <span class="op">=</span> <span class="va">lPar</span><span class="op">$</span><span class="va">db.eps</span>, </span>
 <span>                                      nPrev <span class="op">=</span> <span class="fl">1L</span>, </span>
@@ -1588,11 +1589,11 @@ shuffled independently in every track. Positions remain intact.</p>
 <colgroup>
 <col width="9%">
 <col width="6%">
-<col width="3%">
+<col width="5%">
 <col width="13%">
 <col width="7%">
+<col width="3%">
 <col width="4%">
-<col width="6%">
 <col width="8%">
 <col width="5%">
 <col width="10%">
@@ -1616,86 +1617,86 @@ shuffled independently in every track. Positions remain intact.</p>
 <tbody>
 <tr class="odd">
 <td align="right">1</td>
-<td align="right">0</td>
-<td align="right">12</td>
-<td align="right">324</td>
-<td align="right">1</td>
-<td align="right">-18</td>
-<td align="right">12.5</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">14</td>
-<td align="right">325</td>
 <td align="right">2</td>
-<td align="right">-4</td>
-<td align="right">1.5</td>
+<td align="right">1150</td>
+<td align="right">1749</td>
+<td align="right">1</td>
+<td align="right">10</td>
+<td align="right">8.5</td>
 <td align="right">0</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1863</td>
+<td align="right">1749</td>
+<td align="right">1</td>
+<td align="right">9</td>
+<td align="right">9.0</td>
 <td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
+<td align="right">10</td>
+<td align="right">1</td>
+<td align="right">1</td>
 <td align="right">1</td>
 </tr>
 <tr class="odd">
 <td align="right">1</td>
+<td align="right">2</td>
+<td align="right">2112</td>
+<td align="right">1749</td>
+<td align="right">1</td>
+<td align="right">8</td>
+<td align="right">8.5</td>
 <td align="right">0</td>
-<td align="right">15</td>
-<td align="right">326</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
 <td align="right">3</td>
-<td align="right">14</td>
-<td align="right">13.5</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
+<td align="right">805</td>
+<td align="right">1748</td>
 <td align="right">1</td>
-</tr>
-<tr class="even">
+<td align="right">9</td>
+<td align="right">7.0</td>
+<td align="right">0</td>
+<td align="right">2</td>
 <td align="right">1</td>
-<td align="right">0</td>
-<td align="right">23</td>
-<td align="right">327</td>
-<td align="right">4</td>
-<td align="right">-9</td>
-<td align="right">-12.0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
+<td align="right">1</td>
 <td align="right">1</td>
 </tr>
 <tr class="odd">
 <td align="right">1</td>
-<td align="right">0</td>
-<td align="right">24</td>
-<td align="right">324</td>
+<td align="right">3</td>
+<td align="right">915</td>
+<td align="right">1748</td>
 <td align="right">1</td>
-<td align="right">-17</td>
-<td align="right">15.0</td>
+<td align="right">7</td>
+<td align="right">9.0</td>
 <td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">1</td>
 <td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="right">1</td>
+<td align="right">3</td>
+<td align="right">1150</td>
+<td align="right">1748</td>
+<td align="right">1</td>
+<td align="right">10</td>
+<td align="right">8.5</td>
 <td align="right">0</td>
-<td align="right">25</td>
-<td align="right">347</td>
-<td align="right">5</td>
-<td align="right">-9</td>
-<td align="right">15.0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
+<td align="right">10</td>
+<td align="right">1</td>
+<td align="right">1</td>
 <td align="right">1</td>
 </tr>
 </tbody>

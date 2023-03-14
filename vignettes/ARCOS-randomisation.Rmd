@@ -914,11 +914,11 @@ calcPvalFromBS(mean(tcollselAggr$totSz), tcollbootSzDurPerIter$totSz, corrected 
 
 ## Shuffle blocks per track
 
-In this approach, blocks of activity in binarised time series are shuffled independently in every track. Positions remain intact.
+In this approach, blocks of activity in binarised time series are shuffled independently in every track. Positions remain intact and the alternating order of 0 and 1 blocks is maintained.
 
 ```{r shuffBlockTrack}
 lPar$nboot = 100
-stmp = system.file(sprintf('synthetic2D/output-randomisation-20/randRes_shuffBlockTrack_N%d.csv.gz', lPar$nboot),
+stmp = system.file(sprintf('synthetic2D/output-randomisation-20/randRes_shuffBlockTrackAlt_N%d.csv.gz', lPar$nboot),
                    package = 'ARCOS')
 
 
@@ -938,7 +938,7 @@ if (file.exists(stmp)) {
   tcollselBoot = ARCOS::trackCollBoot(obj = ts, 
                                       nboot = lPar$nboot, 
                                       ncores = lPar$ncores, 
-                                      method = 'shuffBlockTrack', 
+                                      method = 'shuffBlockTrackAlt', 
                                       eps = lPar$db.eps, 
                                       epsPrev = lPar$db.eps, 
                                       nPrev = 1L, 
