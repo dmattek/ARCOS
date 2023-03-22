@@ -32,6 +32,8 @@ Imports:
     imputeTS,
     OpenImageR,
     ggplot2,
-    grDevices
+    grDevices,
+    sp,
+    elsa
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr

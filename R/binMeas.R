@@ -1,5 +1,6 @@
 #' Smooth and de-trend time series
 #'
+#' @description
 #' First a short-term median filter with size \code{smoothK} is applied to remove fast noise from the time series.
 #' The subsequent de-trending can be performed with a long-term median filter with the size \code{biasK} (\code{biasMet = "runmed"})
 #' or by fitting a polynomial of degree \code{polyDeg} (\code{biasMet = "lm"}).
@@ -83,6 +84,7 @@ detrendTS = function(x, smoothK = 3L, biasK = 51L, peakThr = 0.2, polyDeg = 1L, 
 
 #' Smooth, de-trend, and binarise the measurement
 #'
+#' @description
 #' First a short-term median filter with size \code{smoothK} is applied to remove fast noise from the time series.
 #' If the de-trending method is set to \code{"none"}, smoothing is applied on globally rescaled time series.
 #' The subsequent de-trending can be performed with a long-term median filter with the size \code{biasK} (\code{biasMet = "runmed"})
