@@ -130,7 +130,7 @@ ARCOS::binMeas(dts,
 ```
 
 
-The `ARCOS::binMeas` function adds `meas.resc` and `meas.bin` columns to the original dataset. Below is the plot of original time series compared to de-trended/rescaled and binarised output. The `meas.bin` column should be used to filter the rows such that only *active* cells are used to detect collective events, i.e., `ARCOS::trackColl(dts[meas.bin > 0])`.
+The `ARCOS::binMeas` function adds `meas.resc` and `meas.bin` columns to the original dataset. Below is a plot of the original time series compared to de-trended/rescaled and binarised output. The `meas.bin` column should be used to filter the rows such that only *active* cells are used to detect collective events, i.e., `ARCOS::trackColl(dts[meas.bin > 0])`.
 
 ```{r, echo=TRUE}
 knitr::kable(head(dts), digits = 2)
@@ -211,4 +211,3 @@ ARCOS::plotBinMeas(dts,
   xlab("Time [h]") +
   ylab("C/(C+N) ERK-KTR")
 ```
-
