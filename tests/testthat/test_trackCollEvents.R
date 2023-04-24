@@ -560,13 +560,50 @@ testthat::test_that("synthetic2D_Gradient20", {
                  binThr = 0.)
 
   locCollCalc <- ARCOS::trackColl(locTS[meas > 0],
-                              eps = 1.5,
-                              minClSz = 3L)
+                                  eps = 1.5,
+                                  minClSz = 3L)
 
   locCollTrue <- fread(input = file.path(system.file('synthetic2D', package = 'ARCOS'), 'Gradient20_coll.csv.gz'))
 
   expect_equal(locCollCalc,
                locCollTrue,
+               ignore_attr = TRUE)
+
+})
+
+testthat::test_that("synthetic2D_3framesFromPaper", {
+
+  # 3 frames from Fig.1A
+
+  locTSin <- data.table(f = c(1,1,1,1,1, 2,2,2,2,2,2,2,2,2,2,2,2, 3,3,3,3,3,3,3,3,3,3,3,3),
+                        x = c(4,3,4,5,4, 4,3,4,5,2,3,5,6,3,4,5,4, 6,7,2,3,7,2,2,6,2,3,5,6),
+                        y = c(5,4,4,4,3, 6,5,5,5,4,4,4,4,3,3,3,2, 7,7,6,6,6,5,3,3,2,2,2,2))
+
+  locTSin[,
+          id := (y-1)*7 + x]
+
+  locTStrue <- copy(locTSin)
+  locTStrue[,
+            `:=`(collid =       c(1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1, 2,2,1,1,2,1,1,1,1,1,1,1),
+                 collid.frame = c(1,1,1,1,1, 2,2,2,2,2,2,2,2,2,2,2,2, 3,3,4,4,3,4,5,6,5,5,6,6))]
+
+  locTStrue = locTStrue[,
+                        c("f", "id", "collid.frame", "collid",  "x", "y")]
+  setorderv(locTStrue, c("f", "id"))
+
+  ARCOS::arcosTS(locTSin,
+                 colPos = c("x", "y"),
+                 colFrame = "f",
+                 colIDobj = "id")
+
+  locCollCalc <- ARCOS::trackColl(locTSin,
+                                  eps = 1.,
+                                  minClSz = 3L,
+                                  epsPrev = 1.,
+                                  nPrev = 1L)
+
+  expect_equal(locCollCalc,
+               locTStrue,
                ignore_attr = TRUE)
 
 })
