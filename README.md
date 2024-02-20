@@ -8,9 +8,9 @@
 
 **A**utomated **R**ecognition of **Co**llective **S**ignalling (ARCOS)
 is an [R](https://www.r-project.org) package to identify space-time
-correlations in biological data. The associated publication is available
-on
-[bioRxiv](https://www.biorxiv.org/content/10.1101/2022.07.12.499734v1).
+correlations in biological data. The associated publication in the
+Journal of Cell Biology is available
+[here](https://doi.org/10.1083/jcb.202207048).
 
 The software identifies and visualises collective protein activation in
 2- and 3D cell cultures over time. Such collective phenomena have been
@@ -45,11 +45,32 @@ check:
   Grädel. See a YouTube
   [demo](https://www.youtube.com/watch?v=hG_z_BFcAiQ).
 
-Documentation for the entire ARCOS project can be found on
-[gitbook](https://arcos.gitbook.io/home/).
+Please visit the main ARCOS project page for general documentation and
+installation instructions [gitbook](https://arcos.gitbook.io/home/).
 
-![arcos-gui plugin for napari image
-viewer](man/figures/README-napari-gui-3D.png)
+<figure>
+<img src="man/figures/README-napari-gui-3D.png"
+alt="arcos-gui plugin for napari image viewer" />
+<figcaption aria-hidden="true">arcos-gui plugin for napari image
+viewer</figcaption>
+</figure>
+
+## Cite
+
+If you are using ARCOS in your research please cite the relevant paper:
+
+    @article{gagliardi2023,
+        author = {Gagliardi, Paolo Armando and Gr\"adel, Benjamin and Jacques, Marc-Antoine and Hinderling, Lucien and Ender, Pascal and Cohen, Andrew R. and Kastberger, Gerald and Pertz, Olivier and Dobrzy\'nski, Maciej},
+        title = "{Automatic detection of spatio-temporal signaling patterns in cell collectives}",
+        journal = {Journal of Cell Biology},
+        volume = {222},
+        number = {10},
+        pages = {e202207048},
+        year = {2023},
+        month = {07},
+        issn = {0021-9525},
+        doi = {10.1083/jcb.202207048}
+    }
 
 ## Installation
 
@@ -83,6 +104,14 @@ evolution of active states takes place over 8 consecutive time points
 
 ``` r
 library(ARCOS)
+#> The legacy packages maptools, rgdal, and rgeos, underpinning the sp package,
+#> which was just loaded, will retire in October 2023.
+#> Please refer to R-spatial evolution reports for details, especially
+#> https://r-spatial.org/r/2023/05/15/evolution4.html.
+#> It may be desirable to make the sf package available;
+#> package maintainers should consider adding sf to Suggests:.
+#> The sp package is now running under evolution status 2
+#>      (status 2 uses the sf package in place of rgdal)
 library(ggplot2)
 
 # Generate a synthetic dataset with a single event evolving over 8 frames
@@ -188,5 +217,9 @@ ARCOS::runCollVis(dts, dcoll)
 
 ## The algorithm
 
-![arcos-gui plugin for napari image
-viewer](man/figures/README-algFlow.png)
+<figure>
+<img src="man/figures/README-algFlow.png"
+alt="arcos-gui plugin for napari image viewer" />
+<figcaption aria-hidden="true">arcos-gui plugin for napari image
+viewer</figcaption>
+</figure>
