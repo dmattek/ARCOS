@@ -10,7 +10,7 @@
 is an [R](https://www.r-project.org) package to identify space-time
 correlations in biological data. The associated publication in the
 Journal of Cell Biology is available
-[here](https://doi.org/10.1083/jcb.202207048).
+[here](https://doi.org/10.1083/jcb.202207048). A video summary can be viewed [here](https://youtu.be/UoX4CynZfaE?si=TVUMZespd4642gyN).
 
 The software identifies and visualises collective protein activation in
 2- and 3D cell cultures over time. Such collective phenomena have been
