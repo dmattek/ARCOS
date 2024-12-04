@@ -8,9 +8,16 @@
 
 **A**utomated **R**ecognition of **Co**llective **S**ignalling (ARCOS)
 is an [R](https://www.r-project.org) package to identify space-time
-correlations in biological data. The associated publication in the
-Journal of Cell Biology is available
+correlations in biological data developed in the [Cellular Dynamics
+Lab](https://www.pertzlab.net) at the University of Bern. The associated
+publication in the Journal of Cell Biology is available
 [here](https://doi.org/10.1083/jcb.202207048).
+
+<p align="center">
+<img alt="Light" src="man/figures/README-ARCOS-px-logo.png" width="45%">
+       
+<img alt="Dark" src="man/figures/README-cellular-dynamics-lab-logo2.png" width="45%">
+</p>
 
 The software identifies and visualises collective protein activation in
 2- and 3D cell cultures over time. Such collective phenomena have been
@@ -35,18 +42,20 @@ arbitrary spatial dimension.
 
 ## Implementations
 
-This repository covers the R implementation. For other implementations
-check:
+This repository covers the R implementation. Visit the [main ARCOS
+project page](https://arcos.gitbook.io/home/) to learn about the ARCOS
+ecosystem.
+
+For other implementations check:
 
 - [arcos4py](https://github.com/bgraedel/arcos4py), a Python
   implementation written by Benjamin Grädel.
-- [arcos-gui](https://github.com/bgraedel/arcos-gui), a plugin with GUI
-  for [napari](https://napari.org) image viewer; written by Benjamin
-  Grädel. See a YouTube
+- [arcos-gui](https://github.com/bgraedel/arcos-gui), a dedicated plugin
+  with GUI for [napari](https://napari.org) image viewer. See a YouTube
   [demo](https://www.youtube.com/watch?v=hG_z_BFcAiQ).
-
-Please visit the main ARCOS project page for general documentation and
-installation instructions [gitbook](https://arcos.gitbook.io/home/).
+- [arcos-px-gui](https://github.com/bgraedel/arcosPx-napari), a
+  dedicated plugin with GUI for [napari](https://napari.org) image
+  viewer dedicated to tracking clusters in raster images.
 
 <figure>
 <img src="man/figures/README-napari-gui-3D.png"
@@ -104,14 +113,6 @@ evolution of active states takes place over 8 consecutive time points
 
 ``` r
 library(ARCOS)
-#> The legacy packages maptools, rgdal, and rgeos, underpinning the sp package,
-#> which was just loaded, will retire in October 2023.
-#> Please refer to R-spatial evolution reports for details, especially
-#> https://r-spatial.org/r/2023/05/15/evolution4.html.
-#> It may be desirable to make the sf package available;
-#> package maintainers should consider adding sf to Suggests:.
-#> The sp package is now running under evolution status 2
-#>      (status 2 uses the sf package in place of rgdal)
 library(ggplot2)
 
 # Generate a synthetic dataset with a single event evolving over 8 frames
