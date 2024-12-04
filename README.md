@@ -5,6 +5,14 @@
 
 <!-- badges: start -->
 <!-- badges: end -->
+<br>
+<p align="center">
+<img alt="Light" src="man/figures/README-ARCOS-px-logo.png" width="45%">
+       
+<img alt="Dark" src="man/figures/README-cellular-dynamics-lab-logo2.png" width="45%">
+</p>
+
+<br>
 
 **A**utomated **R**ecognition of **Co**llective **S**ignalling (ARCOS)
 is an [R](https://www.r-project.org) package to identify space-time
@@ -13,12 +21,6 @@ Lab](https://www.pertzlab.net) at the University of Bern. The associated
 publication in the Journal of Cell Biology is available
 [here](https://doi.org/10.1083/jcb.202207048). A video summary can be
 viewed [here](https://youtu.be/UoX4CynZfaE?si=TVUMZespd4642gyN).
-
-<p align="center">
-<img alt="Light" src="man/figures/README-ARCOS-px-logo.png" width="45%">
-       
-<img alt="Dark" src="man/figures/README-cellular-dynamics-lab-logo2.png" width="45%">
-</p>
 
 The software identifies and visualises collective protein activation in
 2- and 3D cell cultures over time. Such collective phenomena have been

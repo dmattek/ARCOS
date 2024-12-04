@@ -17,15 +17,17 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 <!-- badges: end -->
-
-**A**utomated **R**ecognition of **Co**llective **S**ignalling (ARCOS) is an [R](https://www.r-project.org) package to identify space-time correlations in biological data developed in the [Cellular Dynamics Lab](https://www.pertzlab.net) at the University of Bern. 
-The associated publication in the Journal of Cell Biology is available [here](https://doi.org/10.1083/jcb.202207048). A video summary can be viewed [here](https://youtu.be/UoX4CynZfaE?si=TVUMZespd4642gyN).
-
+<br>
 <p align="center">
   <img alt="Light" src="man/figures/README-ARCOS-px-logo.png" width="45%">
 &nbsp; &nbsp; &nbsp; &nbsp;
   <img alt="Dark" src="man/figures/README-cellular-dynamics-lab-logo2.png" width="45%"> 
 </p>
+<br>
+
+**A**utomated **R**ecognition of **Co**llective **S**ignalling (ARCOS) is an [R](https://www.r-project.org) package to identify space-time correlations in biological data developed in the [Cellular Dynamics Lab](https://www.pertzlab.net) at the University of Bern. 
+The associated publication in the Journal of Cell Biology is available [here](https://doi.org/10.1083/jcb.202207048). A video summary can be viewed [here](https://youtu.be/UoX4CynZfaE?si=TVUMZespd4642gyN).
+
 
 The software identifies and visualises collective protein activation in 2- and 3D cell cultures over time. Such collective phenomena have been recently identified in various biological systems. 
 They have been demonstrated to play an important role in the: (1) maintenance of the epithelial homeostasis ([Gagliardi et al., 2020](https://doi.org/10.1016/j.devcel.2021.05.007), [Takeuchi et al., 2020](https://doi.org/10.1016/j.cub.2019.11.089), [Aikin et al., 2020](https://doi.org/10.7554/eLife.60541)), (2) acinar morphogenesis ([Ender et al., 2020](https://doi.org/10.1101/2020.11.20.387167)), (3) osteoblast regeneration ([De Simone et al., 2021](https://doi.org/10.1038/s41586-020-03085-8)), and (4) coordination of collective cell migration ([Aoki et al., 2017](https://doi.org/10.1016/j.devcel.2017.10.016), [Hino et al., 2020](https://doi.org/10.1016/j.devcel.2020.05.011)).
