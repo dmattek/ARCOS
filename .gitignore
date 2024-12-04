@@ -11,3 +11,5 @@ old
 /doc/
 /Meta/
 .Rapp.history
+.o
+.so
