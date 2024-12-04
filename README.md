@@ -11,7 +11,8 @@ is an [R](https://www.r-project.org) package to identify space-time
 correlations in biological data developed in the [Cellular Dynamics
 Lab](https://www.pertzlab.net) at the University of Bern. The associated
 publication in the Journal of Cell Biology is available
-[here](https://doi.org/10.1083/jcb.202207048).
+[here](https://doi.org/10.1083/jcb.202207048). A video summary can be
+viewed [here](https://youtu.be/UoX4CynZfaE?si=TVUMZespd4642gyN).
 
 <p align="center">
 <img alt="Light" src="man/figures/README-ARCOS-px-logo.png" width="45%">
