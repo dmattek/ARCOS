@@ -7,8 +7,8 @@
 <!-- badges: end -->
 <br>
 <p align="center">
-<img alt="Light" src="man/figures/README-ARCOS-px-logo.png" width="45%">
-       
+<img alt="Light" src="man/figures/README-ARCOS-logo.png" width="45%">  
+     
 <img alt="Dark" src="man/figures/README-cellular-dynamics-lab-logo2.png" width="45%">
 </p>
 
